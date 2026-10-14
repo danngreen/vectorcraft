@@ -18,6 +18,9 @@ bundled-fonts = ["vectorcraft-engine/bundled-fonts"]
 # panels and dialogs draw in egui's built-in fonts, which lack some symbols they show (→ ▾ ● ✓);
 # `theme::install_fonts` binds their families either way.
 interface-fonts = []
+# OS cursors on macOS too. Needs a winit that sizes a cursor bitmap in points (stock winit 0.30
+# sizes it in pixels, so a Retina bitmap shows twice as big): see crates/ui-egui/src/cursors.rs.
+macos-os-cursors = []
 
 [dependencies]
 craft-ui = { workspace = true }
