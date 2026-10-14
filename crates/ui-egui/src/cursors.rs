@@ -572,8 +572,11 @@ pub fn paint(painter: &Painter, c: Cursor, p: Pos2, scale: f32) -> bool {
 
 /// Does the window show the glyphs as OS cursors ([`Images`])? Not on macOS, which sizes a cursor
 /// bitmap in points (a Retina one would show twice as big, or blurred), nor on the web (eframe has no
-/// bitmap cursors there): those paint them into the window ([`paint`]).
-pub const OS_CURSORS: bool = !cfg!(any(target_os = "macos", target_arch = "wasm32"));
+/// bitmap cursors there): those paint them into the window ([`paint`]). The `macos-os-cursors`
+/// feature shows them as OS cursors on macOS too, for a build whose winit gives the bitmap its size
+/// in points (`cargo build --features vectorcraft-ui-egui/macos-os-cursors --config
+/// 'patch.crates-io.winit.path="../winit-vc"'`).
+pub const OS_CURSORS: bool = !cfg!(target_arch = "wasm32") && (cfg!(feature = "macos-os-cursors") || !cfg!(target_os = "macos"));
 
 /// Does this window show the glyphs as OS cursors, on a build that can ([`OS_CURSORS`])? Not on
 /// Wayland, where the compositor decides how big a cursor bitmap shows: Hyprland shows each pixel
