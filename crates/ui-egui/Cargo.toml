@@ -8,6 +8,11 @@ description = "VectorCraft egui frontend (menus, panels, tools and canvas); swap
 [lints]
 workspace = true
 
+[features]
+# OS cursors on macOS too. Needs a winit that sizes a cursor bitmap in points (stock winit 0.30
+# sizes it in pixels, so a Retina bitmap shows twice as big): see crates/ui-egui/src/cursors.rs.
+macos-os-cursors = []
+
 [dependencies]
 craft-ui = { workspace = true }
 vectorcraft-geom = { workspace = true }
