@@ -3631,6 +3631,7 @@ font-technology	Variable	ცვლადი
 @plural	{n} step|{n} steps	ნაბიჯი: {n}
 @plural	{n} stroke|{n} strokes	კონტური: {n}
 @msg	no library `{id}`	ბიბლიოთეკა `{id}` არ არსებობს
+@msg	unknown mode `{m}`: set, add or remove	უცნობი რეჟიმი `{m}`: set, add ან remove
 @msg	select some type first	ჯერ მონიშნეთ ტექსტი
 @msg	the selection has no gradient fill	მონიშნულს შევსების გრადიენტი არ აქვს
 @msg	the selection has no gradient stroke	მონიშნულს კონტურის გრადიენტი არ აქვს
@@ -5979,3 +5980,4 @@ breakText	Glyphs	გლიფები
 	Gap 4	შუალედი 4
 	Dash 5	ტირე 5
 	Gap 5	შუალედი 5
+	Click Selects Saved Selections	დაწკაპუნებით შენახული მონიშვნების მონიშვნა

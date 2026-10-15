@@ -3045,6 +3045,7 @@ theme	Appearance	Wygląd
 	Recall Selection	Przywołaj zaznaczenie
 	Remove Guide	Usuń linię pomocniczą
 	Saved Selections	Zapisane zaznaczenia
+	Click Selects Saved Selections	Kliknięcie zaznacza zapisane zaznaczenia
 	Select Guides	Zaznacz linie pomocnicze
 	Move Guide to Layer	Przenieś linię pomocniczą na warstwę
 	Blob Brush	Pędzel plamy
@@ -3959,6 +3960,7 @@ imageTrace	Outline	Kontur
 @plural	{n} step|{n} steps	{n} krok|{n} kroki|{n} kroków
 @plural	{n} stroke|{n} strokes	{n} obrys|{n} obrysy|{n} obrysów
 @msg	no library `{id}`	brak biblioteki `{id}`
+@msg	unknown mode `{m}`: set, add or remove	nieznany tryb `{m}`: set, add lub remove
 @msg	select some type first	najpierw zaznacz tekst
 @msg	the selection has no gradient fill	zaznaczenie nie ma gradientu wypełnienia
 @msg	the selection has no gradient stroke	zaznaczenie nie ma gradientu obrysu

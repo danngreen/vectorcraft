@@ -5,7 +5,7 @@ use super::limits::{DocError, FORMAT_VERSION, MAX_COORD, MAX_NEXT_ID};
 use super::units::{ColorMode, Unit};
 use super::{
     Arc, BTreeMap, ColorProfiles, DocMetadata, DocSetup, Document, LAYER_COLORS, LayerColor, Node, NodeId, NodeKind, PatternDef, Places, Point,
-    RasterEffectsSettings, Rect, Vec2,
+    RasterEffectsSettings, Rect, SavedSelection, Vec2,
 };
 
 impl Document {
@@ -428,6 +428,28 @@ impl Document {
             }
         }
         Some(out)
+    }
+
+    /// The saved selection a click on `id` stands for: of those holding `id` or a group, compound
+    /// path or other object it is in, the one with the fewest objects (the first of those). `None`
+    /// when none holds it.
+    pub fn saved_selection_of(&self, id: NodeId) -> Option<&SavedSelection> {
+        if self.saved_selections.is_empty() {
+            return None;
+        }
+        self.saved_selection_holding(&self.ancestry(id)?)
+    }
+
+    /// [`Document::saved_selection_of`] the last of `ancestry` (ids from its layer down to it, as
+    /// [`Document::ancestry`] or a [`crate::Hit`] gives them).
+    pub fn saved_selection_holding(&self, ancestry: &[NodeId]) -> Option<&SavedSelection> {
+        let mut best: Option<&SavedSelection> = None;
+        for s in self.saved_selections.iter() {
+            if s.objects.iter().any(|o| ancestry.contains(o)) && best.is_none_or(|b| s.objects.len() < b.objects.len()) {
+                best = Some(s);
+            }
+        }
+        best
     }
 
     /// Ids from the top-level layer down to `id` inclusive.

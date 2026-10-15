@@ -478,6 +478,50 @@ fn click_selects_object() {
     assert!(t.pointer(&cx, &ev(PointerKind::Up, 150.0, 150.0)).is_empty());
 }
 
+/// A saved selection holding the rectangle and a square on a hidden layer: Cmd+Option-click,
+/// or any click with Click Selects Saved Selections on, selects all of it; Shift adds it or
+/// takes it out; a press on it all selected starts a drag; elsewhere clicks are as usual.
+#[test]
+fn a_click_selects_the_saved_selection_holding_the_object() {
+    let (mut d, rect) = doc_with_rect();
+    let hidden = d.add_layer(Some("Hidden"));
+    let square = d.alloc_id();
+    let art = vectorcraft_doc::Node::path(
+        square,
+        vectorcraft_geom::shapes::rectangle(Rect::new(300.0, 300.0, 350.0, 350.0)),
+        vectorcraft_doc::Appearance::default_art(),
+    );
+    d.insert(Some(hidden), 0, art).unwrap();
+    d.layers.iter_mut().filter(|l| l.id == hidden).for_each(|l| std::sync::Arc::make_mut(l).visible = false);
+    let lone = d.alloc_id();
+    let art = vectorcraft_doc::Node::path(
+        lone,
+        vectorcraft_geom::shapes::rectangle(Rect::new(400.0, 100.0, 450.0, 150.0)),
+        vectorcraft_doc::Appearance::default_art(),
+    );
+    d.insert(Some(d.layers[0].id), 1, art).unwrap();
+    d.saved_selections = vec![vectorcraft_doc::SavedSelection { name: "Knob".into(), objects: vec![rect, square] }].into();
+    let p = paint();
+    let press = |s: &Selection, on: bool, mods: Mods, x: f64| {
+        let c = ToolContext { saved_selection_click: on, ..cx(&d, s, &p) };
+        SelectionTool::default().pointer(&c, &ev(PointerKind::Down, x, 150.0).with_mods(mods))
+    };
+    let recall = |mode: &str| vec![Action::Exec("select.recall".into(), json!({"name": "Knob", "all": true, "mode": mode}))];
+    let none = Selection::default();
+    let cmd_alt = Mods { cmd: true, alt: true, ..Mods::default() };
+    let shift = Mods { shift: true, ..Mods::default() };
+    assert_eq!(press(&none, false, Mods::default(), 150.0), vec![Action::Exec("select.set".into(), json!({"ids": [rect.0]}))]);
+    assert_eq!(press(&none, false, cmd_alt, 150.0), recall("set"));
+    assert_eq!(press(&none, true, Mods::default(), 150.0), recall("set"));
+    assert_eq!(press(&none, true, shift, 150.0), recall("add"));
+    let mut all = Selection::default();
+    all.set([rect, square]);
+    assert_eq!(press(&all, true, shift, 150.0), recall("remove"));
+    assert!(press(&all, true, Mods::default(), 150.0).is_empty(), "a press on it selected starts a drag");
+    // An object no saved selection holds is clicked as usual.
+    assert_eq!(press(&none, true, Mods::default(), 425.0), vec![Action::Exec("select.set".into(), json!({"ids": [lone.0]}))]);
+}
+
 /// #414: a press on a ruler guide picks it over the art, and drags it.
 #[test]
 fn a_press_on_a_ruler_guide_picks_it_over_the_art() {

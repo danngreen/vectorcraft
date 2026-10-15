@@ -2333,6 +2333,7 @@
 	Save these settings as a print preset	Salvar estas configurações como um predefinido de impressão
 	Save to Swatches	Salvar nas Amostras
 	Saved Selections	Seleções Salvas
+	Click Selects Saved Selections	Clique Seleciona Seleções Salvas
 	Saved View 1	Visualização Salva 1
 	Saved View 10	Visualização Salva 10
 	Saved View 11	Visualização Salva 11
@@ -3414,6 +3415,7 @@ axis	Both	Ambos
 	Drag to float the toolbar	Arraste para flutuar a barra de ferramentas
 	Drag to the window's left edge to dock	Arraste até a borda esquerda da janela para encaixar
 @msg	no library `{id}`	nenhuma biblioteca `{id}`
+@msg	unknown mode `{m}`: set, add or remove	modo desconhecido `{m}`: set, add ou remove
 @msg	select some type first	selecione algum texto primeiro
 @msg	the selection has no gradient fill	a seleção não tem gradiente de preenchimento
 @msg	the selection has no gradient stroke	a seleção não tem gradiente de traçado

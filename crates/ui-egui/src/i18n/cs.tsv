@@ -3165,6 +3165,7 @@ theme	Appearance	Motiv
 	Recall Selection	Vyvolat výběr
 	Remove Guide	Odebrat vodítko
 	Saved Selections	Uložené výběry
+	Click Selects Saved Selections	Kliknutí vybírá uložené výběry
 	Select Guides	Vybrat vodítka
 	Move Guide to Layer	Přesunout vodítko do vrstvy
 	Blob Brush	Štětec skvrn
@@ -4135,6 +4136,7 @@ imageTrace	Outline	Obrys
 
 # Status and error messages
 @msg	no library `{id}`	knihovna `{id}` neexistuje
+@msg	unknown mode `{m}`: set, add or remove	neznámý režim `{m}`: set, add nebo remove
 @msg	select some type first	nejprve vyberte text
 @msg	the selection has no gradient fill	výběr nemá přechodovou výplň
 @msg	the selection has no gradient stroke	výběr nemá přechodový tah

@@ -78,7 +78,9 @@ impl SavedView {
 }
 
 /// A saved selection (Select → Save Selection…): the objects that were selected, listed by name at
-/// the bottom of the Select menu.
+/// the bottom of the Select menu (the first [`SavedSelection::MENU`]) and in the Saved Selections
+/// panel (every one). Its objects may sit on any layers: recalled from the panel, they are selected
+/// hidden or locked too, so they move, transform and delete together.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SavedSelection {
     pub name: String,
@@ -86,8 +88,10 @@ pub struct SavedSelection {
 }
 
 impl SavedSelection {
-    /// Most saved selections a document keeps (the Select menu lists every one).
-    pub const MAX: usize = 25;
+    /// Most saved selections a document keeps (the Saved Selections panel lists every one).
+    pub const MAX: usize = 1000;
+    /// Saved selections the Select menu lists (the first ones).
+    pub const MENU: usize = 25;
     /// Longest name, in characters.
     pub const MAX_NAME: usize = 255;
 
