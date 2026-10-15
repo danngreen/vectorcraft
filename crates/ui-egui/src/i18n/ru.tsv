@@ -2827,6 +2827,7 @@ mark-style	Japanese	Японский
 	Saved Selection 8	Сохранённое выделение 8
 	Saved Selection 9	Сохранённое выделение 9
 	Saved Selections	Сохранённые выделения
+	Click Selects Saved Selections	Щелчок выбирает сохранённые выделения
 	Saved to User Defined: {}	Сохранено в «Пользовательский»: {}
 	Saved View 1	Сохранённый вид 1
 	Saved View 10	Сохранённый вид 10
@@ -3828,6 +3829,7 @@ axis	Both	Оба
 # (`untranslated_report` lists any that are missing). Command ids, parameter
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	нет библиотеки `{id}`
+@msg	unknown mode `{m}`: set, add or remove	неизвестный режим `{m}`: set, add или remove
 @msg	select some type first	сначала выделите текст
 @msg	{_1} has no {_2} style	у {_1} нет начертания {_2}
 @msg	a layer couldn't be read	не удалось прочитать слой

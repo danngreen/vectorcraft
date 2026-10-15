@@ -2823,6 +2823,7 @@ mark-style	Japanese	Японський
 	Saved Selection 8	Збережене виділення 8
 	Saved Selection 9	Збережене виділення 9
 	Saved Selections	Збережені виділення
+	Click Selects Saved Selections	Клацання вибирає збережені виділення
 	Saved to User Defined: {}	Збережено в «Користувач»: {}
 	Saved View 1	Збережений вигляд 1
 	Saved View 10	Збережений вигляд 10
@@ -3816,6 +3817,7 @@ axis	Both	Обидві
 	Drag to the window's left edge to dock	Перетягніть до лівого краю вікна для прикріплення
 	Float Tool Group	Від’єднати групу інструментів
 @msg	no library `{id}`	немає бібліотеки `{id}`
+@msg	unknown mode `{m}`: set, add or remove	невідомий режим `{m}`: set, add або remove
 @msg	select some type first	спочатку виділіть текст
 @msg	{_1} has no {_2} style	{_1} не має накреслення {_2}
 @msg	a layer couldn't be read	не вдалося прочитати шар

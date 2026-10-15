@@ -1776,6 +1776,7 @@ file-filter	Templates	範本
 @msg	the layer to flatten into is hidden	要平面化到的圖層已隱藏
 @msg	there are no objects to release	沒有可釋放的物件
 @msg	no library `{id}`	沒有資料庫 `{id}`
+@msg	unknown mode `{m}`: set, add or remove	未知模式 `{m}`：應為 set、add 或 remove
 @msg	{path}: not a file	{path}：不是檔案
 @msg	{path}: {e}	{path}：{e}
 @msg	can't write .{ext} images	無法寫入 .{ext} 影像
@@ -3605,6 +3606,7 @@ font-script	Japanese	漢字
 	Saved Selection 8	已儲存的選取範圍 8
 	Saved Selection 9	已儲存的選取範圍 9
 	Saved Selections	已儲存的選取範圍
+	Click Selects Saved Selections	按一下即選取已儲存的選取範圍
 	Saved to User Defined: {}	已儲存至使用者自訂：{}
 	Saved View 1	已儲存的檢視 1
 	Saved View 10	已儲存的檢視 10

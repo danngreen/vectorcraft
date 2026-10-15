@@ -2831,6 +2831,7 @@ mark-style	Japanese	Giapponese
 	Saved Selection 8	Selezione salvata 8
 	Saved Selection 9	Selezione salvata 9
 	Saved Selections	Selezioni salvate
+	Click Selects Saved Selections	Il clic seleziona le selezioni salvate
 	Saved to User Defined: {}	Salvato in Definito dall'utente: {}
 	Saved View 1	Vista salvata 1
 	Saved View 10	Vista salvata 10
@@ -3832,6 +3833,7 @@ axis	Both	Entrambi
 # (`untranslated_report` lists any that are missing). Command ids, parameter
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	nessuna libreria `{id}`
+@msg	unknown mode `{m}`: set, add or remove	modalità sconosciuta `{m}`: set, add o remove
 @msg	select some type first	seleziona prima del testo
 @msg	{_1} has no {_2} style	{_1} non ha lo stile {_2}
 @msg	a layer couldn't be read	non è stato possibile leggere un livello

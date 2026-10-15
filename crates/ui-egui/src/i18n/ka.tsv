@@ -3598,6 +3598,7 @@ font-technology	Variable	ცვლადი
 @plural	{n} step|{n} steps	ნაბიჯი: {n}
 @plural	{n} stroke|{n} strokes	კონტური: {n}
 @msg	no library `{id}`	ბიბლიოთეკა `{id}` არ არსებობს
+@msg	unknown mode `{m}`: set, add or remove	უცნობი რეჟიმი `{m}`: set, add ან remove
 @msg	select some type first	ჯერ მონიშნეთ ტექსტი
 @msg	{_1} has no {_2} style	{_1}-ს არ აქვს სტილი {_2}
 @msg	a layer couldn't be read	შრის წაკითხვა ვერ მოხერხდა
@@ -5529,3 +5530,4 @@ axis	Y Axis	Y ღერძი
 @msg	a {width}×{height} screenshot's byte count overflows	{width}×{height} ეკრანის სურათის ბაიტების რაოდენობა გადაივსო
 @msg	the window's {what} ({points} points × {scale} DPI) cannot size a screenshot	ფანჯრის {what} ({points} პუნქტი × {scale} DPI) ეკრანის სურათის ზომას ვერ განსაზღვრავს
 	Live preview	ცოცხალი წინასწარი ნახვა
+	Click Selects Saved Selections	დაწკაპუნებით შენახული მონიშვნების მონიშვნა

@@ -245,7 +245,7 @@ fn saved_selections_from_a_file_are_tidied() {
         json!({"name": "Dup", "objects": []}),
         json!({"name": "Dup", "objects": [id.0]}),
     ];
-    list.extend((0..100).map(|i| json!({"name": format!("S{i}"), "objects": [id.0]})));
+    list.extend((0..vectorcraft_doc::SavedSelection::MAX + 3).map(|i| json!({"name": format!("S{i}"), "objects": [id.0]})));
     v["document"]["saved_selections"] = json!(list);
     let back = load(&serde_json::to_vec(&v).unwrap()).unwrap();
     let saved = &back.saved_selections;
