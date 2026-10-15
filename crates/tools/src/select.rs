@@ -6,6 +6,8 @@
 //! double-click opens the Corners dialog), drag a live ellipse's pie widgets to set its pie angles
 //! (double-click makes it whole again: [`crate::pie`]), double-click a group or an object to enter isolation
 //! mode (Double Click To Isolate), Cmd/Ctrl-click to select the object behind (Command Click to Select Objects Behind),
+//! Cmd+Option-click (or any click with Click Selects Saved Selections on) to select the saved
+//! selection holding the object, hidden and locked objects too ([`saved_selection_press`]),
 //! click or drag a ruler guide ([`crate::rulerguide`]), drag the brackets of type on a path
 //! ([`crate::pathtype`]), double-click the type widget to convert point type to area type and back
 //! ([`crate::typewidget`]), click a Shaper Group's mode widget to switch between Face Selection and
@@ -380,7 +382,12 @@ impl Tool for SelectionTool {
                     self.state = State::Idle;
                     return out;
                 }
-                // 3. Objects: Cmd/Ctrl-click selects the one under the selected one (cycling).
+                // 3. Objects: a saved selection holding the one clicked; Cmd/Ctrl-click selects the
+                // one under the selected one (cycling).
+                if let Some(out) = saved_selection_press(cx, p, m) {
+                    self.state = State::Moving { start: grab, began: false, deselect: None, key: None };
+                    return out;
+                }
                 if m.cmd
                     && cx.select_behind
                     && let Some(behind) = object_behind(cx, p)
@@ -603,6 +610,30 @@ impl Tool for SelectionTool {
 
 /// Select Behind: of the objects under `p` (topmost first), the one below the lowest selected
 /// one, back to the topmost after the bottom one; the topmost when none is selected.
+/// A press at `p` that selects a saved selection: with Click Selects Saved Selections on, or
+/// Cmd+Option held, on an object a saved selection holds (or a group it is in; the smallest such
+/// saved selection). It selects every object of it, those hidden or locked or on hidden or locked
+/// layers too, so a drag moves them all; Shift adds it to the selection, or takes it out when
+/// all of it is selected. `None` for a press that does something else.
+fn saved_selection_press(cx: &ToolContext, p: Point, m: Mods) -> Option<Vec<Action>> {
+    if !(cx.saved_selection_click || (m.cmd && m.alt)) {
+        return None;
+    }
+    let h = hit_test(cx.doc, p, cx.hit_options())?;
+    let saved = cx.doc.saved_selection_holding(&h.ancestry)?;
+    // Objects deleted since it was saved don't count (one walk of the tree finds those left).
+    let live = cx.doc.index_paths(saved.objects.iter().copied());
+    let all_selected = saved.objects.iter().filter(|id| live.contains_key(id)).all(|id| cx.selection.contains(*id));
+    let mode = match (m.shift, all_selected) {
+        (true, true) => "remove",
+        (true, false) => "add",
+        // Already selected: the press starts a drag of it, as on a selected group.
+        (false, true) => return Some(vec![]),
+        (false, false) => "set",
+    };
+    Some(vec![Action::Exec("select.recall".into(), json!({ "name": saved.name, "all": true, "mode": mode }))])
+}
+
 fn object_behind(cx: &ToolContext, p: Point) -> Option<NodeId> {
     let stack = objects_at(cx.doc, p, cx.hit_options(), cx.isolation);
     let next = stack.iter().rposition(|id| cx.selection.contains(*id)).map_or(0, |i| i + 1);
@@ -756,6 +787,50 @@ mod tests {
         let a = t.pointer(&cx, &ev(PointerKind::Down, 150.0, 150.0));
         assert_eq!(a, vec![Action::Exec("select.set".into(), json!({"ids": [id.0]}))]);
         assert!(t.pointer(&cx, &ev(PointerKind::Up, 150.0, 150.0)).is_empty());
+    }
+
+    /// A saved selection holding the rectangle and a square on a hidden layer: Cmd+Option-click,
+    /// or any click with Click Selects Saved Selections on, selects all of it; Shift adds it or
+    /// takes it out; a press on it all selected starts a drag; elsewhere clicks are as usual.
+    #[test]
+    fn a_click_selects_the_saved_selection_holding_the_object() {
+        let (mut d, rect) = doc_with_rect();
+        let hidden = d.add_layer(Some("Hidden"));
+        let square = d.alloc_id();
+        let art = vectorcraft_doc::Node::path(
+            square,
+            vectorcraft_geom::shapes::rectangle(Rect::new(300.0, 300.0, 350.0, 350.0)),
+            vectorcraft_doc::Appearance::default_art(),
+        );
+        d.insert(Some(hidden), 0, art).unwrap();
+        d.layers.iter_mut().filter(|l| l.id == hidden).for_each(|l| std::sync::Arc::make_mut(l).visible = false);
+        let lone = d.alloc_id();
+        let art = vectorcraft_doc::Node::path(
+            lone,
+            vectorcraft_geom::shapes::rectangle(Rect::new(400.0, 100.0, 450.0, 150.0)),
+            vectorcraft_doc::Appearance::default_art(),
+        );
+        d.insert(Some(d.layers[0].id), 1, art).unwrap();
+        d.saved_selections = vec![vectorcraft_doc::SavedSelection { name: "Knob".into(), objects: vec![rect, square] }].into();
+        let p = paint();
+        let press = |s: &Selection, on: bool, mods: Mods, x: f64| {
+            let c = ToolContext { saved_selection_click: on, ..cx(&d, s, &p) };
+            SelectionTool::default().pointer(&c, &ev(PointerKind::Down, x, 150.0).with_mods(mods))
+        };
+        let recall = |mode: &str| vec![Action::Exec("select.recall".into(), json!({"name": "Knob", "all": true, "mode": mode}))];
+        let none = Selection::default();
+        let cmd_alt = Mods { cmd: true, alt: true, ..Mods::default() };
+        let shift = Mods { shift: true, ..Mods::default() };
+        assert_eq!(press(&none, false, Mods::default(), 150.0), vec![Action::Exec("select.set".into(), json!({"ids": [rect.0]}))]);
+        assert_eq!(press(&none, false, cmd_alt, 150.0), recall("set"));
+        assert_eq!(press(&none, true, Mods::default(), 150.0), recall("set"));
+        assert_eq!(press(&none, true, shift, 150.0), recall("add"));
+        let mut all = Selection::default();
+        all.set([rect, square]);
+        assert_eq!(press(&all, true, shift, 150.0), recall("remove"));
+        assert!(press(&all, true, Mods::default(), 150.0).is_empty(), "a press on it selected starts a drag");
+        // An object no saved selection holds is clicked as usual.
+        assert_eq!(press(&none, true, Mods::default(), 425.0), vec![Action::Exec("select.set".into(), json!({"ids": [lone.0]}))]);
     }
 
     /// #414: a press on a ruler guide picks it over the art, and drags it.

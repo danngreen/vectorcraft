@@ -297,6 +297,9 @@ pub struct ToolContext<'a> {
     /// Selection tool selects the object under the selected one, the next click the one under
     /// that.
     pub select_behind: bool,
+    /// Click Selects Saved Selections (`select.savedClick`): a Selection tool click on an object
+    /// selects the saved selection holding it, as Cmd+Option-click does while this is off.
+    pub saved_selection_click: bool,
     /// Selection & Anchor Display → Highlight anchors on mouse over: Direct Selection marks the
     /// anchor under the pointer.
     pub highlight_anchors: bool,
@@ -728,6 +731,7 @@ pub(crate) mod testutil {
             type_path_only: false,
             double_click_isolate: true,
             select_behind: true,
+            saved_selection_click: false,
             highlight_anchors: true,
             snap_tolerance: 2.0,
             handles_multiple: true,

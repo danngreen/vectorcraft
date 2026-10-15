@@ -96,7 +96,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Save Selection…",
             ["Select"],
             None,
-            "{name?} save the current selection under a name, in the document (default \"Selection N\"; an existing name is replaced; at most 25, names up to 255 characters) → {name}",
+            "{name?} save the current selection under a name, in the document (default \"Selection N\"; an existing name is replaced; at most 1000, names up to 255 characters) → {name}",
             has_selection,
             save_selection
         ),
@@ -114,7 +114,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Recall Selection",
             ["Select"],
             None,
-            "{name} select the objects of a saved selection, leaving out those deleted since and those that are hidden or locked, inside a hidden or locked object or layer, on a template layer, or outside the isolated group or layer → {count}",
+            "{name, all?: bool, mode?: \"set\"|\"add\"|\"remove\"} select the objects of a saved selection (add: to the selection; remove: deselect them), leaving out those deleted since and those outside the isolated group or layer and, unless all, those that are hidden or locked, inside a hidden or locked object or layer, or on a template layer (all: true selects them too, so they move, transform and delete with the rest, as the Saved Selections panel does) → {count}",
             has_saved_selection,
             recall_selection
         ),
@@ -123,13 +123,22 @@ pub fn specs() -> Vec<CommandSpec> {
             "Edit Selection…",
             ["Select"],
             None,
-            "{name, newName?: rename, delete?: bool} | {edits: [{name, newName?, delete?}…]} rename or delete saved selections, all in one undo step; names are those before the edit and must stay unique",
+            "{name, newName?: rename, delete?: bool, add?: bool, remove?: bool} | {edits: [{name, newName?, delete?, add?, remove?}…]} rename or delete saved selections, or add the selected objects to them or remove the selected objects from them, all in one undo step; names are those before the edit and must stay unique",
             has_saved_selection,
             edit_saved
         ),
         cmd!(query "select.savedList", "Saved Selections", [], None, "{} → [name…] for the active document", has_doc, |s, _| {
             Ok(json!(s.doc()?.doc.saved_selections.iter().map(|x| x.name.clone()).collect::<Vec<_>>()))
         }),
+        cmd!(
+            query "select.savedClick",
+            "Click Selects Saved Selections",
+            [],
+            None,
+            "{on?: bool} turn on (default: toggle) the preference clickSelectsSavedSelections: a Selection tool click on an object selects the saved selection holding it (the smallest one), hidden and locked objects too → {on}",
+            always,
+            saved_click
+        ),
         cmd!(
             "view.guides.make",
             "Make Guides",
@@ -375,11 +384,52 @@ fn recall_selection(s: &mut Session, p: &Value) -> Result<Value> {
     let i = saved.iter().position(|x| x.name == name).ok_or_else(|| bad(C, format!("no saved selection `{name}`")))?;
     let ids = saved.get(i).map(|x| x.objects.clone()).unwrap_or_default();
     let st = s.doc()?;
-    let can = selectable_ids(&st.doc, st.isolation);
-    s.select(|_, sel| sel.set(ids.into_iter().filter(|id| can.contains(id))))?;
+    let ids: Vec<NodeId> = if bool_or(p, "all", false) {
+        // Every object still in the document (inside the isolated container, when there is one),
+        // hidden, locked or on a template layer too; found in one walk of the tree.
+        let paths = st.doc.index_paths(ids.iter().copied());
+        let inside = st.isolation.map(|i| st.doc.index_paths([i]).remove(&i));
+        ids.into_iter()
+            .filter(|id| {
+                paths.get(id).is_some_and(|path| {
+                    let in_iso = match &inside {
+                        None => true,
+                        Some(Some(iso)) => path.len() > iso.len() && path.starts_with(iso),
+                        Some(None) => false,
+                    };
+                    in_iso && st.doc.node_at(path).is_some_and(|n| !n.is_layer())
+                })
+            })
+            .collect()
+    } else {
+        let can = selectable_ids(&st.doc, st.isolation);
+        ids.into_iter().filter(|id| can.contains(id)).collect()
+    };
+    match str_param(p, "mode").unwrap_or("set") {
+        "set" => s.select(|_, sel| sel.set(ids))?,
+        "add" => s.select(|_, sel| {
+            for id in ids {
+                sel.add(id);
+            }
+        })?,
+        "remove" => s.select(|_, sel| {
+            for id in ids {
+                sel.remove(id);
+            }
+        })?,
+        m => return Err(bad(C, format!("unknown mode `{m}`: set, add or remove"))),
+    }
     let st = s.doc_mut()?;
     st.recalled_selection.recall(&st.doc.saved_selections, i);
     Ok(json!({ "count": st.selection.len() }))
+}
+
+fn saved_click(s: &mut Session, p: &Value) -> Result<Value> {
+    let on = p.get("on").and_then(Value::as_bool).unwrap_or(!s.prefs.click_selects_saved_selections);
+    let mut next = s.prefs.clone();
+    next.click_selects_saved_selections = on;
+    s.apply_prefs(next);
+    Ok(json!({ "on": on }))
 }
 
 /// Recall and Edit Selection… need a document with at least one saved selection.
@@ -431,6 +481,7 @@ fn edit_saved(s: &mut Session, p: &Value) -> Result<Value> {
         None => std::slice::from_ref(p),
     };
     let before = s.doc()?.doc.saved_selections.clone();
+    let selected = s.doc()?.selection.objects.clone();
     // Edits name the selections as they are now, so they don't depend on each other's order.
     let mut after: Vec<Option<SavedSelection>> = before.iter().cloned().map(Some).collect();
     // Files may hold any number of saved selections: keep this linear.
@@ -444,10 +495,19 @@ fn edit_saved(s: &mut Session, p: &Value) -> Result<Value> {
         let Some(slot) = after.get_mut(i) else { continue };
         if bool_or(e, "delete", false) {
             *slot = None;
-        } else if let Some(n) = str_param(e, "newName").and_then(SavedSelection::clean_name)
-            && let Some(x) = slot
-        {
+            continue;
+        }
+        let Some(x) = slot else { continue };
+        if let Some(n) = str_param(e, "newName").and_then(SavedSelection::clean_name) {
             x.name = n;
+        }
+        if bool_or(e, "add", false) {
+            let have: BTreeSet<NodeId> = x.objects.iter().copied().collect();
+            x.objects.extend(selected.iter().copied().filter(|id| !have.contains(id)));
+        }
+        if bool_or(e, "remove", false) {
+            let drop: BTreeSet<NodeId> = selected.iter().copied().collect();
+            x.objects.retain(|id| !drop.contains(id));
         }
     }
     let slots: Vec<u64> = saved_ids(s)?.into_iter().zip(&after).filter(|(_, x)| x.is_some()).map(|(id, _)| id).collect();
