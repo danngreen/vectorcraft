@@ -3690,6 +3690,7 @@ mark-style	Japanese	Japán
 	Saved Selection 8	Mentett kijelölés 8
 	Saved Selection 9	Mentett kijelölés 9
 	Saved Selections	Mentett kijelölések
+	Click Selects Saved Selections	A kattintás a mentett kijelöléseket jelöli ki
 	Saved to User Defined: {}	Mentve a Felhasználói könyvtárak közé: {}
 	Saved View 1	Mentett nézet 1
 	Saved View 10	Mentett nézet 10
@@ -5357,6 +5358,7 @@ imageTrace	Outline	Körvonal
 @msg	no key object	nincs kulcsobjektum
 @msg	no library `{id}`	nincs ilyen könyvtár: `{id}`
 @msg	the library has another item of that kind named `{name}`	a könyvtárban már van egy másik ilyen fajta elem `{name}` néven
+@msg	unknown mode `{m}`: set, add or remove	ismeretlen mód: `{m}`; set, add vagy remove
 @msg	no library `{key}` (see {list})	nincs ilyen könyvtár: `{key}` (lásd: {list})
 @msg	no Live Paint edge near that point	annál a pontnál nincs élőfestés-él
 @msg	no Live Paint face at that point	annál a pontnál nincs élőfestés-felület

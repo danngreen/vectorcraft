@@ -3126,6 +3126,7 @@ digits	Malayalam	Малаялам
 	Saved Selection 8	Збережене виділення 8
 	Saved Selection 9	Збережене виділення 9
 	Saved Selections	Збережені виділення
+	Click Selects Saved Selections	Клацання вибирає збережені виділення
 	Saved to User Defined: {}	Збережено в «Користувач»: {}
 	Saved View 1	Збережений вигляд 1
 	Saved View 10	Збережений вигляд 10
@@ -4240,6 +4241,7 @@ axis	Both	Обидві
 	Float Tool Group	Від’єднати групу інструментів
 @msg	no library `{id}`	немає бібліотеки `{id}`
 @msg	the library has another item of that kind named `{name}`	у бібліотеці вже є інший елемент цього виду з назвою `{name}`
+@msg	unknown mode `{m}`: set, add or remove	невідомий режим `{m}`: set, add або remove
 @msg	select some type first	спочатку виділіть текст
 @msg	kerning must be a number, "auto", or "optical"	kerning має бути числом, «auto» або «optical»
 @msg	the selection has no gradient fill	виділення не має градієнтної заливки
