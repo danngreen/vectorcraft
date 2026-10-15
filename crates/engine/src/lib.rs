@@ -840,6 +840,9 @@ pub struct Prefs {
     pub object_selection_by_path_only: bool,
     pub snap_to_point_tolerance: f64,
     pub ctrl_click_selects_behind: bool,
+    /// A Selection tool click on an object selects the saved selection holding it, hidden and
+    /// locked objects too (`select.savedClick`; Cmd+Option-click does it once while this is off).
+    pub click_selects_saved_selections: bool,
     pub zoom_to_selection: bool,
     pub move_locked_with_artboard: bool,
     pub anchor_size: u32,
@@ -1095,6 +1098,7 @@ impl Default for Prefs {
             object_selection_by_path_only: false,
             snap_to_point_tolerance: 2.0,
             ctrl_click_selects_behind: true,
+            click_selects_saved_selections: false,
             zoom_to_selection: true,
             move_locked_with_artboard: false,
             anchor_size: 3,

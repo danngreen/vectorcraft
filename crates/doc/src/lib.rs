@@ -462,7 +462,9 @@ pub struct SavedView {
 }
 
 /// A saved selection (Select → Save Selection…): the objects that were selected, listed by name at
-/// the bottom of the Select menu.
+/// the bottom of the Select menu (the first [`SavedSelection::MENU`]) and in the Saved Selections
+/// panel (every one). Its objects may sit on any layers: recalled from the panel, they are selected
+/// hidden or locked too, so they move, transform and delete together.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SavedSelection {
     pub name: String,
@@ -470,8 +472,10 @@ pub struct SavedSelection {
 }
 
 impl SavedSelection {
-    /// Most saved selections a document keeps (the Select menu lists every one).
-    pub const MAX: usize = 25;
+    /// Most saved selections a document keeps (the Saved Selections panel lists every one).
+    pub const MAX: usize = 1000;
+    /// Saved selections the Select menu lists (the first ones).
+    pub const MENU: usize = 25;
     /// Longest name, in characters.
     pub const MAX_NAME: usize = 255;
 
@@ -1107,6 +1111,28 @@ impl Document {
             }
         }
         Some(out)
+    }
+
+    /// The saved selection a click on `id` stands for: of those holding `id` or a group, compound
+    /// path or other object it is in, the one with the fewest objects (the first of those). `None`
+    /// when none holds it.
+    pub fn saved_selection_of(&self, id: NodeId) -> Option<&SavedSelection> {
+        if self.saved_selections.is_empty() {
+            return None;
+        }
+        self.saved_selection_holding(&self.ancestry(id)?)
+    }
+
+    /// [`Document::saved_selection_of`] the last of `ancestry` (ids from its layer down to it, as
+    /// [`Document::ancestry`] or a [`hit::Hit`] gives them).
+    pub fn saved_selection_holding(&self, ancestry: &[NodeId]) -> Option<&SavedSelection> {
+        let mut best: Option<&SavedSelection> = None;
+        for s in self.saved_selections.iter() {
+            if s.objects.iter().any(|o| ancestry.contains(o)) && best.is_none_or(|b| s.objects.len() < b.objects.len()) {
+                best = Some(s);
+            }
+        }
+        best
     }
 
     /// Ids from the top-level layer down to `id` inclusive.

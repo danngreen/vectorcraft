@@ -2163,7 +2163,7 @@ const PERSPECTIVE_SLOTS: [[&str; crate::dialogs::perspective_presets::SLOTS]; 3]
 ];
 
 /// Select → saved selections: the n-th saved selection of the active document.
-const SAVED_SELECTION_IDS: [&str; vectorcraft_engine::doc::SavedSelection::MAX] = [
+const SAVED_SELECTION_IDS: [&str; vectorcraft_engine::doc::SavedSelection::MENU] = [
     "select.recall1",
     "select.recall2",
     "select.recall3",

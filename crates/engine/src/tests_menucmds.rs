@@ -1716,11 +1716,12 @@ fn edit_selection_applies_several_edits_as_one_step() {
 }
 
 #[test]
-fn a_document_keeps_at_most_25_saved_selections() {
+fn a_document_keeps_at_most_1000_saved_selections() {
     let mut s = session();
     let a = rect(&mut s, 0.0, 0.0, 10.0, 10.0);
     sel(&mut s, &[a]);
-    for i in 0..25 {
+    assert_eq!(vectorcraft_doc::SavedSelection::MAX, 1000);
+    for i in 0..vectorcraft_doc::SavedSelection::MAX {
         s.execute("select.save", &json!({ "name": format!("S{i}") })).unwrap();
     }
     assert!(s.execute("select.save", &json!({"name": "One too many"})).is_err());
@@ -1729,6 +1730,127 @@ fn a_document_keeps_at_most_25_saved_selections() {
     // Unnamed saves take the first free "Selection N".
     s.execute("select.editSaved", &json!({"name": "S0", "delete": true})).unwrap();
     assert_eq!(s.execute("select.save", &json!({})).unwrap()["name"], "Selection 1");
+}
+
+/// A knob drawn on three layers: its pot on `mount` (locked), its cap on `mockup` (hidden) and its
+/// label on `silk`, inside a group with a hidden tick; saved as `Knob`. Returns (pot, cap, label,
+/// tick, the label's group).
+fn knob(s: &mut Session) -> [NodeId; 5] {
+    let layer = |s: &mut Session, name: &str| id_of(&s.execute("layer.new", &json!({ "name": name })).unwrap());
+    let mount = layer(s, "mount");
+    let pot = rect(s, 10.0, 10.0, 16.0, 16.0);
+    let mockup = layer(s, "mockup");
+    let cap = rect(s, 8.0, 8.0, 20.0, 20.0);
+    layer(s, "silk");
+    let label = rect(s, 10.0, 30.0, 16.0, 4.0);
+    let tick = rect(s, 17.0, 4.0, 2.0, 3.0);
+    sel(s, &[label, tick]);
+    let group = id_of(&s.execute("object.group", &json!({})).unwrap());
+    sel(s, &[pot, cap, group]);
+    s.execute("select.save", &json!({"name": "Knob"})).unwrap();
+    s.execute("object.setProps", &json!({"ids": [tick.0], "visible": false})).unwrap();
+    s.execute("layer.setProps", &json!({"ids": [mount.0], "locked": true})).unwrap();
+    s.execute("layer.setProps", &json!({"ids": [mockup.0], "visible": false})).unwrap();
+    s.execute("select.none", &json!({})).unwrap();
+    [pot, cap, label, tick, group]
+}
+
+/// Recalled with `all`, a saved selection takes its objects on hidden and locked layers too, so
+/// they move and delete together; without it, only what the Selection tool could pick.
+#[test]
+fn a_saved_selection_recalled_whole_moves_and_deletes_its_hidden_and_locked_objects() {
+    let mut s = session();
+    let [pot, cap, _, tick, group] = knob(&mut s);
+    assert_eq!(s.execute("select.recall", &json!({"name": "Knob"})).unwrap()["count"], 1);
+    assert_eq!(selected(&s), vec![group]);
+    assert_eq!(s.execute("select.recall", &json!({"name": "Knob", "all": true})).unwrap()["count"], 3);
+    let before = [pot, cap, tick].map(|id| bounds(&s, id).x0);
+    s.execute("object.move", &json!({"dx": 100, "dy": 0})).unwrap();
+    for (id, x) in [pot, cap, tick].into_iter().zip(before) {
+        assert!((bounds(&s, id).x0 - x - 100.0).abs() < 1e-9, "{id:?} moved with the rest");
+    }
+    s.execute("edit.clear", &json!({})).unwrap();
+    let d = &s.doc().unwrap().doc;
+    assert!([pot, cap, group].iter().all(|id| d.node(*id).is_none()), "the whole saved selection is deleted");
+    // A recall after that selects nothing (its objects are gone).
+    assert_eq!(s.execute("select.recall", &json!({"name": "Knob", "all": true})).unwrap()["count"], 0);
+}
+
+/// Inside an isolated group, a whole recall keeps to the objects inside it.
+#[test]
+fn a_whole_recall_keeps_to_the_isolated_group() {
+    let mut s = session();
+    let [_, _, label, _, group] = knob(&mut s);
+    sel(&mut s, &[label]);
+    s.execute("select.editSaved", &json!({"name": "Knob", "add": true})).unwrap();
+    s.execute("object.isolate", &json!({"id": group.0})).unwrap();
+    assert_eq!(s.execute("select.recall", &json!({"name": "Knob", "all": true})).unwrap()["count"], 1);
+    assert_eq!(selected(&s), vec![label]);
+}
+
+/// `mode` adds a saved selection to the selection or takes it out.
+#[test]
+fn a_recall_can_add_to_the_selection_or_take_out_of_it() {
+    let mut s = session();
+    let [pot, cap, _, _, group] = knob(&mut s);
+    let other = rect(&mut s, 200.0, 200.0, 10.0, 10.0);
+    sel(&mut s, &[other]);
+    s.execute("select.recall", &json!({"name": "Knob", "all": true, "mode": "add"})).unwrap();
+    let mut want = vec![pot, cap, group, other];
+    want.sort();
+    let mut got = selected(&s);
+    got.sort();
+    assert_eq!(got, want);
+    s.execute("select.recall", &json!({"name": "Knob", "all": true, "mode": "remove"})).unwrap();
+    assert_eq!(selected(&s), vec![other]);
+    assert!(s.execute("select.recall", &json!({"name": "Knob", "mode": "toggle"})).is_err());
+}
+
+/// Edit Selection adds the selected objects to a saved selection, or removes them, in one undo
+/// step each.
+#[test]
+fn edit_selection_adds_and_removes_the_selected_objects() {
+    let mut s = session();
+    let a = rect(&mut s, 0.0, 0.0, 10.0, 10.0);
+    let b = rect(&mut s, 20.0, 0.0, 10.0, 10.0);
+    let objects = |s: &Session| s.doc().unwrap().doc.saved_selections[0].objects.clone();
+    sel(&mut s, &[a]);
+    s.execute("select.save", &json!({"name": "Set"})).unwrap();
+    sel(&mut s, &[a, b]);
+    s.execute("select.editSaved", &json!({"name": "Set", "add": true})).unwrap();
+    assert_eq!(objects(&s), vec![a, b], "each object once");
+    sel(&mut s, &[a]);
+    s.execute("select.editSaved", &json!({"name": "Set", "remove": true})).unwrap();
+    assert_eq!(objects(&s), vec![b]);
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(objects(&s), vec![a, b]);
+}
+
+/// The saved selection a click stands for is the smallest holding the object or a group it is in.
+#[test]
+fn a_click_stands_for_the_smallest_saved_selection_holding_the_object() {
+    let mut s = session();
+    let [pot, _, label, _, group] = knob(&mut s);
+    let other = rect(&mut s, 200.0, 200.0, 10.0, 10.0);
+    sel(&mut s, &[pot, group, other]);
+    s.execute("select.save", &json!({"name": "Panel"})).unwrap();
+    let d = &s.doc().unwrap().doc;
+    let name = |id| d.saved_selection_of(id).map(|x| x.name.clone());
+    assert_eq!(name(label).as_deref(), Some("Knob"), "through its group");
+    assert_eq!(name(pot).as_deref(), Some("Knob"));
+    assert_eq!(name(other).as_deref(), Some("Panel"));
+    let lone = rect(&mut s, 300.0, 300.0, 10.0, 10.0);
+    assert!(s.doc().unwrap().doc.saved_selection_of(lone).is_none());
+}
+
+#[test]
+fn click_selects_saved_selections_is_a_preference_it_toggles() {
+    let mut s = session();
+    assert!(!s.prefs.click_selects_saved_selections);
+    assert_eq!(s.execute("select.savedClick", &json!({})).unwrap(), json!({"on": true}));
+    assert_eq!(s.execute("prefs.get", &json!({"key": "clickSelectsSavedSelections"})).unwrap(), json!(true));
+    assert_eq!(s.execute("select.savedClick", &json!({"on": true})).unwrap(), json!({"on": true}));
+    assert_eq!(s.execute("select.savedClick", &json!({})).unwrap(), json!({"on": false}));
 }
 
 // ---------- Type ----------

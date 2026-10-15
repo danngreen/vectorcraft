@@ -5134,3 +5134,4 @@ imageTrace	Outline	კონტური
 	Select by Color	მონიშვნა ფერის მიხედვით
 @msg	thumbnail: no page {n} (the file has 1)	thumbnail: გვერდი {n} არ არსებობს (ფაილს 1 გვერდი აქვს)
 	Move Anchor Point	საყრდენი წერტილის გადაადგილება
+	Click Selects Saved Selections	დაწკაპუნებით შენახული მონიშვნების მონიშვნა
