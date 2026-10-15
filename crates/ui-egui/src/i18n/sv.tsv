@@ -2845,6 +2845,7 @@ digits	Malayalam	Malayalam
 	Saved Selection 8	Sparad markering 8
 	Saved Selection 9	Sparad markering 9
 	Saved Selections	Sparade markeringar
+	Click Selects Saved Selections	Klick markerar sparade markeringar
 	Saved to User Defined: {}	Sparat i Användardefinierat: {}
 	Saved View 1	Sparad vy 1
 	Saved View 10	Sparad vy 10
@@ -3846,6 +3847,7 @@ axis	Both	Båda
 	Drag to the window's left edge to dock	Dra till fönstrets vänsterkant för att docka
 	Float Tool Group	Gör verktygsgruppen flytande
 @msg	no library `{id}`	inget bibliotek `{id}`
+@msg	unknown mode `{m}`: set, add or remove	okänt läge `{m}`: set, add eller remove
 @msg	select some type first	markera någon text först
 @msg	kerning must be a number, "auto", or "optical"	Kerning måste vara ett tal, ”auto” eller ”optical”
 @msg	the selection has no gradient fill	markeringen har ingen fyllnadsgradient

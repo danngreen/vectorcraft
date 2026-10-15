@@ -2134,6 +2134,7 @@ axis	Both	Και τα δύο
 	Float Panel	Αιωρούμενο πάνελ
 	Dock Panel	Αγκύρωση πάνελ
 @msg	no library `{id}`	Δεν υπάρχει βιβλιοθήκη με αναγνωριστικό `{id}`
+@msg	unknown mode `{m}`: set, add or remove	άγνωστη λειτουργία `{m}`: set, add ή remove
 @msg	select some type first	Επιλέξτε πρώτα κάποιο κείμενο
 @msg	kerning must be a number, "auto", or "optical"	Η διαγραμμάτωση πρέπει να είναι αριθμός, «auto» ή «optical»
 @msg	the selection has no gradient fill	η επιλογή δεν έχει ντεγκραντέ γεμίσματος
@@ -3404,6 +3405,7 @@ digits	Malayalam	Μαλαγιάλαμ
 	SAVED	ΑΠΟΘΗΚΕΥΜΕΝΑ
 	Saved recovery data for {title}	Αποθηκεύτηκαν δεδομένα ανάκτησης για το {title}
 	Saved Selections	Αποθηκευμένες επιλογές
+	Click Selects Saved Selections	Το κλικ επιλέγει αποθηκευμένες επιλογές
 	Saved to User Defined: {}	Αποθηκεύτηκε στις προσαρμοσμένες επιλογές: {}
 	Saved Views	Αποθηκευμένες προβολές
 	Saved {n} files beside {path}	Αποθηκεύτηκαν {n} αρχεία δίπλα στο {path}
