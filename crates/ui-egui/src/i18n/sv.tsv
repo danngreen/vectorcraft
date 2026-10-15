@@ -2738,6 +2738,7 @@ font-technology	Variable	Variabla
 	Saved Selection 8	Sparad markering 8
 	Saved Selection 9	Sparad markering 9
 	Saved Selections	Sparade markeringar
+	Click Selects Saved Selections	Klick markerar sparade markeringar
 	Saved to User Defined: {}	Sparat i Användardefinierat: {}
 	Saved View 1	Sparad vy 1
 	Saved View 10	Sparad vy 10
@@ -3696,6 +3697,7 @@ axis	Both	Båda
 	Drag to the window's left edge to dock	Dra till fönstrets vänsterkant för att docka
 	Float Tool Group	Gör verktygsgruppen flytande
 @msg	no library `{id}`	inget bibliotek `{id}`
+@msg	unknown mode `{m}`: set, add or remove	okänt läge `{m}`: set, add eller remove
 @msg	select some type first	markera någon text först
 @msg	{_1} has no {_2} style	{_1} har ingen stil {_2}
 @msg	a layer couldn't be read	ett lager kunde inte läsas

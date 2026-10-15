@@ -2317,6 +2317,7 @@
 	Save these settings as a print preset	Salvar estas configurações como um predefinido de impressão
 	Save to Swatches	Salvar nas Amostras
 	Saved Selections	Seleções Salvas
+	Click Selects Saved Selections	Clique Seleciona Seleções Salvas
 	Saved View 1	Visualização Salva 1
 	Saved View 10	Visualização Salva 10
 	Saved View 2	Visualização Salva 2
@@ -3358,6 +3359,7 @@ axis	Both	Ambos
 	Drag to float the toolbar	Arraste para flutuar a barra de ferramentas
 	Drag to the window's left edge to dock	Arraste até a borda esquerda da janela para encaixar
 @msg	no library `{id}`	nenhuma biblioteca `{id}`
+@msg	unknown mode `{m}`: set, add or remove	modo desconhecido `{m}`: set, add ou remove
 @msg	select some type first	selecione algum texto primeiro
 @msg	{_1} has no {_2} style	{_1} não tem o estilo {_2}
 @msg	a layer couldn't be read	não foi possível ler uma camada

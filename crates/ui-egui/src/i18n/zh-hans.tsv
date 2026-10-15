@@ -2666,6 +2666,7 @@ font-script	Japanese	汉字
 	Saved	已存储
 	Saved recovery data for {title}	已存储 {title} 的恢复数据
 	Saved Selections	已保存的选区
+	Click Selects Saved Selections	单击选择已保存的选区
 	Saved to User Defined: {}	已存储至用户自定义：{}
 	Saved View 1	已存视图 1
 	Saved View 10	已存视图 10
@@ -3791,6 +3792,7 @@ imageTrace	Outline	轮廓
 @msg	the layer to flatten into is hidden	要拼合到的图层已隐藏
 @msg	there are no objects to release	没有可释放的对象
 @msg	no library `{id}`	没有库 `{id}`
+@msg	unknown mode `{m}`: set, add or remove	未知模式 `{m}`：应为 set、add 或 remove
 @msg	{path}: not a file	{path}：不是文件
 @msg	{path}: {e}	{path}：{e}
 @msg	can't write .{ext} images	无法写入 .{ext} 图像
