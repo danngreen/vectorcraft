@@ -1121,20 +1121,34 @@ is no such object, the selection stays as it is.
 ## Saved selections
 
 Select → Save Selection… keeps the selected objects under a name, in the document: `select.save {name?}` (default
-the first free "Selection N"; an existing name is replaced with the current selection; at most 25 per document,
+the first free "Selection N"; an existing name is replaced with the current selection; at most 1000 per document,
 names up to 255 characters) → `{name}`, one undo step. `select.savedList` lists the names in menu order, and
 `select.recall {name}` selects those objects again, except the ones deleted since and the ones hidden, locked or
-outside the isolated group or layer (see Object selection) → `{count}`. Update Selection: `select.update {}`
-replaces the objects of the saved selection last recalled in the document with the selected objects → `{name}`,
-one undo step. The command is enabled while objects are selected and the document holds that saved selection,
-under its own name or a name `select.editSaved` gave it; Undo and Redo do not change which saved selection is
-recalled. Edit Selection…
-renames and deletes: `select.editSaved {name, newName?, delete?}`, or several at once as
-`{edits: [{name, newName?, delete?}…]}` in one undo step, where every `name` is the name before the edit and the
-names must stay unique. In the desktop app the saved selections are listed at the bottom of the Select menu
+outside the isolated group or layer (see Object selection) → `{count}`. `select.recall {name, all: true}` also
+selects the ones hidden or locked, or on hidden, locked or template layers (still only inside the isolated group or
+layer), so that they move, transform and delete with the rest, as a group's hidden and locked members do; `mode:
+"add"` adds them to the selection and `mode: "remove"` deselects them (default `"set"`). Update Selection: `select.update {}`
+replaces the objects of the saved selection last recalled in the document (by any `select.recall`) with the
+selected objects → `{name}`, one undo step. The command is enabled while objects are selected and the document holds
+that saved selection, under its own name or a name `select.editSaved` gave it; Undo and Redo do not change which
+saved selection is recalled. Edit Selection…
+renames and deletes: `select.editSaved {name, newName?, delete?, add?, remove?}`, or several at once as
+`{edits: [{name, newName?, delete?, add?, remove?}…]}` in one undo step, where every `name` is the name before the
+edit and the names must stay unique; `add: true` adds the selected objects to the saved selection and `remove: true`
+takes them out of it. In the desktop app the first 25 saved selections are listed at the bottom of the Select menu
 (`select.recall1` … `select.recall25`) and in the Layers panel menu's Save Selection submenu
-(`select.recall {name}`). A file's saved selections are checked when it opens: past 25, blank or
-repeated names, and ids the document doesn't have are dropped.
+(`select.recall {name}`), and Window › Saved Selections lists every one: a click on a row selects it
+with `all: true`. A file's saved selections are checked when it opens: past 1000, blank or repeated names, and ids
+the document doesn't have are dropped.
+
+Saved selections can stand for one thing drawn on several layers (a knob: its pot on one layer, its cap on another,
+its label on a third). `select.savedClick {on?}` turns on (default: toggles) the preference
+`clickSelectsSavedSelections` → `{on}`: a Selection tool click on an object then selects the saved selection holding
+it or a group it is in (the one with the fewest objects, `all: true`), and Shift-click adds it or takes it out.
+Cmd+Option-click (Ctrl+Alt elsewhere) does the same while the preference is off. A copy of a whole saved selection
+(`edit.duplicate`, `object.transform {copy: true}` as an Alt-drag does, `edit.paste` into the same document) gets a
+saved selection of its own in the same undo step, named after it ("Knob" or "Knob 1" → "Knob 2", then the next free
+number); a saved selection none of whose objects are left takes the pasted copies (Cut, then Paste).
 
 ## Ruler guides
 
