@@ -491,18 +491,24 @@ impl SavedSelection {
     pub const MAX_NAME: usize = 255;
 
     /// The name of a copy of saved selection `name`: its name without a trailing number, then the
-    /// first number from 2 that no saved selection of `saved` has ("Knob" → "Knob 2", "Knob 2" →
-    /// "Knob 3" when "Knob 3" is free).
+    /// number after the highest that a saved selection of `saved` named so has, 2 at least
+    /// ("Knob" → "Knob 2", "Jack 12" → "Jack 13", "Knob 2" → "Knob 4" beside "Knob 3").
     pub fn next_name(name: &str, saved: &[SavedSelection]) -> String {
-        let base = match name.rsplit_once(' ') {
-            Some((base, n)) if !base.trim().is_empty() && !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()) => base.trim_end(),
-            _ => name.trim(),
+        let split = |name: &str| -> (String, Option<u64>) {
+            match name.trim().rsplit_once(' ') {
+                Some((base, n)) if !base.trim().is_empty() && !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()) => {
+                    (base.trim_end().to_string(), n.parse().ok())
+                }
+                _ => (name.trim().to_string(), None),
+            }
         };
-        let base: String = base.chars().take(Self::MAX_NAME.saturating_sub(8)).collect();
-        // A free number is among the first MAX + 1 (a document keeps at most MAX).
-        (2..=Self::MAX + 2)
-            .map(|n| format!("{base} {n}"))
-            .find(|candidate| !saved.iter().any(|s| s.name == *candidate))
+        let (base, own) = split(name);
+        let highest = saved.iter().map(|s| split(&s.name)).filter(|(b, _)| *b == base).filter_map(|(_, n)| n).chain(own).max().unwrap_or(1);
+        let base: String = base.chars().take(Self::MAX_NAME.saturating_sub(21)).collect();
+        // The next number, then (past u64 or taken) a free one among the first MAX + 2.
+        let next = highest.checked_add(1).map(|n| format!("{base} {}", n.max(2)));
+        next.filter(|c| !saved.iter().any(|s| s.name == *c))
+            .or_else(|| (2..=Self::MAX + 2).map(|n| format!("{base} {n}")).find(|c| !saved.iter().any(|s| s.name == *c)))
             .unwrap_or_else(|| format!("{base} copy"))
     }
 

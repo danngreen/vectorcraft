@@ -1970,14 +1970,17 @@ fn a_pasted_saved_selection_is_one_too_in_its_document() {
 }
 
 #[test]
-fn a_copied_saved_selection_takes_the_next_free_number() {
+fn a_copied_saved_selection_takes_the_number_after_the_highest() {
     use vectorcraft_doc::SavedSelection;
     let named = |names: &[&str]| names.iter().map(|n| SavedSelection { name: n.to_string(), objects: vec![] }).collect::<Vec<_>>();
     assert_eq!(SavedSelection::next_name("Knob", &named(&["Knob"])), "Knob 2");
     assert_eq!(SavedSelection::next_name("Knob 1", &named(&["Knob 1"])), "Knob 2");
     assert_eq!(SavedSelection::next_name("Knob 2", &named(&["Knob", "Knob 2", "Knob 3"])), "Knob 4");
-    assert_eq!(SavedSelection::next_name("Jack 12", &named(&["Jack 12"])), "Jack 2");
+    assert_eq!(SavedSelection::next_name("Knob", &named(&["Knob", "Knob 5"])), "Knob 6", "after the highest");
+    assert_eq!(SavedSelection::next_name("Jack 12", &named(&["Jack 12"])), "Jack 13");
     assert_eq!(SavedSelection::next_name("7", &named(&["7"])), "7 2");
+    let huge = format!("Big {}", u64::MAX);
+    assert_eq!(SavedSelection::next_name(&huge, &named(&[&huge])), "Big 2", "past the largest number");
 }
 
 #[test]
