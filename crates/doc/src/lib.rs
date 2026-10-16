@@ -170,7 +170,7 @@ pub use guides::{GridPrefs, Guide, RulerMode};
 #[cfg(test)]
 use limits::MAX_NEXT_ID;
 pub use limits::{DocError, FORMAT_VERSION, MAX_COORD};
-pub use records::{ImageBlob, MaskEdit, NewArtIds, SavedSelection, SavedView, SvgFilter, Symbol, SymbolEdit};
+pub use records::{ImageBlob, MaskEdit, NewArtIds, SavedSelection, SavedView, SvgFilter, Symbol, SymbolEdit, copied_ids};
 pub use stored_art::{StoredPlace, StoredRoot};
 pub use units::{ColorMode, Unit, arithmetic_signs, decimal_point, finite_in_every_unit, parse_number};
 
