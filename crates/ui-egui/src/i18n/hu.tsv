@@ -3307,6 +3307,11 @@ mark-style	Japanese	Japán
 	Saved Selection 8	Mentett kijelölés 8
 	Saved Selection 9	Mentett kijelölés 9
 	Saved Selections	Mentett kijelölések
+	No saved selections	Nincsenek mentett kijelölések
+	Save a selection to list it here.	Ments el egy kijelölést, és itt megjelenik.
+	Add Selected Objects	Kijelölt objektumok hozzáadása
+	Remove Selected Objects	Kijelölt objektumok eltávolítása
+	Open a document to see its saved selections.	Nyiss meg egy dokumentumot a mentett kijelölései megtekintéséhez.
 	Click Selects Saved Selections	A kattintás a mentett kijelöléseket jelöli ki
 	Saved to User Defined: {}	Mentve a Felhasználói könyvtárak közé: {}
 	Saved View 1	Mentett nézet 1

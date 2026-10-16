@@ -3479,6 +3479,11 @@ mark-style	Japanese	日式
 	Saved Selection 8	已儲存的選取範圍 8
 	Saved Selection 9	已儲存的選取範圍 9
 	Saved Selections	已儲存的選取範圍
+	No saved selections	沒有已儲存的選取範圍
+	Save a selection to list it here.	儲存選取範圍後會顯示在這裡。
+	Add Selected Objects	加入選取的物件
+	Remove Selected Objects	移除選取的物件
+	Open a document to see its saved selections.	開啟文件以檢視其已儲存的選取範圍。
 	Click Selects Saved Selections	按一下即選取已儲存的選取範圍
 	Saved to User Defined: {}	已儲存至使用者自訂：{}
 	Saved View 1	已儲存的檢視 1
