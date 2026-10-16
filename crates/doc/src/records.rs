@@ -95,6 +95,22 @@ impl SavedSelection {
     /// Longest name, in characters.
     pub const MAX_NAME: usize = 255;
 
+    /// The name of a copy of saved selection `name`: its name without a trailing number, then the
+    /// first number from 2 that no saved selection of `saved` has ("Knob" → "Knob 2", "Knob 2" →
+    /// "Knob 3" when "Knob 3" is free).
+    pub fn next_name(name: &str, saved: &[SavedSelection]) -> String {
+        let base = match name.rsplit_once(' ') {
+            Some((base, n)) if !base.trim().is_empty() && !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()) => base.trim_end(),
+            _ => name.trim(),
+        };
+        let base: String = base.chars().take(Self::MAX_NAME.saturating_sub(8)).collect();
+        // A free number is among the first MAX + 1 (a document keeps at most MAX).
+        (2..=Self::MAX + 2)
+            .map(|n| format!("{base} {n}"))
+            .find(|candidate| !saved.iter().any(|s| s.name == *candidate))
+            .unwrap_or_else(|| format!("{base} copy"))
+    }
+
     /// `name` trimmed and cut to [`Self::MAX_NAME`] characters (`None` when blank).
     pub fn clean_name(name: &str) -> Option<String> {
         let name: String = name.trim().chars().take(Self::MAX_NAME).collect();
@@ -124,4 +140,15 @@ pub struct ImageBlob {
     /// linked images show this blob, and what `bytes` hold while the linked file can't be read.
     #[serde(skip)]
     pub proxy: Option<Arc<Vec<u8>>>,
+}
+
+/// Pair the ids of `original` and of every object inside it with those of the same objects in
+/// `copy`, a copy of it with new ids ([`Document::reid`]: the same tree), into `out`.
+pub fn copied_ids(original: &Node, copy: &Node, out: &mut std::collections::HashMap<NodeId, NodeId>) {
+    out.insert(original.id, copy.id);
+    if let (Some(a), Some(b)) = (original.children(), copy.children()) {
+        for (a, b) in a.iter().zip(b) {
+            copied_ids(a, b, out);
+        }
+    }
 }

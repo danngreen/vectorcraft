@@ -452,6 +452,45 @@ impl Document {
         best
     }
 
+    /// After objects were copied (`copies`: each copied object's id, and its descendants', with its
+    /// copy's, as [`copied_ids`] pairs them): every saved selection whose objects still in the
+    /// document were all copied gets one holding their copies, added at the end and named after it
+    /// ("Knob" or "Knob 1" → "Knob 2", then "Knob 3"), while there is room ([`SavedSelection::MAX`]).
+    /// So a copy of a whole saved selection (Duplicate, an Alt-drag, Paste) is one too. A saved
+    /// selection none of whose objects are left, all of them copied (Cut, then Paste), takes the
+    /// copies instead.
+    pub fn copy_saved_selections(&mut self, copies: &std::collections::HashMap<NodeId, NodeId>) {
+        if self.saved_selections.is_empty() || copies.is_empty() {
+            return;
+        }
+        let live = self.index_paths(self.saved_selections.iter().flat_map(|s| s.objects.iter().copied()));
+        let mut twins = vec![];
+        let mut moved = vec![];
+        for (i, s) in self.saved_selections.iter().enumerate() {
+            let objects: Vec<NodeId> = s.objects.iter().copied().filter(|id| live.contains_key(id)).collect();
+            let copied = |ids: &[NodeId]| ids.iter().filter_map(|id| copies.get(id).copied()).collect::<Vec<_>>();
+            if objects.is_empty() {
+                if !s.objects.is_empty() && s.objects.iter().all(|id| copies.contains_key(id)) {
+                    moved.push((i, copied(&s.objects)));
+                }
+            } else if objects.iter().all(|id| copies.contains_key(id)) {
+                twins.push((s.name.clone(), copied(&objects)));
+            }
+        }
+        for (i, objects) in moved {
+            if let Some(s) = self.saved_selections.get_mut(i) {
+                s.objects = objects;
+            }
+        }
+        for (name, objects) in twins {
+            if self.saved_selections.len() >= SavedSelection::MAX {
+                break;
+            }
+            let name = SavedSelection::next_name(&name, &self.saved_selections);
+            self.saved_selections.push(SavedSelection { name, objects });
+        }
+    }
+
     /// Ids from the top-level layer down to `id` inclusive.
     pub fn ancestry(&self, id: NodeId) -> Option<Vec<NodeId>> {
         let path = self.index_path(id)?;
