@@ -2860,6 +2860,7 @@ mark-style	Japanese	Giapponese
 	Remove Selected Objects	Rimuovi oggetti selezionati
 	Open a document to see its saved selections.	Apri un documento per vederne le selezioni salvate.
 	Click Selects Saved Selections	Il clic seleziona le selezioni salvate
+	Move Saved Selection	Sposta selezione salvata
 	Saved to User Defined: {}	Salvato in Definito dall'utente: {}
 	Saved View 1	Vista salvata 1
 	Saved View 10	Vista salvata 10
@@ -3873,6 +3874,7 @@ axis	Both	Entrambi
 # (`untranslated_report` lists any that are missing). Command ids, parameter
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	nessuna libreria `{id}`
+@msg	missing to: a place from 0	manca to: una posizione da 0
 @msg	unknown mode `{m}`: set, add or remove	modalità sconosciuta `{m}`: set, add o remove
 @msg	select some type first	seleziona prima del testo
 @msg	the selection has no gradient fill	la selezione non ha una sfumatura di riempimento

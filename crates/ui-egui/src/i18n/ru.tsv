@@ -2856,6 +2856,7 @@ mark-style	Japanese	Японский
 	Remove Selected Objects	Убрать выделенные объекты
 	Open a document to see its saved selections.	Откройте документ, чтобы увидеть его сохранённые выделения.
 	Click Selects Saved Selections	Щелчок выбирает сохранённые выделения
+	Move Saved Selection	Переместить сохранённое выделение
 	Saved to User Defined: {}	Сохранено в «Пользовательский»: {}
 	Saved View 1	Сохранённый вид 1
 	Saved View 10	Сохранённый вид 10
@@ -3869,6 +3870,7 @@ axis	Both	Оба
 # (`untranslated_report` lists any that are missing). Command ids, parameter
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	нет библиотеки `{id}`
+@msg	missing to: a place from 0	не указан to: позиция от 0
 @msg	unknown mode `{m}`: set, add or remove	неизвестный режим `{m}`: set, add или remove
 @msg	select some type first	сначала выделите текст
 @msg	the selection has no gradient fill	у выделения нет градиентной заливки

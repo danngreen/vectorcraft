@@ -2339,6 +2339,7 @@
 	Remove Selected Objects	Remover Objetos Selecionados
 	Open a document to see its saved selections.	Abra um documento para ver suas seleções salvas.
 	Click Selects Saved Selections	Clique Seleciona Seleções Salvas
+	Move Saved Selection	Mover Seleção Salva
 	Saved View 1	Visualização Salva 1
 	Saved View 10	Visualização Salva 10
 	Saved View 11	Visualização Salva 11
@@ -3420,6 +3421,7 @@ axis	Both	Ambos
 	Drag to float the toolbar	Arraste para flutuar a barra de ferramentas
 	Drag to the window's left edge to dock	Arraste até a borda esquerda da janela para encaixar
 @msg	no library `{id}`	nenhuma biblioteca `{id}`
+@msg	missing to: a place from 0	falta to: uma posição a partir de 0
 @msg	unknown mode `{m}`: set, add or remove	modo desconhecido `{m}`: set, add ou remove
 @msg	select some type first	selecione algum texto primeiro
 @msg	the selection has no gradient fill	a seleção não tem gradiente de preenchimento
