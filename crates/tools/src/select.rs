@@ -7,10 +7,11 @@
 //! double-click opens the Corners dialog), drag a live ellipse's pie widgets to set its pie angles
 //! (double-click makes it whole again: [`crate::pie`]), double-click a group or an object to enter isolation
 //! mode (Double Click To Isolate), Cmd/Ctrl-click to select the object behind (Command Click to Select Objects Behind),
-//! Cmd+Option-click (or any click with Click Selects Saved Selections on) to select the saved
-//! selection holding the object, hidden and locked objects too ([`saved_selection_press`]; dragged
-//! on with Cmd+Option still held, it moves), and with that preference on a marquee takes whole
-//! saved selections too ([`with_saved_selections`]),
+//! any click with Click Selects Saved Selections on to select the saved selection holding the
+//! object, hidden and locked objects too, and Cmd+Option-click to do the opposite of that
+//! preference ([`saved_selection_press`]; dragged on with Cmd+Option still held, it moves); with the
+//! preference on a marquee takes whole saved selections too ([`with_saved_selections`]) and a
+//! double-click on an object of one first picks the object alone ([`SelectionTool::alone`]),
 //! click or drag a ruler guide ([`crate::rulerguide`]), Cmd/Ctrl+Shift-double-click a ruler guide or
 //! a guide path to release it ([`release_guide_at`]), drag the brackets of type on a path
 //! ([`crate::pathtype`]), double-click the type widget to convert point type to area type and back
@@ -217,9 +218,13 @@ pub struct SelectionTool {
     loaded_at_press: Option<(NodeId, bool)>,
     /// Where the pointer last hovered: the type on a path bracket under it draws thicker.
     bracket_hover: Option<Point>,
-    /// The press selected a saved selection with Cmd+Option held: its drag moves while Cmd is
-    /// still held (Option alone copies, as on any drag).
+    /// The press was a Cmd+Option one (a saved selection, or with Click Selects Saved Selections
+    /// on the object alone): its drag moves while Cmd is still held (Option alone copies, as on
+    /// any drag).
     set_drag: bool,
+    /// With Click Selects Saved Selections on, the object a double-click picked out of its saved
+    /// selection: while it is selected alone, clicks and double-clicks on it are as on any object.
+    alone: Option<NodeId>,
 }
 
 /// What Distance Guides measure the selection to.
@@ -685,6 +690,17 @@ fn held_on_path(cx: &ToolContext, h: &Hit, p: Point) -> Option<Point> {
     cx.doc.node(h.leaf).and_then(|n| n.path_data()).and_then(|pd| hold_on_path(pd, p, reach))
 }
 
+/// Where a press at `p` on object hit `h` holds the selection, and by what: the anchor or centre
+/// `grabbed` near `p` if any (`by_anchor`: it is an anchor). Grabbed by neither, a press on a
+/// path's stroke or beside its edge holds the path there, and that point of it snaps (#3701). Like
+/// a grabbed anchor, that point also lands on the other art's paths (#8568).
+fn grip_at(cx: &ToolContext, (grabbed, by_anchor): (Option<Point>, bool), h: Option<&Hit>, p: Point) -> (Point, Grip) {
+    match grabbed {
+        Some(grab) => (grab, if by_anchor { Grip::Anchor } else { Grip::Point }),
+        None => h.and_then(|h| held_on_path(cx, h, p)).map_or((p, Grip::Point), |q| (q, Grip::Edge)),
+    }
+}
+
 /// While an opacity mask or a pattern is edited, a Shaper double-click selects a Shaper Group's
 /// original shape without isolating the group's original shapes. A press at `p` on a selected
 /// original shape holds it for a move: the hit inside its Shaper Group's original shapes, and that
@@ -1074,17 +1090,9 @@ impl Tool for SelectionTool {
                 }
                 // 3. Objects: a saved selection holding the one clicked; Cmd/Ctrl-click selects the
                 // one under the selected one (cycling).
-                if let Some(out) = saved_selection_press(cx, p, m) {
-                    // Held where a press on the object alone would hold it (#3701).
-                    let (hold, grip) = match (grabbed, hit_test(cx.doc, p, cx.selection_hit_options())) {
-                        (None, Some(h)) => held_on_path(cx, &h, p).map_or((p, Grip::Point), |q| (q, Grip::Edge)),
-                        _ => (grab, if by_anchor { Grip::Anchor } else { Grip::Point }),
-                    };
-                    self.state = State::Moving { start: grab, press: p, hold, grip, began: false, deselect: None, key: None, exclude: None };
-                    self.set_drag = m.cmd && m.alt;
+                if let Some(out) = self.press_saved_selection(cx, p, m, (grabbed, by_anchor)) {
                     return out;
                 }
-                self.set_drag = false;
                 if m.cmd
                     && cx.select_behind
                     && let Some(behind) = object_behind(cx, p)
@@ -1098,29 +1106,7 @@ impl Tool for SelectionTool {
                     None => (hit_test(cx.doc, p, cx.selection_hit_options()), cx.isolation),
                 };
                 match hit {
-                    Some(h) => {
-                        let top = h.top_object(scope);
-                        let mut out = vec![];
-                        let (mut deselect, mut key, mut exclude) = (None, None, None);
-                        if m.shift {
-                            (deselect, exclude) = shift_press(cx, &h, top, &mut out);
-                        } else if let Some(picked) = selected_under(cx, &h, top) {
-                            if (cx.selection.objects.len() > 1 || !cx.selection.guides.is_empty()) && !m.cmd && !m.alt {
-                                key = Some(picked);
-                            }
-                        } else {
-                            out.push(Action::Exec("select.set".into(), json!({ "ids": [top.0] })));
-                        }
-                        // Grabbed by no anchor or centre, a press on a path's stroke or beside its
-                        // edge holds the path there, and that point of it snaps (#3701). Like a
-                        // grabbed anchor, that point also lands on the other art's paths (#8568).
-                        let (hold, grip) = match grabbed {
-                            Some(_) => (grab, if by_anchor { Grip::Anchor } else { Grip::Point }),
-                            None => held_on_path(cx, &h, p).map_or((p, Grip::Point), |q| (q, Grip::Edge)),
-                        };
-                        self.state = State::Moving { start: grab, press: p, hold, grip, began: false, deselect, key, exclude };
-                        out
-                    }
+                    Some(h) => self.press_object(cx, p, m, (grabbed, by_anchor), &h, scope),
                     None => {
                         self.press_nothing(cx, p, grab, by_anchor, m);
                         vec![]
@@ -1466,18 +1452,32 @@ impl Tool for SelectionTool {
     }
 }
 
-/// Select Behind: of the objects under `p` (topmost first), the one below the lowest selected
-/// one, back to the topmost after the bottom one; the topmost when none is selected.
-/// A press at `p` that selects a saved selection: with Click Selects Saved Selections on, or
-/// Cmd+Option held, on an object a saved selection holds (or a group it is in; the smallest such
-/// saved selection). It selects every object of it, those hidden or locked or on hidden or locked
-/// layers too, so a drag moves them all; Shift adds it to the selection, or takes it out when
-/// all of it is selected. `None` for a press that does something else.
-fn saved_selection_press(cx: &ToolContext, p: Point, m: Mods) -> Option<Vec<Action>> {
-    if !(cx.saved_selection_click || (m.cmd && m.alt)) {
+/// A press at `p` that selects a saved selection: on an object a saved selection holds (or a group
+/// it is in; the smallest such saved selection), with Click Selects Saved Selections on or, while
+/// it is off, with Cmd+Option held. It selects every object of it, those hidden or locked or on
+/// hidden or locked layers too, so a drag moves them all; Shift adds it to the selection, or takes
+/// it out when all of it is selected. While the preference is on, Cmd+Option does the opposite:
+/// the press picks the object alone, as a plain press does (not the object behind, as Cmd alone
+/// may). `alone` is the object a double-click picked out ([`SelectionTool::alone`]): a press on it
+/// is a plain press. `None` for a press that does something else.
+fn saved_selection_press(cx: &ToolContext, p: Point, m: Mods, alone: Option<NodeId>) -> Option<Vec<Action>> {
+    let invert = m.cmd && m.alt;
+    if !(cx.saved_selection_click || invert) {
         return None;
     }
     let h = hit_test(cx.doc, p, cx.hit_options())?;
+    let top = h.top_object(cx.isolation);
+    if invert && cx.saved_selection_click {
+        // The object alone: a Shift-press toggles it, a press on it selected starts a drag.
+        return Some(match (m.shift, cx.selection.contains(top)) {
+            (true, _) => vec![Action::Exec("select.toggle".into(), json!({ "id": top.0 }))],
+            (false, true) => vec![],
+            (false, false) => vec![Action::Exec("select.set".into(), json!({ "ids": [top.0] }))],
+        });
+    }
+    if alone == Some(top) {
+        return None;
+    }
     let saved = cx.doc.saved_selection_holding(&h.ancestry)?;
     // Objects deleted since it was saved don't count (one walk of the tree finds those left).
     let live = cx.doc.index_paths(saved.objects.iter().copied());
@@ -1526,6 +1526,8 @@ fn with_saved_selections(cx: &ToolContext, ids: Vec<NodeId>) -> Vec<NodeId> {
     out
 }
 
+/// Select Behind: of the objects under `p` (topmost first), the one below the lowest selected
+/// one, back to the topmost after the bottom one; the topmost when none is selected.
 fn object_behind(cx: &ToolContext, p: Point) -> Option<NodeId> {
     let stack = objects_at(cx.doc, p, cx.selection_hit_options(), cx.isolation);
     let next = stack.iter().rposition(|id| cx.selection.contains(*id)).map_or(0, |i| i + 1);
@@ -1842,6 +1844,26 @@ impl SelectionTool {
         None
     }
 
+    /// A press at `p` that selects a saved selection ([`saved_selection_press`]), grabbed by the
+    /// anchor or centre `grabbed` if any (`by_anchor`: it is an anchor): it starts a move, as a
+    /// press on one object does.
+    fn press_saved_selection(&mut self, cx: &ToolContext, p: Point, m: Mods, (grabbed, by_anchor): (Option<Point>, bool)) -> Option<Vec<Action>> {
+        if self.alone.is_some_and(|a| cx.selection.objects != [a]) {
+            self.alone = None;
+        }
+        let Some(out) = saved_selection_press(cx, p, m, self.alone) else {
+            self.set_drag = false;
+            return None;
+        };
+        let grab = grabbed.unwrap_or(p);
+        // Held where a press on the object alone would hold it (#3701).
+        let hit = hit_test(cx.doc, p, cx.selection_hit_options());
+        let (hold, grip) = grip_at(cx, (grabbed, by_anchor), hit.as_ref(), p);
+        self.state = State::Moving { start: grab, press: p, hold, grip, began: false, deselect: None, key: None, exclude: None };
+        self.set_drag = m.cmd && m.alt;
+        Some(out)
+    }
+
     fn double_click(&mut self, cx: &ToolContext, p: Point, m: Mods) -> Vec<Action> {
         self.state = State::Idle;
         // A threaded port: the thread breaks there. Any other port takes the double-click
@@ -1879,6 +1901,16 @@ impl SelectionTool {
         // A double-click edits what is drawn: not a clipping path's outline.
         if let Some(h) = hit_test(cx.doc, p, cx.hit_options()) {
             let top = h.top_object(cx.isolation);
+            // With Click Selects Saved Selections on, a double-click on an object of a saved
+            // selection first picks the object alone; a double-click on it alone then does what it
+            // does on any object.
+            if cx.saved_selection_click
+                && !(self.alone == Some(top) && cx.selection.objects == [top])
+                && cx.doc.saved_selection_holding(&h.ancestry).is_some()
+            {
+                self.alone = Some(top);
+                return vec![Action::Exec("select.set".into(), json!({ "ids": [top.0] }))];
+            }
             if cx.doc.node(top).is_some_and(|n| matches!(n.kind, vectorcraft_doc::NodeKind::Text(_))) {
                 return vec![Action::SwitchTool("type".into())];
             }
@@ -1982,6 +2014,36 @@ impl SelectionTool {
 }
 
 impl SelectionTool {
+    /// A press at `p` on object hit `h` (its top object within `scope`): it selects the object, or
+    /// with Shift toggles it, and grabs the selection to move it (at `grabbed`, an anchor or centre
+    /// near `p`, if any; `by_anchor`: it is an anchor).
+    fn press_object(
+        &mut self,
+        cx: &ToolContext,
+        p: Point,
+        m: Mods,
+        (grabbed, by_anchor): (Option<Point>, bool),
+        h: &Hit,
+        scope: Option<NodeId>,
+    ) -> Vec<Action> {
+        let top = h.top_object(scope);
+        let mut out = vec![];
+        let (mut deselect, mut key, mut exclude) = (None, None, None);
+        if m.shift {
+            (deselect, exclude) = shift_press(cx, h, top, &mut out);
+        } else if let Some(picked) = selected_under(cx, h, top) {
+            if (cx.selection.objects.len() > 1 || !cx.selection.guides.is_empty()) && !m.cmd && !m.alt {
+                key = Some(picked);
+            }
+        } else {
+            out.push(Action::Exec("select.set".into(), json!({ "ids": [top.0] })));
+        }
+        let grab = grabbed.unwrap_or(p);
+        let (hold, grip) = grip_at(cx, (grabbed, by_anchor), Some(h), p);
+        self.state = State::Moving { start: grab, press: p, hold, grip, began: false, deselect, key, exclude };
+        out
+    }
+
     /// A press at `p` that hits no object starts a marquee, except where a clipping mask hides
     /// the art of a selected object (picked in the Layers panel, say): there, without Shift, it
     /// grabs the selection by that art (at `grab`), as a press on its visible part does.
