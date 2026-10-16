@@ -127,6 +127,15 @@ pub fn specs() -> Vec<CommandSpec> {
             has_saved_selection,
             edit_saved
         ),
+        cmd!(
+            "select.moveSaved",
+            "Move Saved Selection",
+            [],
+            None,
+            "{name, to} move a saved selection to place `to` (0: first; past the end: last) in the Saved Selections panel and the Select menu, which list them in this order; the objects are not touched",
+            has_saved_selection,
+            move_saved
+        ),
         cmd!(query "select.savedList", "Saved Selections", [], None, "{} → [name…] for the active document", has_doc, |s, _| {
             Ok(json!(s.doc()?.doc.saved_selections.iter().map(|x| x.name.clone()).collect::<Vec<_>>()))
         }),
@@ -527,6 +536,37 @@ fn edit_saved(s: &mut Session, p: &Value) -> Result<Value> {
         st.recalled_selection.remember(&st.doc.saved_selections, slots);
     }
     ok()
+}
+
+fn move_saved(s: &mut Session, p: &Value) -> Result<Value> {
+    const C: &str = "select.moveSaved";
+    let name = str_param(p, "name").ok_or_else(|| bad(C, "missing name"))?;
+    let to = p.get("to").and_then(Value::as_u64).ok_or_else(|| bad(C, "missing to: a place from 0"))?;
+    let saved = &s.doc()?.doc.saved_selections;
+    let from = saved.iter().position(|x| x.name == name).ok_or_else(|| bad(C, format!("no saved selection `{name}`")))?;
+    let to = usize::try_from(to).unwrap_or(usize::MAX).min(saved.len().saturating_sub(1));
+    if from == to {
+        return ok();
+    }
+    // Their ids move with them, so Update Selection still finds the one recalled.
+    let mut slots = saved_ids(s)?;
+    move_item(&mut slots, from, to);
+    s.edit("Move Saved Selection", |d, _| {
+        move_item(&mut d.saved_selections, from, to);
+        Ok(())
+    })?;
+    let st = s.doc_mut()?;
+    st.recalled_selection.remember(&st.doc.saved_selections, slots);
+    ok()
+}
+
+/// Move `v`'s item at `from` to place `to` (past the end: last); nothing when there is no `from`.
+fn move_item<T>(v: &mut Vec<T>, from: usize, to: usize) {
+    if from < v.len() {
+        let x = v.remove(from);
+        let to = to.min(v.len());
+        v.insert(to, x);
+    }
 }
 
 // ---------- Guides ----------

@@ -3,8 +3,11 @@
 //! hidden or locked or on hidden or locked layers too (`select.recall {all: true}`), so objects of
 //! one thing drawn on several layers move, transform and delete together; Shift- or Cmd/Ctrl-click
 //! adds them to the selection, or takes them out when all are selected. Double-click a name to
-//! rename it. The buttons save the selection as a new saved selection (named at once), add the
-//! selected objects to the chosen row's or remove them from it, and delete the chosen row. The
+//! rename it (its text all selected, so typing replaces it). Drag a row up or down to change the
+//! order of the list, which is the Select menu's too (`select.moveSaved`); the objects stay where
+//! they are. The buttons save the selection as a new saved selection (its row scrolled into view,
+//! its name selected to type over), add the selected objects to the chosen row's or remove them
+//! from it, and delete the chosen row. The
 //! flyout holds Save Selection…, Edit Selection… and Click Selects Saved Selections
 //! (`select.savedClick`: a Selection tool click on an object selects the saved selection holding it).
 
@@ -22,6 +25,10 @@ pub const ID: &str = "savedSelections";
 const CHOSEN: &str = "ss-chosen";
 /// The row being renamed (by name).
 const EDITING: &str = "ss-edit";
+
+/// A row dragged in the list: its place.
+#[derive(Clone, Copy)]
+struct RowDrag(usize);
 
 /// A row: its name, how many of its objects are still in the document, and whether all of those
 /// are selected.
@@ -80,7 +87,13 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
             ui.spacing_mut().item_spacing.y = 0.0;
             egui::ScrollArea::vertical().id_salt("ss-scroll").max_height(320.0).show(ui, |ui| {
                 for (i, row) in rows.iter().enumerate() {
-                    let (r, resp) = ui.allocate_exact_size(vec2(ui.available_width(), 24.0), Sense::click());
+                    let (r, resp) = ui.allocate_exact_size(vec2(ui.available_width(), 24.0), Sense::click_and_drag());
+                    if resp.drag_started() {
+                        egui::DragAndDrop::set_payload(ui.ctx(), RowDrag(i));
+                    }
+                    if resp.dragged() {
+                        ui.ctx().set_cursor_icon(egui::CursorIcon::Grabbing);
+                    }
                     if chosen.as_deref() == Some(row.name.as_str()) {
                         ui.painter().rect_filled(r, 0.0, t.row_selected);
                     } else if resp.hovered() {
@@ -93,7 +106,14 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
                     let name_rect = egui::Rect::from_min_max(pos2(r.left() + 20.0, r.top() + 2.0), pos2(r.right() - 40.0, r.bottom() - 2.0));
                     if editing.as_deref() == Some(row.name.as_str()) {
                         let id = ui.id().with(("ss-name", i));
-                        let mut buf: String = ui.data_mut(|d| d.get_temp::<String>(id)).unwrap_or_else(|| row.name.clone());
+                        let typed = ui.data_mut(|d| d.get_temp::<String>(id));
+                        let mut buf = typed.clone().unwrap_or_else(|| row.name.clone());
+                        // Just started: the row scrolls into view (a new one is last) and its name is
+                        // all selected, so typing replaces it.
+                        if typed.is_none() {
+                            widgets::focus_field(ui, id, &buf);
+                            ui.scroll_to_rect(r, None);
+                        }
                         let te = ui.put(name_rect, egui::TextEdit::singleline(&mut buf).id(id).font(egui::FontId::proportional(12.0)));
                         if !te.has_focus() && !te.lost_focus() {
                             te.request_focus();
@@ -122,6 +142,7 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
                         egui::FontId::proportional(11.5),
                         t.text_dim,
                     );
+                    drop_target(app, ui, &rows, i, r, &resp);
                     if resp.double_clicked() {
                         set_pstate(ui.ctx(), EDITING, Some(row.name.clone()));
                     } else if resp.clicked() {
@@ -160,6 +181,24 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
             set_pstate::<Option<String>>(ui.ctx(), CHOSEN, None);
         }
     });
+}
+
+/// Row `i` at `r` as a drop target for a dragged row: a line above or below it shows where the
+/// row would go, and releasing it there moves it (`select.moveSaved`).
+fn drop_target(app: &mut VectorcraftApp, ui: &Ui, rows: &[Row], i: usize, r: egui::Rect, resp: &egui::Response) {
+    let Some(src) = resp.dnd_hover_payload::<RowDrag>().map(|d| d.0) else { return };
+    let Some(p) = ui.input(|inp| inp.pointer.hover_pos()) else { return };
+    let below = p.y >= r.center().y;
+    // The place it is dropped before, counted without the row itself.
+    let before = if below { i + 1 } else { i };
+    let to = if src < before { before - 1 } else { before };
+    // Next to where it already is: nothing moves, nothing to show.
+    let Some(row) = rows.get(src).filter(|_| to != src) else { return };
+    let y = if below { r.bottom() - 1.0 } else { r.top() + 1.0 };
+    ui.painter().line_segment([pos2(r.left(), y), pos2(r.right(), y)], egui::Stroke::new(2.0, Tokens::get(ui.ctx()).accent));
+    if resp.dnd_release_payload::<RowDrag>().is_some() {
+        app.run("select.moveSaved", json!({ "name": row.name, "to": to })).ok();
+    }
 }
 
 pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
@@ -264,6 +303,101 @@ mod tests {
         assert!(text_at(&frame(&mut app, &ctx, vec![]), "2").is_some());
         app.session.execute("edit.clear", &json!({"ids": [a.0]})).unwrap();
         assert!(text_at(&frame(&mut app, &ctx, vec![]), "1").is_some());
+    }
+
+    fn saved(app: &VectorcraftApp) -> Vec<String> {
+        app.session.active().unwrap().doc.saved_selections.iter().map(|s| s.name.clone()).collect()
+    }
+
+    fn key(key: egui::Key) -> egui::Event {
+        egui::Event::Key { key, physical_key: None, pressed: true, repeat: false, modifiers: egui::Modifiers::default() }
+    }
+
+    /// The [+] button's new saved selection, last in a list longer than the panel shows, scrolls
+    /// into view with its name all selected: typing replaces it.
+    #[test]
+    fn a_new_saved_selection_shows_with_its_name_selected() {
+        let (mut app, [a, _]) = app();
+        app.session.execute("select.set", &json!({"ids": [a.0]})).unwrap();
+        for i in 0..30 {
+            app.session.execute("select.save", &json!({"name": format!("Part {i}")})).unwrap();
+        }
+        let ctx = egui::Context::default();
+        frame(&mut app, &ctx, vec![]);
+        save_new(&mut app, &ctx);
+        let name = saved(&app).last().unwrap().clone();
+        // The field takes the keyboard, and the list scrolls to it (animated over a few frames). A
+        // text field out of view paints nothing.
+        let mut shapes = vec![];
+        for _ in 0..10 {
+            shapes = frame(&mut app, &ctx, vec![]);
+        }
+        let (pos, clip) = shapes
+            .iter()
+            .find_map(|c| match &c.shape {
+                egui::Shape::Text(t) if t.galley.text() == name => Some((t.pos, c.clip_rect)),
+                _ => None,
+            })
+            .expect("the new row's name field");
+        assert!(clip.contains(pos + vec2(2.0, 4.0)), "the new row is scrolled into view");
+        frame(&mut app, &ctx, vec![egui::Event::Text("Logo".into())]);
+        frame(&mut app, &ctx, vec![key(egui::Key::Enter)]);
+        assert_eq!(saved(&app).last().map(String::as_str), Some("Logo"), "typing replaced the name");
+    }
+
+    /// Double-clicking a name selects all of it, as a new one is.
+    #[test]
+    fn renaming_starts_with_the_name_selected() {
+        let (mut app, _) = app();
+        let ctx = egui::Context::default();
+        let at = text_at(&frame(&mut app, &ctx, vec![]), "Knob").expect("a row for Knob");
+        let button =
+            |pressed| egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: egui::Modifiers::default() };
+        // Two clicks in one frame's time: a double-click.
+        frame(&mut app, &ctx, vec![egui::Event::PointerMoved(at), button(true), button(false), button(true), button(false)]);
+        for _ in 0..2 {
+            frame(&mut app, &ctx, vec![]);
+        }
+        frame(&mut app, &ctx, vec![egui::Event::Text("Dial".into())]);
+        frame(&mut app, &ctx, vec![key(egui::Key::Enter)]);
+        assert_eq!(saved(&app), ["Dial"]);
+    }
+
+    /// Dragging a row moves it in the list (and the Select menu); the selection and the objects
+    /// stay as they are.
+    #[test]
+    fn dragging_a_row_reorders_the_list() {
+        let (mut app, [a, _]) = app();
+        app.session.execute("select.set", &json!({"ids": [a.0]})).unwrap();
+        for name in ["Cap", "Label"] {
+            app.session.execute("select.save", &json!({"name": name})).unwrap();
+        }
+        app.session.execute("select.none", &json!({})).unwrap();
+        let ctx = egui::Context::default();
+        let shapes = frame(&mut app, &ctx, vec![]);
+        let (label, knob) = (text_at(&shapes, "Label").unwrap(), text_at(&shapes, "Knob").unwrap());
+        let drag = |app: &mut VectorcraftApp, from: egui::Pos2, to: egui::Pos2| {
+            let button = |pos, pressed| egui::Event::PointerButton {
+                pos,
+                button: egui::PointerButton::Primary,
+                pressed,
+                modifiers: egui::Modifiers::default(),
+            };
+            frame(app, &ctx, vec![egui::Event::PointerMoved(from), button(from, true)]);
+            for k in 1..=4 {
+                frame(app, &ctx, vec![egui::Event::PointerMoved(from + (to - from) * (k as f32 / 4.0))]);
+            }
+            frame(app, &ctx, vec![button(to, false)]);
+            frame(app, &ctx, vec![]);
+        };
+        // Label onto the top half of Knob: first.
+        drag(&mut app, label, knob - vec2(0.0, 6.0));
+        assert_eq!(saved(&app), ["Label", "Knob", "Cap"]);
+        // Label onto the bottom half of Cap (now last): last again.
+        let cap = text_at(&frame(&mut app, &ctx, vec![]), "Cap").unwrap();
+        drag(&mut app, knob - vec2(0.0, 6.0), cap + vec2(0.0, 8.0));
+        assert_eq!(saved(&app), ["Knob", "Cap", "Label"]);
+        assert!(selected(&app).is_empty(), "a drag selects nothing");
     }
 
     /// Without saved selections the panel says how to make one.

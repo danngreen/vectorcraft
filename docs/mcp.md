@@ -977,9 +977,10 @@ saved selection is recalled. Edit Selection…
 renames and deletes: `select.editSaved {name, newName?, delete?, add?, remove?}`, or several at once as
 `{edits: [{name, newName?, delete?, add?, remove?}…]}` in one undo step, where every `name` is the name before the
 edit and the names must stay unique; `add: true` adds the selected objects to the saved selection and `remove: true`
-takes them out of it. In the desktop app the first 25 saved selections are listed at the bottom of the Select menu
-(`select.recall1` … `select.recall25`), and Window › Saved Selections lists every one: a click on a row selects it
-with `all: true`. A file's saved selections are checked when it opens: past 1000, blank or repeated names, and ids
+takes them out of it. `select.moveSaved {name, to}` moves one to place `to` in the list (0: first; past the end:
+last), one undo step; the objects are not touched. In the desktop app the first 25 saved selections are listed at the
+bottom of the Select menu (`select.recall1` … `select.recall25`), and Window › Saved Selections lists every one: a
+click on a row selects it with `all: true`, and dragging a row moves it (`select.moveSaved`). A file's saved selections are checked when it opens: past 1000, blank or repeated names, and ids
 the document doesn't have are dropped.
 
 Saved selections can stand for one thing drawn on several layers (a knob: its pot on one layer, its cap on another,
