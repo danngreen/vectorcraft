@@ -2993,6 +2993,11 @@ theme	Appearance	Ulkoasu
 	Recall Selection	Palauta valinta
 	Remove Guide	Poista apuviiva
 	Saved Selections	Tallennetut valinnat
+	No saved selections	Ei tallennettuja valintoja
+	Save a selection to list it here.	Tallenna valinta, niin se näkyy tässä.
+	Add Selected Objects	Lisää valitut objektit
+	Remove Selected Objects	Poista valitut objektit
+	Open a document to see its saved selections.	Avaa asiakirja, niin näet sen tallennetut valinnat.
 	Click Selects Saved Selections	Napsautus valitsee tallennetut valinnat
 	Select Guides	Valitse apuviivat
 	Move Guide to Layer	Siirrä apuviiva tasolle

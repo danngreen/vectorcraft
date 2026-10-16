@@ -2651,6 +2651,11 @@ mark-style	Japanese	日本式
 	Save these settings as a print preset	この設定をプリントプリセットとして保存
 	Save to Swatches	スウォッチに保存
 	Saved Selections	保存した選択範囲
+	No saved selections	保存した選択範囲はありません
+	Save a selection to list it here.	選択範囲を保存するとここに表示されます。
+	Add Selected Objects	選択したオブジェクトを追加
+	Remove Selected Objects	選択したオブジェクトを除外
+	Open a document to see its saved selections.	ドキュメントを開くと保存した選択範囲が表示されます。
 	Click Selects Saved Selections	クリックで保存した選択範囲を選択
 	Saved Views	保存した表示
 	Saves the current bars, toolbar and panel layout.	現在のバー、ツールバー、パネルのレイアウトを保存します。
