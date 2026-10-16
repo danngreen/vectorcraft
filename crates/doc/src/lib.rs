@@ -405,6 +405,17 @@ fn percent(s: &str) -> Option<f64> {
 }
 
 /// A unitless field value (percent, degrees, counts) with the same `+ - * /` arithmetic as
+/// Pair the ids of `original` and of every object inside it with those of the same objects in
+/// `copy`, a copy of it with new ids ([`Document::reid`]: the same tree), into `out`.
+pub fn copied_ids(original: &Node, copy: &Node, out: &mut std::collections::HashMap<NodeId, NodeId>) {
+    out.insert(original.id, copy.id);
+    if let (Some(a), Some(b)) = (original.children(), copy.children()) {
+        for (a, b) in a.iter().zip(b) {
+            copied_ids(a, b, out);
+        }
+    }
+}
+
 /// [`Unit::parse`] (`45*2`, `100/3`); text other than digits, `.` and operators reads as nothing.
 pub fn parse_number(s: &str) -> Option<f64> {
     if !s.chars().all(|c| c.is_ascii_digit() || " .+-*/".contains(c)) {
@@ -478,6 +489,22 @@ impl SavedSelection {
     pub const MENU: usize = 25;
     /// Longest name, in characters.
     pub const MAX_NAME: usize = 255;
+
+    /// The name of a copy of saved selection `name`: its name without a trailing number, then the
+    /// first number from 2 that no saved selection of `saved` has ("Knob" → "Knob 2", "Knob 2" →
+    /// "Knob 3" when "Knob 3" is free).
+    pub fn next_name(name: &str, saved: &[SavedSelection]) -> String {
+        let base = match name.rsplit_once(' ') {
+            Some((base, n)) if !base.trim().is_empty() && !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()) => base.trim_end(),
+            _ => name.trim(),
+        };
+        let base: String = base.chars().take(Self::MAX_NAME.saturating_sub(8)).collect();
+        // A free number is among the first MAX + 1 (a document keeps at most MAX).
+        (2..=Self::MAX + 2)
+            .map(|n| format!("{base} {n}"))
+            .find(|candidate| !saved.iter().any(|s| s.name == *candidate))
+            .unwrap_or_else(|| format!("{base} copy"))
+    }
 
     /// `name` trimmed and cut to [`Self::MAX_NAME`] characters (`None` when blank).
     pub fn clean_name(name: &str) -> Option<String> {
@@ -1133,6 +1160,45 @@ impl Document {
             }
         }
         best
+    }
+
+    /// After objects were copied (`copies`: each copied object's id, and its descendants', with its
+    /// copy's, as [`copied_ids`] pairs them): every saved selection whose objects still in the
+    /// document were all copied gets one holding their copies, added at the end and named after it
+    /// ("Knob" or "Knob 1" → "Knob 2", then "Knob 3"), while there is room ([`SavedSelection::MAX`]).
+    /// So a copy of a whole saved selection (Duplicate, an Alt-drag, Paste) is one too. A saved
+    /// selection none of whose objects are left, all of them copied (Cut, then Paste), takes the
+    /// copies instead.
+    pub fn copy_saved_selections(&mut self, copies: &std::collections::HashMap<NodeId, NodeId>) {
+        if self.saved_selections.is_empty() || copies.is_empty() {
+            return;
+        }
+        let live = self.index_paths(self.saved_selections.iter().flat_map(|s| s.objects.iter().copied()));
+        let mut twins = vec![];
+        let mut moved = vec![];
+        for (i, s) in self.saved_selections.iter().enumerate() {
+            let objects: Vec<NodeId> = s.objects.iter().copied().filter(|id| live.contains_key(id)).collect();
+            let copied = |ids: &[NodeId]| ids.iter().filter_map(|id| copies.get(id).copied()).collect::<Vec<_>>();
+            if objects.is_empty() {
+                if !s.objects.is_empty() && s.objects.iter().all(|id| copies.contains_key(id)) {
+                    moved.push((i, copied(&s.objects)));
+                }
+            } else if objects.iter().all(|id| copies.contains_key(id)) {
+                twins.push((s.name.clone(), copied(&objects)));
+            }
+        }
+        for (i, objects) in moved {
+            if let Some(s) = self.saved_selections.get_mut(i) {
+                s.objects = objects;
+            }
+        }
+        for (name, objects) in twins {
+            if self.saved_selections.len() >= SavedSelection::MAX {
+                break;
+            }
+            let name = SavedSelection::next_name(&name, &self.saved_selections);
+            self.saved_selections.push(SavedSelection { name, objects });
+        }
     }
 
     /// Ids from the top-level layer down to `id` inclusive.
