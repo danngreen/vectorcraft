@@ -986,11 +986,13 @@ the document doesn't have are dropped.
 Saved selections can stand for one thing drawn on several layers (a knob: its pot on one layer, its cap on another,
 its label on a third). `select.savedClick {on?}` turns on (default: toggles) the preference
 `clickSelectsSavedSelections` → `{on}`: a Selection tool click on an object then selects the saved selection holding
-it or a group it is in (the one with the fewest objects, `all: true`), and Shift-click adds it or takes it out.
-Cmd+Option-click (Ctrl+Alt elsewhere) does the same while the preference is off. A copy of a whole saved selection
+it or a group it is in (the one with the fewest objects, `all: true`), Shift-click adds it or takes it out, and a
+marquee selects whole the saved selections holding what it reaches (a Shift-marquee still toggles single objects).
+Cmd+Option-click (Ctrl+Alt elsewhere) selects the saved selection while the preference is off; dragged on with
+Cmd+Option still held it moves (Option alone copies, as on any drag). A copy of a whole saved selection
 (`edit.duplicate`, `object.transform {copy: true}` as an Alt-drag does, `edit.paste` into the same document) gets a
-saved selection of its own in the same undo step, named after it ("Knob" or "Knob 1" → "Knob 2", then the next free
-number); a saved selection none of whose objects are left takes the pasted copies (Cut, then Paste).
+saved selection of its own in the same undo step, named after it with the number after the highest in use ("Knob"
+or "Knob 1" → "Knob 2", "Jack 12" → "Jack 13"); a saved selection none of whose objects are left takes the pasted copies (Cut, then Paste).
 
 ## Ruler guides
 

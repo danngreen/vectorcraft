@@ -751,7 +751,8 @@ pub struct Prefs {
     pub snap_to_point_tolerance: f64,
     pub ctrl_click_selects_behind: bool,
     /// A Selection tool click on an object selects the saved selection holding it, hidden and
-    /// locked objects too (`select.savedClick`; Cmd+Option-click does it once while this is off).
+    /// locked objects too, and a marquee the saved selections holding what it reaches
+    /// (`select.savedClick`; Cmd+Option-click does it once while this is off).
     pub click_selects_saved_selections: bool,
     pub zoom_to_selection: bool,
     pub move_locked_with_artboard: bool,
