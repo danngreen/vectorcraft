@@ -6,10 +6,11 @@
 //! double-click opens the Corners dialog), drag a live ellipse's pie widgets to set its pie angles
 //! (double-click makes it whole again: [`crate::pie`]), double-click a group or an object to enter isolation
 //! mode (Double Click To Isolate), Cmd/Ctrl-click to select the object behind (Command Click to Select Objects Behind),
-//! Cmd+Option-click (or any click with Click Selects Saved Selections on) to select the saved
-//! selection holding the object, hidden and locked objects too ([`saved_selection_press`]; dragged
-//! on with Cmd+Option still held, it moves), and with that preference on a marquee takes whole
-//! saved selections too ([`with_saved_selections`]),
+//! any click with Click Selects Saved Selections on to select the saved selection holding the
+//! object, hidden and locked objects too, and Cmd+Option-click to do the opposite of that
+//! preference ([`saved_selection_press`]; dragged on with Cmd+Option still held, it moves); with the
+//! preference on a marquee takes whole saved selections too ([`with_saved_selections`]) and a
+//! double-click on an object of one first picks the object alone ([`SelectionTool::alone`]),
 //! click or drag a ruler guide ([`crate::rulerguide`]), drag the brackets of type on a path
 //! ([`crate::pathtype`]), double-click the type widget to convert point type to area type and back
 //! ([`crate::typewidget`]), click a Shaper Group's mode widget to switch between Face Selection and
@@ -89,9 +90,13 @@ pub struct SelectionTool {
     guide: GuideEdit,
     /// Smart Guides: the centre or anchor under the pointer, and its label ([`Self::hover_point`]).
     hover: Option<(Point, &'static str)>,
-    /// The press selected a saved selection with Cmd+Option held: its drag moves while Cmd is
-    /// still held (Option alone copies, as on any drag).
+    /// The press was a Cmd+Option one (a saved selection, or with Click Selects Saved Selections
+    /// on the object alone): its drag moves while Cmd is still held (Option alone copies, as on
+    /// any drag).
     set_drag: bool,
+    /// With Click Selects Saved Selections on, the object a double-click picked out of its saved
+    /// selection: while it is selected alone, clicks and double-clicks on it are as on any object.
+    alone: Option<NodeId>,
 }
 
 /// Snapping for the selection moved as a whole, its targets gathered when the move begins: View →
@@ -325,6 +330,16 @@ impl Tool for SelectionTool {
                 }
                 if let Some(h) = hit_test(cx.doc, p, cx.hit_options()) {
                     let top = h.top_object(cx.isolation);
+                    // With Click Selects Saved Selections on, a double-click on an object of a
+                    // saved selection first picks the object alone; a double-click on it alone
+                    // then does what it does on any object.
+                    if cx.saved_selection_click
+                        && !(self.alone == Some(top) && cx.selection.objects == [top])
+                        && cx.doc.saved_selection_holding(&h.ancestry).is_some()
+                    {
+                        self.alone = Some(top);
+                        return vec![Action::Exec("select.set".into(), json!({ "ids": [top.0] }))];
+                    }
                     if cx.doc.node(top).is_some_and(|n| matches!(n.kind, vectorcraft_doc::NodeKind::Text(_))) {
                         return vec![Action::SwitchTool("type".into())];
                     }
@@ -389,7 +404,10 @@ impl Tool for SelectionTool {
                 }
                 // 3. Objects: a saved selection holding the one clicked; Cmd/Ctrl-click selects the
                 // one under the selected one (cycling).
-                if let Some(out) = saved_selection_press(cx, p, m) {
+                if self.alone.is_some_and(|a| cx.selection.objects != [a]) {
+                    self.alone = None;
+                }
+                if let Some(out) = saved_selection_press(cx, p, m, self.alone) {
                     self.state = State::Moving { start: grab, began: false, deselect: None, key: None };
                     self.set_drag = m.cmd && m.alt;
                     return out;
@@ -620,18 +638,32 @@ impl Tool for SelectionTool {
     }
 }
 
-/// Select Behind: of the objects under `p` (topmost first), the one below the lowest selected
-/// one, back to the topmost after the bottom one; the topmost when none is selected.
-/// A press at `p` that selects a saved selection: with Click Selects Saved Selections on, or
-/// Cmd+Option held, on an object a saved selection holds (or a group it is in; the smallest such
-/// saved selection). It selects every object of it, those hidden or locked or on hidden or locked
-/// layers too, so a drag moves them all; Shift adds it to the selection, or takes it out when
-/// all of it is selected. `None` for a press that does something else.
-fn saved_selection_press(cx: &ToolContext, p: Point, m: Mods) -> Option<Vec<Action>> {
-    if !(cx.saved_selection_click || (m.cmd && m.alt)) {
+/// A press at `p` that selects a saved selection: on an object a saved selection holds (or a group
+/// it is in; the smallest such saved selection), with Click Selects Saved Selections on or, while
+/// it is off, with Cmd+Option held. It selects every object of it, those hidden or locked or on
+/// hidden or locked layers too, so a drag moves them all; Shift adds it to the selection, or takes
+/// it out when all of it is selected. While the preference is on, Cmd+Option does the opposite:
+/// the press picks the object alone, as a plain press does (not the object behind, as Cmd alone
+/// may). `alone` is the object a double-click picked out ([`SelectionTool::alone`]): a press on it
+/// is a plain press. `None` for a press that does something else.
+fn saved_selection_press(cx: &ToolContext, p: Point, m: Mods, alone: Option<NodeId>) -> Option<Vec<Action>> {
+    let invert = m.cmd && m.alt;
+    if !(cx.saved_selection_click || invert) {
         return None;
     }
     let h = hit_test(cx.doc, p, cx.hit_options())?;
+    let top = h.top_object(cx.isolation);
+    if invert && cx.saved_selection_click {
+        // The object alone: a Shift-press toggles it, a press on it selected starts a drag.
+        return Some(match (m.shift, cx.selection.contains(top)) {
+            (true, _) => vec![Action::Exec("select.toggle".into(), json!({ "id": top.0 }))],
+            (false, true) => vec![],
+            (false, false) => vec![Action::Exec("select.set".into(), json!({ "ids": [top.0] }))],
+        });
+    }
+    if alone == Some(top) {
+        return None;
+    }
     let saved = cx.doc.saved_selection_holding(&h.ancestry)?;
     // Objects deleted since it was saved don't count (one walk of the tree finds those left).
     let live = cx.doc.index_paths(saved.objects.iter().copied());
@@ -680,6 +712,8 @@ fn with_saved_selections(cx: &ToolContext, ids: Vec<NodeId>) -> Vec<NodeId> {
     out
 }
 
+/// Select Behind: of the objects under `p` (topmost first), the one below the lowest selected
+/// one, back to the topmost after the bottom one; the topmost when none is selected.
 fn object_behind(cx: &ToolContext, p: Point) -> Option<NodeId> {
     let stack = objects_at(cx.doc, p, cx.hit_options(), cx.isolation);
     let next = stack.iter().rposition(|id| cx.selection.contains(*id)).map_or(0, |i| i + 1);
@@ -885,6 +919,51 @@ mod tests {
         assert!(press(&all, true, Mods::default(), 150.0).is_empty(), "a press on it selected starts a drag");
         // An object no saved selection holds is clicked as usual.
         assert_eq!(press(&none, true, Mods::default(), 425.0), vec![Action::Exec("select.set".into(), json!({"ids": [lone.0]}))]);
+    }
+
+    /// With Click Selects Saved Selections on, Cmd+Option does the opposite: the press picks the
+    /// object alone (Shift toggles it), not its saved selection nor the object behind.
+    #[test]
+    fn with_the_preference_on_cmd_option_picks_the_object_alone() {
+        let (d, rect, _, _) = doc_with_saved_selection();
+        let p = paint();
+        let none = Selection::default();
+        let c = ToolContext { saved_selection_click: true, ..cx(&d, &none, &p) };
+        let press = |mods: Mods| SelectionTool::default().pointer(&c, &ev(PointerKind::Down, 150.0, 150.0).with_mods(mods));
+        assert_eq!(press(Mods { cmd: true, alt: true, ..Mods::default() }), vec![Action::Exec("select.set".into(), json!({"ids": [rect.0]}))]);
+        assert_eq!(
+            press(Mods { cmd: true, alt: true, shift: true, ..Mods::default() }),
+            vec![Action::Exec("select.toggle".into(), json!({"id": rect.0}))]
+        );
+    }
+
+    /// With Click Selects Saved Selections on, a double-click on an object of a saved selection
+    /// first picks the object alone; presses on it alone leave it so, and a double-click on it
+    /// alone then does what it does on any object (isolates it).
+    #[test]
+    fn with_the_preference_on_a_double_click_first_picks_the_object_alone() {
+        let (d, rect, square, lone) = doc_with_saved_selection();
+        let p = paint();
+        let mut t = SelectionTool::default();
+        let mut whole = Selection::default();
+        whole.set([rect, square]);
+        let c = ToolContext { saved_selection_click: true, ..cx(&d, &whole, &p) };
+        assert_eq!(t.pointer(&c, &ev(PointerKind::DoubleClick, 150.0, 150.0)), vec![Action::Exec("select.set".into(), json!({"ids": [rect.0]}))]);
+        let mut alone = Selection::default();
+        alone.set([rect]);
+        let c = ToolContext { saved_selection_click: true, ..cx(&d, &alone, &p) };
+        for kind in [PointerKind::Down, PointerKind::Up, PointerKind::Down, PointerKind::Up] {
+            assert!(t.pointer(&c, &ev(kind, 150.0, 150.0)).is_empty(), "{kind:?} on it alone leaves it so");
+        }
+        assert_eq!(t.pointer(&c, &ev(PointerKind::DoubleClick, 150.0, 150.0)), vec![Action::Exec("object.isolate".into(), json!({"id": rect.0}))]);
+        // Once something else is selected, a press on it takes its saved selection again.
+        let mut other = Selection::default();
+        other.set([lone]);
+        let c = ToolContext { saved_selection_click: true, ..cx(&d, &other, &p) };
+        assert_eq!(
+            t.pointer(&c, &ev(PointerKind::Down, 150.0, 150.0)),
+            vec![Action::Exec("select.recall".into(), json!({"name": "Knob", "all": true, "mode": "set"}))]
+        );
     }
 
     /// With Click Selects Saved Selections on, a marquee over one object of a saved selection

@@ -298,7 +298,8 @@ pub struct ToolContext<'a> {
     /// that.
     pub select_behind: bool,
     /// Click Selects Saved Selections (`select.savedClick`): a Selection tool click on an object
-    /// selects the saved selection holding it, as Cmd+Option-click does while this is off.
+    /// selects the saved selection holding it, as Cmd+Option-click does while this is off (while it
+    /// is on, Cmd+Option-click picks the object alone).
     pub saved_selection_click: bool,
     /// Selection & Anchor Display → Highlight anchors on mouse over: Direct Selection marks the
     /// anchor under the pointer.
