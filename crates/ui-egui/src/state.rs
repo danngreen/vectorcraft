@@ -253,6 +253,7 @@ pub const ICON_PANELS: &[(&str, &str, &str)] = &[
     (crate::addons::pathtools::shape::ID, "Parametric Shape", "hexagon"),
     (crate::addons::pen::ID, "Smart Pen", "spline-pointer"),
     (crate::addons::units::ID, "Unit Converter", "ruler"),
+    (crate::panels::saved_selections::ID, "Saved Selections", "square-dashed"),
 ];
 
 /// Groups of icon panels separated by dividers in the collapsed column.
