@@ -5531,3 +5531,8 @@ axis	Y Axis	Y ღერძი
 @msg	the window's {what} ({points} points × {scale} DPI) cannot size a screenshot	ფანჯრის {what} ({points} პუნქტი × {scale} DPI) ეკრანის სურათის ზომას ვერ განსაზღვრავს
 	Live preview	ცოცხალი წინასწარი ნახვა
 	Click Selects Saved Selections	დაწკაპუნებით შენახული მონიშვნების მონიშვნა
+	Add Selected Objects	მონიშნული ობიექტების დამატება
+	Remove Selected Objects	მონიშნული ობიექტების წაშლა
+	No saved selections	შენახული მონიშვნები არ არის
+	Open a document to see its saved selections.	გახსენით დოკუმენტი მისი შენახული მონიშვნების სანახავად.
+	Save a selection to list it here.	შეინახეთ მონიშნული, რომ აქ გამოჩნდეს.
