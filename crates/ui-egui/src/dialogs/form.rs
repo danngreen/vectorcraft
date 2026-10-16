@@ -526,11 +526,15 @@ pub(super) fn param_fields(
                     }
                     Value::String(mut s) => {
                         // A hex colour (#rrggbb or #rgb) shows its swatch beside the field; the swatch's
-                        // double-click opens the Color Picker over this dialog.
+                        // double-click opens the Color Picker over this dialog. The first field of a
+                        // dialog just opened takes the focus, all selected, so typing replaces it (Save
+                        // Selection…'s name).
+                        let id = ui.scope_id().with(("fx-text", &k));
+                        crate::widgets::take_dialog_focus(ui, id, &s);
                         let mut colour = None;
                         let mut ask = false;
                         ui.horizontal(|ui| {
-                            if ui.add(egui::TextEdit::singleline(&mut s).align(egui::Align2::LEFT_CENTER).desired_width(140.0)).changed() {
+                            if ui.add(egui::TextEdit::singleline(&mut s).id(id).align(egui::Align2::LEFT_CENTER).desired_width(140.0)).changed() {
                                 d.fields.insert(k.clone(), json!(s));
                                 changed = true;
                             }

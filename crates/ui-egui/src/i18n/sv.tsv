@@ -3031,6 +3031,7 @@ digits	Malayalam	Malayalam
 	Remove Selected Objects	Ta bort markerade objekt
 	Open a document to see its saved selections.	Öppna ett dokument för att se dess sparade markeringar.
 	Click Selects Saved Selections	Klick markerar sparade markeringar
+	Move Saved Selection	Flytta sparad markering
 	Saved to User Defined: {}	Sparat i Användardefinierat: {}
 	Saved View 1	Sparad vy 1
 	Saved View 10	Sparad vy 10
@@ -4121,6 +4122,7 @@ axis	Both	Båda
 	Float Tool Group	Gör verktygsgruppen flytande
 @msg	no library `{id}`	inget bibliotek `{id}`
 @msg	the library has another item of that kind named `{name}`	biblioteket har redan ett annat objekt av den sorten med namnet `{name}`
+@msg	missing to: a place from 0	to saknas: en plats från 0
 @msg	unknown mode `{m}`: set, add or remove	okänt läge `{m}`: set, add eller remove
 @msg	select some type first	markera någon text först
 @msg	kerning must be a number, "auto", or "optical"	kerning måste vara ett tal, ”auto” eller ”optical”

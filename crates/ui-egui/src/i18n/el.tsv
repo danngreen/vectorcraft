@@ -2275,6 +2275,7 @@ axis	Both	Και τα δύο
 	Dock Control Bar	Αγκύρωση γραμμής ελέγχου
 @msg	no library `{id}`	Δεν υπάρχει βιβλιοθήκη με αναγνωριστικό `{id}`
 @msg	the library has another item of that kind named `{name}`	η βιβλιοθήκη έχει ήδη άλλο στοιχείο αυτού του είδους με όνομα `{name}`
+@msg	missing to: a place from 0	λείπει το to: μια θέση από 0
 @msg	unknown mode `{m}`: set, add or remove	άγνωστη λειτουργία `{m}`: set, add ή remove
 @msg	select some type first	Επιλέξτε πρώτα κάποιο κείμενο
 @msg	kerning must be a number, "auto", or "optical"	το kerning πρέπει να είναι αριθμός, «auto» ή «optical»
@@ -3728,6 +3729,7 @@ digits	Malayalam	Μαλαγιάλαμ
 	Remove Selected Objects	Αφαίρεση επιλεγμένων αντικειμένων
 	Open a document to see its saved selections.	Ανοίξτε ένα έγγραφο για να δείτε τις αποθηκευμένες επιλογές του.
 	Click Selects Saved Selections	Το κλικ επιλέγει αποθηκευμένες επιλογές
+	Move Saved Selection	Μετακίνηση αποθηκευμένης επιλογής
 	Saved to User Defined: {}	Αποθηκεύτηκε στις προσαρμοσμένες επιλογές: {}
 	Saved Views	Αποθηκευμένες προβολές
 	Saved {n} files beside {path}	Αποθηκεύτηκαν {n} αρχεία δίπλα στο {path}

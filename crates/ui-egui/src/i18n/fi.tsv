@@ -3436,6 +3436,7 @@ theme	Appearance	Ulkoasu
 	Remove Selected Objects	Poista valitut objektit
 	Open a document to see its saved selections.	Avaa asiakirja, niin näet sen tallennetut valinnat.
 	Click Selects Saved Selections	Napsautus valitsee tallennetut valinnat
+	Move Saved Selection	Siirrä tallennettua valintaa
 	Select Guides	Valitse apuviivat
 	Move Guide to Layer	Siirrä apuviiva tasolle
 	Blob Brush	Möykkysivellin
@@ -4435,6 +4436,7 @@ imageTrace	Outline	Ääriviiva
 @plural	{n} stroke|{n} strokes	{n} viiva|{n} viivaa
 @msg	no library `{id}`	ei kirjastoa `{id}`
 @msg	the library has another item of that kind named `{name}`	kirjastossa on jo toinen samanlainen kohde nimeltä `{name}`
+@msg	missing to: a place from 0	to puuttuu: paikka alkaen 0:sta
 @msg	unknown mode `{m}`: set, add or remove	tuntematon tila `{m}`: set, add tai remove
 @msg	select some type first	valitse ensin tekstiä
 @msg	kerning must be a number, "auto", or "optical"	kerning-arvon on oltava luku, ”auto” tai ”optical”

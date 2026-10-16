@@ -3087,6 +3087,7 @@ digits	Malayalam	Malayalam
 	Remove Selected Objects	Retirer les objets sélectionnés
 	Open a document to see its saved selections.	Ouvrez un document pour voir ses sélections enregistrées.
 	Click Selects Saved Selections	Le clic sélectionne les sélections enregistrées
+	Move Saved Selection	Déplacer la sélection enregistrée
 	Saved to User Defined: {}	Enregistré dans Défini par l’utilisateur : {}
 	Saved View 1	Vue enregistrée 1
 	Saved View 10	Vue enregistrée 10
@@ -4199,6 +4200,7 @@ axis	Both	Les deux
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	aucune bibliothèque `{id}`
 @msg	the library has another item of that kind named `{name}`	la bibliothèque a déjà un autre élément de ce type nommé `{name}`
+@msg	missing to: a place from 0	to manquant : une position à partir de 0
 @msg	unknown mode `{m}`: set, add or remove	mode inconnu `{m}` : set, add ou remove
 @msg	select some type first	sélectionnez d’abord du texte
 @msg	kerning must be a number, "auto", or "optical"	kerning doit être un nombre, « auto » ou « optical »
