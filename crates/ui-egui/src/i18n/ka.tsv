@@ -3730,6 +3730,7 @@ font-technology	Variable	ცვლადი
 @plural	{n} step|{n} steps	ნაბიჯი: {n}
 @plural	{n} stroke|{n} strokes	კონტური: {n}
 @msg	no library `{id}`	ბიბლიოთეკა `{id}` არ არსებობს
+@msg	missing to: a place from 0	to აკლია: ადგილი 0-დან
 @msg	unknown mode `{m}`: set, add or remove	უცნობი რეჟიმი `{m}`: set, add ან remove
 @msg	select some type first	ჯერ მონიშნეთ ტექსტი
 @msg	kerning must be a number, "auto", or "optical"	კერნინგი უნდა იყოს რიცხვი, „auto“ ან „optical“
@@ -6421,3 +6422,4 @@ font-script	Japanese	იაპონური
 	No saved selections	შენახული მონიშვნები არ არის
 	Open a document to see its saved selections.	გახსენით დოკუმენტი მისი შენახული მონიშვნების სანახავად.
 	Save a selection to list it here.	შეინახეთ მონიშნული, რომ აქ გამოჩნდეს.
+	Move Saved Selection	შენახული მონიშვნის გადატანა
