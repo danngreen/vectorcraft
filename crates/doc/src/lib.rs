@@ -149,7 +149,7 @@ pub use guides::{GridPrefs, Guide, RulerMode};
 #[cfg(test)]
 use limits::MAX_NEXT_ID;
 pub use limits::{DocError, FORMAT_VERSION, MAX_COORD};
-pub use records::{ImageBlob, MaskEdit, NewArtIds, SavedSelection, SavedView, Symbol, SymbolEdit};
+pub use records::{ImageBlob, MaskEdit, NewArtIds, SavedSelection, SavedView, Symbol, SymbolEdit, copied_ids};
 pub use units::{ColorMode, Unit, parse_number};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
