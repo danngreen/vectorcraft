@@ -2462,6 +2462,11 @@
 	Saved	已存储
 	Saved recovery data for {title}	已存储 {title} 的恢复数据
 	Saved Selections	已保存的选区
+	No saved selections	没有已保存的选区
+	Save a selection to list it here.	保存选区后会显示在这里。
+	Add Selected Objects	添加所选对象
+	Remove Selected Objects	移去所选对象
+	Open a document to see its saved selections.	打开文档以查看其已保存的选区。
 	Click Selects Saved Selections	单击选择已保存的选区
 	Saved to User Defined: {}	已存储至用户自定义：{}
 	Saved View 1	已存视图 1

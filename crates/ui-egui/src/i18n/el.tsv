@@ -3043,6 +3043,11 @@ theme	Appearance	Εμφάνιση
 	SAVED	ΑΠΟΘΗΚΕΥΜΕΝΑ
 	Saved recovery data for {title}	Αποθηκεύτηκαν δεδομένα ανάκτησης για το {title}
 	Saved Selections	Αποθηκευμένες επιλογές
+	No saved selections	Δεν υπάρχουν αποθηκευμένες επιλογές
+	Save a selection to list it here.	Αποθηκεύστε μια επιλογή για να εμφανιστεί εδώ.
+	Add Selected Objects	Προσθήκη επιλεγμένων αντικειμένων
+	Remove Selected Objects	Αφαίρεση επιλεγμένων αντικειμένων
+	Open a document to see its saved selections.	Ανοίξτε ένα έγγραφο για να δείτε τις αποθηκευμένες επιλογές του.
 	Click Selects Saved Selections	Το κλικ επιλέγει αποθηκευμένες επιλογές
 	Saved to User Defined: {}	Αποθηκεύτηκε στις προσαρμοσμένες επιλογές: {}
 	Saved Views	Αποθηκευμένες προβολές
