@@ -2672,6 +2672,7 @@ font-script	Japanese	汉字
 	Remove Selected Objects	移去所选对象
 	Open a document to see its saved selections.	打开文档以查看其已保存的选区。
 	Click Selects Saved Selections	单击选择已保存的选区
+	Move Saved Selection	移动已保存的选区
 	Saved to User Defined: {}	已存储至用户自定义：{}
 	Saved View 1	已存视图 1
 	Saved View 10	已存视图 10
@@ -3797,6 +3798,7 @@ imageTrace	Outline	轮廓
 @msg	the layer to flatten into is hidden	要拼合到的图层已隐藏
 @msg	there are no objects to release	没有可释放的对象
 @msg	no library `{id}`	没有库 `{id}`
+@msg	missing to: a place from 0	缺少 to：从 0 开始的位置
 @msg	unknown mode `{m}`: set, add or remove	未知模式 `{m}`：应为 set、add 或 remove
 @msg	{path}: not a file	{path}：不是文件
 @msg	{path}: {e}	{path}：{e}

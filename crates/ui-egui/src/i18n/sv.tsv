@@ -2744,6 +2744,7 @@ font-technology	Variable	Variabla
 	Remove Selected Objects	Ta bort markerade objekt
 	Open a document to see its saved selections.	Öppna ett dokument för att se dess sparade markeringar.
 	Click Selects Saved Selections	Klick markerar sparade markeringar
+	Move Saved Selection	Flytta sparad markering
 	Saved to User Defined: {}	Sparat i Användardefinierat: {}
 	Saved View 1	Sparad vy 1
 	Saved View 10	Sparad vy 10
@@ -3702,6 +3703,7 @@ axis	Both	Båda
 	Drag to the window's left edge to dock	Dra till fönstrets vänsterkant för att docka
 	Float Tool Group	Gör verktygsgruppen flytande
 @msg	no library `{id}`	inget bibliotek `{id}`
+@msg	missing to: a place from 0	to saknas: en plats från 0
 @msg	unknown mode `{m}`: set, add or remove	okänt läge `{m}`: set, add eller remove
 @msg	select some type first	markera någon text först
 @msg	{_1} has no {_2} style	{_1} har ingen stil {_2}

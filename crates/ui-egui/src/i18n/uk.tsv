@@ -2825,6 +2825,7 @@ mark-style	Japanese	Японський
 	Remove Selected Objects	Вилучити виділені об’єкти
 	Open a document to see its saved selections.	Відкрийте документ, щоб побачити його збережені виділення.
 	Click Selects Saved Selections	Клацання вибирає збережені виділення
+	Move Saved Selection	Перемістити збережене виділення
 	Saved to User Defined: {}	Збережено в «Користувач»: {}
 	Saved View 1	Збережений вигляд 1
 	Saved View 10	Збережений вигляд 10
@@ -3804,6 +3805,7 @@ axis	Both	Обидві
 	Drag to the window's left edge to dock	Перетягніть до лівого краю вікна для прикріплення
 	Float Tool Group	Від’єднати групу інструментів
 @msg	no library `{id}`	немає бібліотеки `{id}`
+@msg	missing to: a place from 0	не вказано to: позиція від 0
 @msg	unknown mode `{m}`: set, add or remove	невідомий режим `{m}`: set, add або remove
 @msg	select some type first	спочатку виділіть текст
 @msg	{_1} has no {_2} style	{_1} не має накреслення {_2}
