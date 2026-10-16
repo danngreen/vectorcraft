@@ -536,8 +536,14 @@ fn paste_clip(s: &mut Session, p: &Value, mode: PasteMode, clip: &Clipboard, cho
         let mut placed: BTreeMap<Option<NodeId>, usize> = BTreeMap::new();
         let mut new_ids = vec![];
         for xf in placements {
+            // A copy of a whole saved selection pasted into its document is one too (ids mean
+            // nothing in another document).
+            let mut pairs = std::collections::HashMap::new();
             for (k, n) in clip.nodes.iter().enumerate() {
                 let mut c = d.reid(n);
+                if same_doc {
+                    vectorcraft_doc::copied_ids(n, &c, &mut pairs);
+                }
                 imported.apply(&mut c);
                 if xf != Affine::IDENTITY {
                     c.transform(xf, false);
@@ -560,6 +566,7 @@ fn paste_clip(s: &mut Session, p: &Value, mode: PasteMode, clip: &Clipboard, cho
                 *placed.entry(par).or_default() += 1;
                 new_ids.push(d.insert(par, idx, c)?);
             }
+            d.copy_saved_selections(&pairs);
         }
         sel.set(new_ids.iter().copied());
         // Pasted type arrives without the layout bounds cache: fill it so boxes and alignment are
@@ -613,8 +620,10 @@ pub(crate) fn duplicate_in(d: &mut Document, sel: &mut vectorcraft_doc::Selectio
 /// document, each original and its copy before the copy goes in, and must leave the document's
 /// tree as it is. The copies take new ids in the order of `roots`. Roots listed twice, or inside
 /// another root, are copied one at a time: each copy is made from the document as the copies
-/// before it left it.
+/// before it left it. A saved selection whose objects were all copied gets one holding the copies
+/// ([`Document::copy_saved_selections`]).
 pub(crate) fn copy_above(d: &mut Document, roots: &[NodeId], mut change: impl FnMut(&mut Document, &Node, &mut Node)) -> Result<Vec<NodeId>> {
+    let mut pairs = std::collections::HashMap::new();
     let paths = d.index_paths(roots.iter().copied());
     let mut found: Vec<_> = roots.iter().filter_map(|id| paths.get(id)).collect();
     found.sort_unstable();
@@ -623,6 +632,7 @@ pub(crate) fn copy_above(d: &mut Document, roots: &[NodeId], mut change: impl Fn
         for id in roots {
             let Some(n) = paths.get(id).and_then(|p| d.node_at(p)).cloned() else { continue };
             let mut c = d.reid(&n);
+            vectorcraft_doc::copied_ids(&n, &c, &mut pairs);
             change(d, &n, &mut c);
             copies.push((*id, vec![c]));
         }
@@ -635,11 +645,13 @@ pub(crate) fn copy_above(d: &mut Document, roots: &[NodeId], mut change: impl Fn
             let Some((par, idx, _)) = d.position(*id) else { continue };
             let Some(n) = d.node(*id).cloned() else { continue };
             let mut c = d.reid(&n);
+            vectorcraft_doc::copied_ids(&n, &c, &mut pairs);
             change(d, &n, &mut c);
             out.push(d.insert(par, idx + 1, c)?);
         }
         out
     };
+    d.copy_saved_selections(&pairs);
     Ok(out)
 }
 

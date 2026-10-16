@@ -1561,6 +1561,90 @@ fn a_click_stands_for_the_smallest_saved_selection_holding_the_object() {
     assert!(s.doc().unwrap().doc.saved_selection_of(lone).is_none());
 }
 
+fn saved(s: &Session) -> Vec<(String, Vec<NodeId>)> {
+    s.doc().unwrap().doc.saved_selections.iter().map(|x| (x.name.clone(), x.objects.clone())).collect()
+}
+
+/// A copy of a whole saved selection (Duplicate, an Alt-drag's copy) is a saved selection too,
+/// named after it, in the same undo step; a copy of part of one is not.
+#[test]
+fn a_copy_of_a_whole_saved_selection_is_one_too() {
+    let mut s = session();
+    let [pot, cap, label, _, group] = knob(&mut s);
+    s.execute("select.recall", &json!({"name": "Knob", "all": true})).unwrap();
+    let copies = s.execute("edit.duplicate", &json!({"dx": 100})).unwrap();
+    let copies: Vec<NodeId> = copies["ids"].as_array().unwrap().iter().map(|v| NodeId(v.as_u64().unwrap())).collect();
+    let list = saved(&s);
+    assert_eq!(list.len(), 2);
+    assert_eq!(list[1].0, "Knob 2");
+    let mut want = copies.clone();
+    want.sort();
+    let mut got = list[1].1.clone();
+    got.sort();
+    assert_eq!(got, want, "the copies of the pot, the cap and the label's group");
+    assert!(![pot, cap, group, label].iter().any(|id| list[1].1.contains(id)));
+    // An Alt-drag copies with object.transform {copy: true}.
+    s.execute("select.recall", &json!({"name": "Knob", "all": true})).unwrap();
+    s.execute("object.transform", &json!({"matrix": [1, 0, 0, 1, 0, 100], "copy": true})).unwrap();
+    assert_eq!(saved(&s).iter().map(|x| x.0.as_str()).collect::<Vec<_>>(), ["Knob", "Knob 2", "Knob 3"]);
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(saved(&s).len(), 2, "undone with the copy");
+    // An Alt-drag previews its copy at each step and keeps one.
+    s.execute("select.recall", &json!({"name": "Knob", "all": true})).unwrap();
+    s.begin_interaction("Copy").unwrap();
+    for dy in [10, 40, 90] {
+        s.preview("object.transform", &json!({"matrix": [1, 0, 0, 1, 0, dy], "copy": true})).unwrap();
+    }
+    s.commit_interaction().unwrap();
+    assert_eq!(saved(&s).iter().map(|x| x.0.as_str()).collect::<Vec<_>>(), ["Knob", "Knob 2", "Knob 3"]);
+    s.execute("edit.undo", &json!({})).unwrap();
+    // Part of it copied: no saved selection.
+    sel(&mut s, &[pot]);
+    s.execute("edit.duplicate", &json!({})).unwrap();
+    assert_eq!(saved(&s).len(), 2);
+}
+
+/// Pasted into its document, a copy of a whole saved selection is one too; pasted into another,
+/// not (its ids mean nothing there). Cut and pasted, the saved selection takes the pasted objects.
+#[test]
+fn a_pasted_saved_selection_is_one_too_in_its_document() {
+    let mut s = session();
+    knob(&mut s);
+    s.execute("select.recall", &json!({"name": "Knob", "all": true})).unwrap();
+    s.execute("edit.copy", &json!({})).unwrap();
+    s.execute("edit.paste", &json!({})).unwrap();
+    assert_eq!(saved(&s).iter().map(|x| x.0.as_str()).collect::<Vec<_>>(), ["Knob", "Knob 2"]);
+    // Cut and pasted: Knob 2 holds the pasted objects.
+    s.execute("select.recall", &json!({"name": "Knob 2", "all": true})).unwrap();
+    s.execute("edit.cut", &json!({})).unwrap();
+    assert!(s.execute("select.recall", &json!({"name": "Knob 2", "all": true})).unwrap()["count"] == 0);
+    let pasted = s.execute("edit.paste", &json!({})).unwrap();
+    let mut pasted: Vec<NodeId> = pasted["ids"].as_array().unwrap().iter().map(|v| NodeId(v.as_u64().unwrap())).collect();
+    pasted.sort();
+    let list = saved(&s);
+    assert_eq!(list.len(), 2);
+    let mut got = list[1].1.clone();
+    got.sort();
+    assert_eq!((list[1].0.as_str(), got), ("Knob 2", pasted));
+    // Into another document: no saved selection there.
+    s.execute("select.recall", &json!({"name": "Knob", "all": true})).unwrap();
+    s.execute("edit.copy", &json!({})).unwrap();
+    s.execute("file.new", &json!({"width": 400, "height": 300})).unwrap();
+    s.execute("edit.paste", &json!({})).unwrap();
+    assert!(saved(&s).is_empty());
+}
+
+#[test]
+fn a_copied_saved_selection_takes_the_next_free_number() {
+    use vectorcraft_doc::SavedSelection;
+    let named = |names: &[&str]| names.iter().map(|n| SavedSelection { name: n.to_string(), objects: vec![] }).collect::<Vec<_>>();
+    assert_eq!(SavedSelection::next_name("Knob", &named(&["Knob"])), "Knob 2");
+    assert_eq!(SavedSelection::next_name("Knob 1", &named(&["Knob 1"])), "Knob 2");
+    assert_eq!(SavedSelection::next_name("Knob 2", &named(&["Knob", "Knob 2", "Knob 3"])), "Knob 4");
+    assert_eq!(SavedSelection::next_name("Jack 12", &named(&["Jack 12"])), "Jack 2");
+    assert_eq!(SavedSelection::next_name("7", &named(&["7"])), "7 2");
+}
+
 #[test]
 fn click_selects_saved_selections_is_a_preference_it_toggles() {
     let mut s = session();
