@@ -8,7 +8,9 @@
 //! (double-click makes it whole again: [`crate::pie`]), double-click a group or an object to enter isolation
 //! mode (Double Click To Isolate), Cmd/Ctrl-click to select the object behind (Command Click to Select Objects Behind),
 //! Cmd+Option-click (or any click with Click Selects Saved Selections on) to select the saved
-//! selection holding the object, hidden and locked objects too ([`saved_selection_press`]),
+//! selection holding the object, hidden and locked objects too ([`saved_selection_press`]; dragged
+//! on with Cmd+Option still held, it moves), and with that preference on a marquee takes whole
+//! saved selections too ([`with_saved_selections`]),
 //! click or drag a ruler guide ([`crate::rulerguide`]), Cmd/Ctrl+Shift-double-click a ruler guide or
 //! a guide path to release it ([`release_guide_at`]), drag the brackets of type on a path
 //! ([`crate::pathtype`]), double-click the type widget to convert point type to area type and back
@@ -139,6 +141,9 @@ pub struct SelectionTool {
     /// The last hover had Alt held: what it measures depends on what lies under the pointer
     /// ([`Tool::wants_rehover`]).
     alt_hover: bool,
+    /// The press selected a saved selection with Cmd+Option held: its drag moves while Cmd is
+    /// still held (Option alone copies, as on any drag).
+    set_drag: bool,
 }
 
 /// What Distance Guides measure the selection to.
@@ -712,9 +717,16 @@ impl Tool for SelectionTool {
                 // 3. Objects: a saved selection holding the one clicked; Cmd/Ctrl-click selects the
                 // one under the selected one (cycling).
                 if let Some(out) = saved_selection_press(cx, p, m) {
-                    self.state = State::Moving { start: grab, press: p, hold: grab, began: false, deselect: None, key: None };
+                    // Held where a press on the object alone would hold it (#3701).
+                    let hold = match (grabbed, hit_test(cx.doc, p, cx.selection_hit_options())) {
+                        (None, Some(h)) => hold_point(cx, &h, p),
+                        _ => grab,
+                    };
+                    self.state = State::Moving { start: grab, press: p, hold, began: false, deselect: None, key: None };
+                    self.set_drag = m.cmd && m.alt;
                     return out;
                 }
+                self.set_drag = false;
                 if m.cmd
                     && cx.select_behind
                     && let Some(behind) = object_behind(cx, p)
@@ -856,7 +868,10 @@ impl Tool for SelectionTool {
                     return if toggle { vec![] } else { vec![Action::Exec("select.none".into(), json!({}))] };
                 }
                 let touched = marquee(cx.doc, r, cx.isolation, false);
-                let ids = if enclosed { inside(cx, r, touched) } else { touched };
+                let mut ids = if enclosed { inside(cx, r, touched) } else { touched };
+                if cx.saved_selection_click && !toggle {
+                    ids = with_saved_selections(cx, ids);
+                }
                 let art = Action::Exec(if toggle { "select.toggle" } else { "select.set" }.into(), json!({ "ids": json_ids(&ids) }));
                 std::iter::once(art).chain(crate::rulerguide::marquee_select(cx, r, enclosed)).collect()
             }
@@ -994,6 +1009,40 @@ fn saved_selection_press(cx: &ToolContext, p: Point, m: Mods) -> Option<Vec<Acti
         (false, false) => "set",
     };
     Some(vec![Action::Exec("select.recall".into(), json!({ "name": saved.name, "all": true, "mode": mode }))])
+}
+
+/// `ids` (a marquee's objects) and, with Click Selects Saved Selections on, every object of the
+/// saved selections holding one of them (or a group it is in): those hidden or locked or on hidden
+/// or locked layers too, inside the isolated container when there is one. Two walks of the tree.
+fn with_saved_selections(cx: &ToolContext, ids: Vec<NodeId>) -> Vec<NodeId> {
+    if cx.doc.saved_selections.is_empty() || ids.is_empty() {
+        return ids;
+    }
+    let paths = cx.doc.index_paths(ids.iter().copied());
+    let mut sets: Vec<&vectorcraft_doc::SavedSelection> = vec![];
+    for path in paths.values() {
+        if let Some(set) = cx.doc.ancestry_at(path).and_then(|a| cx.doc.saved_selection_holding(&a))
+            && !sets.iter().any(|s| std::ptr::eq(*s, set))
+        {
+            sets.push(set);
+        }
+    }
+    let members = cx.doc.index_paths(sets.iter().flat_map(|s| s.objects.iter().copied()).chain(cx.isolation));
+    let inside = cx.isolation.map(|i| members.get(&i));
+    let mut have: std::collections::HashSet<NodeId> = ids.iter().copied().collect();
+    let mut out = ids;
+    for id in sets.iter().flat_map(|s| s.objects.iter().copied()) {
+        let Some(path) = members.get(&id) else { continue };
+        let in_iso = match inside {
+            None => true,
+            Some(Some(iso)) => path.len() > iso.len() && path.starts_with(iso),
+            Some(None) => false,
+        };
+        if in_iso && cx.doc.node_at(path).is_some_and(|n| !n.is_layer()) && have.insert(id) {
+            out.push(id);
+        }
+    }
+    out
 }
 
 fn object_behind(cx: &ToolContext, p: Point) -> Option<NodeId> {
@@ -1288,23 +1337,25 @@ impl SelectionTool {
         (start, press, hold, began): (Point, Point, Point, bool),
     ) -> Vec<Action> {
         let mut out = vec![];
+        // Option copies, except while Cmd+Option still hold a saved selection's press.
+        let copy = m.alt && !(self.set_drag && m.cmd);
         if !began {
             if p.distance(press) < Self::drag_threshold(cx) {
                 return out;
             }
-            out.push(Action::Begin(if m.alt { "Copy".into() } else { "Move".into() }));
+            out.push(Action::Begin(if copy { "Copy".into() } else { "Move".into() }));
             self.moving = Some(MoveSnap::new(cx));
         }
         let mut d = move_delta(start, p, m.shift, cx.constrain_angle);
         let unsnapped = d;
         if let Some(snap) = &self.moving {
-            (d, self.guides) = if m.shift { snap.snap_along(cx, hold, d, m.alt) } else { snap.snap(cx, hold, d, m.alt) };
+            (d, self.guides) = if m.shift { snap.snap_along(cx, hold, d, copy) } else { snap.snap(cx, hold, d, copy) };
         }
         // Shift has already constrained `d`: any change is a snap.
         self.snapped = (d - unsnapped).hypot() > 1e-9;
         self.state = State::Moving { start, press, hold, began: true, deselect: None, key: None };
         self.measure = cx.measurement_labels.then(|| (p, cx.offset_label(d.x, d.y)));
-        let mut params = json!({ "matrix": matrix_json(Affine::translate(d)), "copy": m.alt });
+        let mut params = json!({ "matrix": matrix_json(Affine::translate(d)), "copy": copy });
         if backquote {
             params["objects"] = json!(false);
             params["patterns"] = json!(true);
