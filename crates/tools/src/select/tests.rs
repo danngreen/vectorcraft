@@ -530,6 +530,51 @@ fn a_click_selects_the_saved_selection_holding_the_object() {
     assert_eq!(press(&none, true, Mods::default(), 425.0), vec![Action::Exec("select.set".into(), json!({"ids": [lone.0]}))]);
 }
 
+/// With Click Selects Saved Selections on, Cmd+Option does the opposite: the press picks the
+/// object alone (Shift toggles it), not its saved selection nor the object behind.
+#[test]
+fn with_the_preference_on_cmd_option_picks_the_object_alone() {
+    let (d, rect, _, _) = doc_with_saved_selection();
+    let p = paint();
+    let none = Selection::default();
+    let c = ToolContext { saved_selection_click: true, ..cx(&d, &none, &p) };
+    let press = |mods: Mods| SelectionTool::default().pointer(&c, &ev(PointerKind::Down, 150.0, 150.0).with_mods(mods));
+    assert_eq!(press(Mods { cmd: true, alt: true, ..Mods::default() }), vec![Action::Exec("select.set".into(), json!({"ids": [rect.0]}))]);
+    assert_eq!(
+        press(Mods { cmd: true, alt: true, shift: true, ..Mods::default() }),
+        vec![Action::Exec("select.toggle".into(), json!({"id": rect.0}))]
+    );
+}
+
+/// With Click Selects Saved Selections on, a double-click on an object of a saved selection
+/// first picks the object alone; presses on it alone leave it so, and a double-click on it
+/// alone then does what it does on any object (isolates it).
+#[test]
+fn with_the_preference_on_a_double_click_first_picks_the_object_alone() {
+    let (d, rect, square, lone) = doc_with_saved_selection();
+    let p = paint();
+    let mut t = SelectionTool::default();
+    let mut whole = Selection::default();
+    whole.set([rect, square]);
+    let c = ToolContext { saved_selection_click: true, ..cx(&d, &whole, &p) };
+    assert_eq!(t.pointer(&c, &ev(PointerKind::DoubleClick, 150.0, 150.0)), vec![Action::Exec("select.set".into(), json!({"ids": [rect.0]}))]);
+    let mut alone = Selection::default();
+    alone.set([rect]);
+    let c = ToolContext { saved_selection_click: true, ..cx(&d, &alone, &p) };
+    for kind in [PointerKind::Down, PointerKind::Up, PointerKind::Down, PointerKind::Up] {
+        assert!(t.pointer(&c, &ev(kind, 150.0, 150.0)).is_empty(), "{kind:?} on it alone leaves it so");
+    }
+    assert_eq!(t.pointer(&c, &ev(PointerKind::DoubleClick, 150.0, 150.0)), vec![Action::Exec("object.isolate".into(), json!({"id": rect.0}))]);
+    // Once something else is selected, a press on it takes its saved selection again.
+    let mut other = Selection::default();
+    other.set([lone]);
+    let c = ToolContext { saved_selection_click: true, ..cx(&d, &other, &p) };
+    assert_eq!(
+        t.pointer(&c, &ev(PointerKind::Down, 150.0, 150.0)),
+        vec![Action::Exec("select.recall".into(), json!({"name": "Knob", "all": true, "mode": "set"}))]
+    );
+}
+
 /// With Click Selects Saved Selections on, a marquee over one object of a saved selection
 /// selects all of it, the hidden square too; off, or toggling with Shift, it doesn't.
 #[test]
