@@ -83,6 +83,9 @@ impl Session {
                 // the new art this edit made and new art still selected.
                 st.protect_locked_artboards(&before_sel.objects, &before_sel.new_art, Some(&*before));
                 st.revision += 1;
+                if !vectorcraft_doc::Shared::ptr_eq(&before.saved_selections, &st.doc.saved_selections) {
+                    st.recalled_selection.carry(&before.saved_selections, &st.doc.saved_selections);
+                }
                 if st.interaction.is_none() {
                     let selection = match st.history.undo.last() {
                         Some(l) if *l.selection == before_sel => l.selection.clone(),
