@@ -3193,6 +3193,7 @@ theme	Appearance	Εμφάνιση
 	Remove Selected Objects	Αφαίρεση επιλεγμένων αντικειμένων
 	Open a document to see its saved selections.	Ανοίξτε ένα έγγραφο για να δείτε τις αποθηκευμένες επιλογές του.
 	Click Selects Saved Selections	Το κλικ επιλέγει αποθηκευμένες επιλογές
+	Move Saved Selection	Μετακίνηση αποθηκευμένης επιλογής
 	Saved to User Defined: {}	Αποθηκεύτηκε στις προσαρμοσμένες επιλογές: {}
 	Saved Views	Αποθηκευμένες προβολές
 	Saved {n} files beside {path}	Αποθηκεύτηκαν {n} αρχεία δίπλα στο {path}

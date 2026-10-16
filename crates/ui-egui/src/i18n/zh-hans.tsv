@@ -2624,6 +2624,7 @@ mark-style	Japanese	日式
 	Remove Selected Objects	移去所选对象
 	Open a document to see its saved selections.	打开文档以查看其已保存的选区。
 	Click Selects Saved Selections	单击选择已保存的选区
+	Move Saved Selection	移动已保存的选区
 	Saved to User Defined: {}	已存储至用户自定义：{}
 	Saved View 1	已存视图 1
 	Saved View 10	已存视图 10

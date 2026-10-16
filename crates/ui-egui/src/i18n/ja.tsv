@@ -2655,6 +2655,7 @@ mark-style	Japanese	日本式
 	Remove Selected Objects	選択したオブジェクトを除外
 	Open a document to see its saved selections.	ドキュメントを開くと保存した選択範囲が表示されます。
 	Click Selects Saved Selections	クリックで保存した選択範囲を選択
+	Move Saved Selection	保存した選択範囲を移動
 	Saved Views	保存した表示
 	Saves the current bars, toolbar and panel layout.	現在のバー、ツールバー、パネルのレイアウトを保存します。
 	Save…	保存…
