@@ -2999,6 +2999,7 @@ theme	Appearance	Ulkoasu
 	Remove Selected Objects	Poista valitut objektit
 	Open a document to see its saved selections.	Avaa asiakirja, niin näet sen tallennetut valinnat.
 	Click Selects Saved Selections	Napsautus valitsee tallennetut valinnat
+	Move Saved Selection	Siirrä tallennettua valintaa
 	Select Guides	Valitse apuviivat
 	Move Guide to Layer	Siirrä apuviiva tasolle
 	Blob Brush	Möykkysivellin

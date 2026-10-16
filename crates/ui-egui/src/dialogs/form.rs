@@ -341,7 +341,11 @@ pub(super) fn param_fields(
                     }
                 }
                 Value::String(mut s) => {
-                    if ui.add(egui::TextEdit::singleline(&mut s).desired_width(140.0)).changed() {
+                    // The first field of a dialog just opened takes the focus, all selected, so
+                    // typing replaces it (Save Selection…'s name).
+                    let id = ui.id().with(("fx-text", &k));
+                    crate::widgets::take_dialog_focus(ui, id, &s);
+                    if ui.add(egui::TextEdit::singleline(&mut s).id(id).desired_width(140.0)).changed() {
                         d.fields.insert(k, json!(s));
                         changed = true;
                     }

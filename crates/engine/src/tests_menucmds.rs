@@ -1651,6 +1651,41 @@ fn edit_selection_needs_a_saved_selection_and_a_free_name() {
     assert_eq!(s.execute("select.savedList", &json!({})).unwrap(), json!(["Uno", "Two"]));
 }
 
+/// Saved selections can be put in any order, one undo step each; their objects stay as they are.
+#[test]
+fn move_saved_selection_reorders_the_list() {
+    let mut s = session();
+    let a = rect(&mut s, 0.0, 0.0, 10.0, 10.0);
+    let b = rect(&mut s, 20.0, 0.0, 10.0, 10.0);
+    sel(&mut s, &[a, b]);
+    for name in ["One", "Two", "Three"] {
+        s.execute("select.save", &json!({"name": name})).unwrap();
+    }
+    let list = |s: &mut Session| s.execute("select.savedList", &json!({})).unwrap();
+    let order = s.execute("document.inspect", &json!({})).unwrap()["layers"].clone();
+    s.execute("select.moveSaved", &json!({"name": "Three", "to": 0})).unwrap();
+    assert_eq!(list(&mut s), json!(["Three", "One", "Two"]));
+    // Past the end: last.
+    s.execute("select.moveSaved", &json!({"name": "Three", "to": 99})).unwrap();
+    assert_eq!(list(&mut s), json!(["One", "Two", "Three"]));
+    s.execute("select.moveSaved", &json!({"name": "One", "to": 1})).unwrap();
+    assert_eq!(list(&mut s), json!(["Two", "One", "Three"]));
+    s.execute("edit.undo", &json!({})).unwrap();
+    assert_eq!(list(&mut s), json!(["One", "Two", "Three"]));
+    assert_eq!(s.execute("document.inspect", &json!({})).unwrap()["layers"], order, "the art is not touched");
+    for bad in [json!({"name": "Four", "to": 0}), json!({"name": "One"}), json!({"name": "One", "to": -1}), json!({"name": "One", "to": 1.5})] {
+        assert!(s.execute("select.moveSaved", &bad).is_err(), "{bad}");
+    }
+    assert_eq!(list(&mut s), json!(["One", "Two", "Three"]));
+    // Update Selection still replaces the one recalled after it moves.
+    s.execute("select.recall", &json!({"name": "Two"})).unwrap();
+    s.execute("select.moveSaved", &json!({"name": "Two", "to": 2})).unwrap();
+    sel(&mut s, &[a]);
+    assert_eq!(s.execute("select.update", &json!({})).unwrap()["name"], "Two");
+    let saved = &s.doc().unwrap().doc.saved_selections;
+    assert_eq!(saved.iter().map(|x| x.objects.len()).collect::<Vec<_>>(), [2, 2, 1], "One, Three, Two");
+}
+
 #[test]
 fn saved_selections_live_in_the_document() {
     let mut s = session();

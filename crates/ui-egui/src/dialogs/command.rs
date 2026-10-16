@@ -137,6 +137,34 @@ mod tests {
         assert_eq!(t.area.vertical_align, VerticalAlign::Center);
     }
 
+    /// Save Selection… (its shortcut or the menu) opens with the name field focused and all
+    /// selected: typing replaces the suggested name, and Enter saves.
+    #[test]
+    fn save_selection_starts_with_its_name_selected() {
+        let mut app = VectorcraftApp::new(Session::new(), Default::default());
+        app.run("file.new", json!({"width": 400, "height": 400})).unwrap();
+        app.run("shape.rectangle", json!({"x": 0, "y": 0, "width": 10, "height": 10})).unwrap();
+        crate::menus::invoke(&mut app, "select.save", json!({}));
+        assert_eq!(app.ui.dialog.as_ref().unwrap().str("name"), "Selection 1");
+        let ctx = egui::Context::default();
+        crate::theme::install_fonts(&ctx);
+        let mut time = 0.0;
+        let mut frame = |app: &mut VectorcraftApp, events: Vec<egui::Event>| {
+            time += 0.1;
+            let mut out = ctx.run_ui(egui::RawInput { events, time: Some(time), ..Default::default() }, |ui| crate::dialogs::show(app, ui.ctx()));
+            out.textures_delta.clear();
+        };
+        for _ in 0..3 {
+            frame(&mut app, vec![]);
+        }
+        frame(&mut app, vec![egui::Event::Text("Logo".into())]);
+        assert_eq!(app.ui.dialog.as_ref().unwrap().str("name"), "Logo", "typing replaced the name");
+        let enter = egui::Event::Key { key: egui::Key::Enter, physical_key: None, pressed: true, repeat: false, modifiers: Default::default() };
+        frame(&mut app, vec![enter]);
+        assert!(app.ui.dialog.is_none(), "Enter closes it");
+        assert_eq!(app.run("select.savedList", json!({})).unwrap(), json!(["Logo"]));
+    }
+
     /// Graph Type › Value Axis is a dropdown of the values `graph.setType` takes, and OK puts the
     /// value axis on the side picked.
     #[test]

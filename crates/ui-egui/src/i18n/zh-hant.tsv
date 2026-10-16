@@ -3489,6 +3489,7 @@ font-script	Japanese	漢字
 	Remove Selected Objects	移除選取的物件
 	Open a document to see its saved selections.	開啟文件以檢視其已儲存的選取範圍。
 	Click Selects Saved Selections	按一下即選取已儲存的選取範圍
+	Move Saved Selection	移動已儲存的選取範圍
 	Saved to User Defined: {}	已儲存至使用者自訂：{}
 	Saved View 1	已儲存的檢視 1
 	Saved View 10	已儲存的檢視 10
