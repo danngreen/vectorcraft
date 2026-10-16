@@ -2772,6 +2772,7 @@ mark-style	Japanese	Japanisch
 	Remove Selected Objects	Ausgewählte Objekte entfernen
 	Open a document to see its saved selections.	Öffnen Sie ein Dokument, um seine gespeicherten Auswahlen anzuzeigen.
 	Click Selects Saved Selections	Klick wählt gespeicherte Auswahlen aus
+	Move Saved Selection	Gespeicherte Auswahl verschieben
 	Saved to User Defined: {}	In „Benutzerdefiniert“ gespeichert: {}
 	Saved View 1	Gespeicherte Ansicht 1
 	Saved View 10	Gespeicherte Ansicht 10
@@ -3722,6 +3723,7 @@ theme	Appearance	Erscheinungsbild
 # (`untranslated_report` lists any that are missing). Command ids, parameter
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	keine Bibliothek `{id}`
+@msg	missing to: a place from 0	to fehlt: eine Position ab 0
 @msg	unknown mode `{m}`: set, add or remove	unbekannter Modus `{m}`: set, add oder remove
 @msg	select some type first	wählen Sie zuerst Text aus
 @msg	{_1} has no {_2} style	{_1} hat keinen Schnitt „{_2}“

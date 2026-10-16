@@ -3018,6 +3018,7 @@ theme	Appearance	Wygląd
 	Remove Selected Objects	Usuń zaznaczone obiekty
 	Open a document to see its saved selections.	Otwórz dokument, aby zobaczyć jego zapisane zaznaczenia.
 	Click Selects Saved Selections	Kliknięcie zaznacza zapisane zaznaczenia
+	Move Saved Selection	Przesuń zapisane zaznaczenie
 	Select Guides	Zaznacz linie pomocnicze
 	Move Guide to Layer	Przenieś linię pomocniczą na warstwę
 	Blob Brush	Pędzel plamy
@@ -3924,6 +3925,7 @@ imageTrace	Outline	Kontur
 @plural	{n} step|{n} steps	{n} krok|{n} kroki|{n} kroków
 @plural	{n} stroke|{n} strokes	{n} obrys|{n} obrysy|{n} obrysów
 @msg	no library `{id}`	brak biblioteki `{id}`
+@msg	missing to: a place from 0	brak to: pozycja od 0
 @msg	unknown mode `{m}`: set, add or remove	nieznany tryb `{m}`: set, add lub remove
 @msg	select some type first	najpierw zaznacz tekst
 @msg	{_1} has no {_2} style	{_1} nie ma stylu {_2}

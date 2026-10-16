@@ -3080,6 +3080,7 @@ theme	Appearance	Ulkoasu
 	Remove Selected Objects	Poista valitut objektit
 	Open a document to see its saved selections.	Avaa asiakirja, niin näet sen tallennetut valinnat.
 	Click Selects Saved Selections	Napsautus valitsee tallennetut valinnat
+	Move Saved Selection	Siirrä tallennettua valintaa
 	Select Guides	Valitse apuviivat
 	Move Guide to Layer	Siirrä apuviiva tasolle
 	Blob Brush	Möykkysivellin
@@ -4022,6 +4023,7 @@ imageTrace	Outline	Ääriviiva
 @plural	{n} step|{n} steps	{n} vaihe|{n} vaihetta
 @plural	{n} stroke|{n} strokes	{n} viiva|{n} viivaa
 @msg	no library `{id}`	ei kirjastoa `{id}`
+@msg	missing to: a place from 0	to puuttuu: paikka alkaen 0:sta
 @msg	unknown mode `{m}`: set, add or remove	tuntematon tila `{m}`: set, add tai remove
 @msg	select some type first	valitse ensin tekstiä
 @msg	{_1} has no {_2} style	{_1}: ei tyyliä {_2}

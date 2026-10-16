@@ -3386,6 +3386,7 @@ mark-style	Japanese	Japán
 	Remove Selected Objects	Kijelölt objektumok eltávolítása
 	Open a document to see its saved selections.	Nyiss meg egy dokumentumot a mentett kijelölései megtekintéséhez.
 	Click Selects Saved Selections	A kattintás a mentett kijelöléseket jelöli ki
+	Move Saved Selection	Mentett kijelölés áthelyezése
 	Saved to User Defined: {}	Mentve a Felhasználói könyvtárak közé: {}
 	Saved View 1	Mentett nézet 1
 	Saved View 10	Mentett nézet 10
@@ -4787,6 +4788,7 @@ imageTrace	Outline	Körvonal
 @msg	no interaction in progress	nincs folyamatban lévő művelet
 @msg	no key object	nincs kulcsobjektum
 @msg	no library `{id}`	nincs ilyen könyvtár: `{id}`
+@msg	missing to: a place from 0	hiányzik a to: egy hely 0-tól
 @msg	unknown mode `{m}`: set, add or remove	ismeretlen mód: `{m}`; set, add vagy remove
 @msg	no library `{key}` (see {list})	nincs ilyen könyvtár: `{key}` (lásd: {list})
 @msg	no Live Paint edge near that point	annál a pontnál nincs élőfestés-él

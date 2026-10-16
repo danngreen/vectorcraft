@@ -2046,6 +2046,7 @@ axis	Both	Και τα δύο
 	Float Panel	Αιωρούμενο πάνελ
 	Dock Panel	Αγκύρωση πάνελ
 @msg	no library `{id}`	Δεν υπάρχει βιβλιοθήκη με αναγνωριστικό `{id}`
+@msg	missing to: a place from 0	λείπει το to: μια θέση από 0
 @msg	unknown mode `{m}`: set, add or remove	άγνωστη λειτουργία `{m}`: set, add ή remove
 @msg	select some type first	Επιλέξτε πρώτα κάποιο κείμενο
 @msg	{_1} has no {_2} style	Το {_1} δεν έχει στυλ {_2}
@@ -3285,6 +3286,7 @@ theme	Appearance	Εμφάνιση
 	Remove Selected Objects	Αφαίρεση επιλεγμένων αντικειμένων
 	Open a document to see its saved selections.	Ανοίξτε ένα έγγραφο για να δείτε τις αποθηκευμένες επιλογές του.
 	Click Selects Saved Selections	Το κλικ επιλέγει αποθηκευμένες επιλογές
+	Move Saved Selection	Μετακίνηση αποθηκευμένης επιλογής
 	Saved to User Defined: {}	Αποθηκεύτηκε στις προσαρμοσμένες επιλογές: {}
 	Saved Views	Αποθηκευμένες προβολές
 	Saved {n} files beside {path}	Αποθηκεύτηκαν {n} αρχεία δίπλα στο {path}
