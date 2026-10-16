@@ -1640,6 +1640,24 @@ fn edit_selection_needs_a_saved_selection_and_a_free_name() {
     assert_eq!(s.execute("select.savedList", &json!({})).unwrap(), json!(["Uno", "Two"]));
 }
 
+/// Duplicating a whole saved selection adds one for the copies; Update Selection still replaces the
+/// one recalled.
+#[test]
+fn update_selection_survives_a_copy_of_a_saved_selection() {
+    let mut s = session();
+    let a = rect(&mut s, 0.0, 0.0, 10.0, 10.0);
+    let b = rect(&mut s, 20.0, 0.0, 10.0, 10.0);
+    sel(&mut s, &[a, b]);
+    s.execute("select.save", &json!({"name": "Knob"})).unwrap();
+    sel(&mut s, &[a]);
+    s.execute("select.save", &json!({"name": "Dot"})).unwrap();
+    s.execute("select.recall", &json!({"name": "Knob"})).unwrap();
+    s.execute("edit.duplicate", &json!({})).unwrap();
+    assert_eq!(s.execute("select.savedList", &json!({})).unwrap(), json!(["Knob", "Dot", "Knob 2", "Dot 2"]));
+    sel(&mut s, &[b]);
+    assert_eq!(s.execute("select.update", &json!({})).unwrap()["name"], "Knob");
+}
+
 /// Saved selections can be put in any order, one undo step each; their objects stay as they are.
 #[test]
 fn move_saved_selection_reorders_the_list() {

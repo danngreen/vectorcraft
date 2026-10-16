@@ -473,6 +473,23 @@ impl RecalledSelection {
     pub(crate) fn recall(&mut self, list: &vectorcraft_doc::Shared<Vec<vectorcraft_doc::SavedSelection>>, index: usize) {
         self.id = self.ids(list).get(index).copied();
     }
+    /// `after`, made by an edit from `before`: when the edit kept `before`'s saved selections where
+    /// they were and only added some after them (copies of a whole one), those keep their ids and
+    /// the new ones get new ids, so the one recalled is still found.
+    pub(crate) fn carry(
+        &mut self,
+        before: &vectorcraft_doc::Shared<Vec<vectorcraft_doc::SavedSelection>>,
+        after: &vectorcraft_doc::Shared<Vec<vectorcraft_doc::SavedSelection>>,
+    ) {
+        if self.id.is_none() || after.len() < before.len() || before.iter().zip(after.iter()).any(|(a, b)| a.name != b.name) {
+            return;
+        }
+        let mut ids = self.ids(before);
+        while ids.len() < after.len() {
+            ids.push(self.new_id());
+        }
+        self.remember(after, ids);
+    }
     /// Where the recalled saved selection is in `list`, if `list` holds it.
     pub fn index_in(&self, list: &vectorcraft_doc::Shared<Vec<vectorcraft_doc::SavedSelection>>) -> Option<usize> {
         let id = self.id?;
@@ -1757,6 +1774,9 @@ impl Session {
                     deselect_guides(&st.doc, &mut st.selection);
                 }
                 st.revision += 1;
+                if !vectorcraft_doc::Shared::ptr_eq(&before.saved_selections, &st.doc.saved_selections) {
+                    st.recalled_selection.carry(&before.saved_selections, &st.doc.saved_selections);
+                }
                 if st.interaction.is_none() {
                     let selection = match st.history.undo.last() {
                         Some(l) if *l.selection == before_sel => l.selection.clone(),
