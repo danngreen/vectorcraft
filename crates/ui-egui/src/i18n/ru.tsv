@@ -4864,3 +4864,29 @@ lighting	Light	Свет
 	Move Library Group	Переместить группу библиотеки
 	Plaster…	Гипс…
 	Plaster	Гипс
+	Check Again	Проверить снова
+	Choose the CSV to import.	Выберите CSV-файл для импорта.
+	Errors ({count})	Ошибки ({count})
+	Export Positions	Экспорт позиций
+	Export Positions…	Экспорт позиций…
+	Exported {count} controls to {file}	Элементов управления экспортировано в {file}: {count}
+	Import Positions	Импорт позиций
+	Import Positions…	Импорт позиций…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Изменений импортировано из {file}: {count} (Редактирование › Отменить отменит их)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Перемещает, меняет тип, добавляет и удаляет элементы управления (сохранённые выделения) по CSV-файлу позиций за один шаг.
+	No file chosen	Файл не выбран
+	Nothing to change: the controls match the file.	Нечего менять: элементы управления совпадают с файлом.
+	Warnings ({count})	Предупреждения ({count})
+	Will be added ({count})	Будут добавлены ({count})
+	Will be removed ({count})	Будут удалены ({count})
+	Will change type ({count})	Сменят тип ({count})
+	Will move ({count})	Будут перемещены ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Записывает позицию каждого сохранённого выделения и контур печатной платы в CSV-файл для платы.
+	Check Positions	Проверить позиции
+	Import	Импорт
+	PCB Outline Layer	Слой контура платы
+	Panel Positions	Позиции панели
+	Position Layer	Слой позиций
+	Positions Settings	Настройки позиций
+	Type Layer	Слой типа компонента
+	Type Library	Библиотека типов компонентов

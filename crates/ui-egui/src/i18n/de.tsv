@@ -4834,3 +4834,29 @@ effect	Soft	Weich
 	Move Library Group	Bibliotheksgruppe verschieben
 	Plaster…	Gipsabdruck…
 	Plaster	Gipsabdruck
+	Check Again	Erneut prüfen
+	Choose the CSV to import.	Wählen Sie die zu importierende CSV-Datei.
+	Errors ({count})	Fehler ({count})
+	Export Positions	Positionen exportieren
+	Export Positions…	Positionen exportieren…
+	Exported {count} controls to {file}	{count} Bedienelemente nach {file} exportiert
+	Import Positions	Positionen importieren
+	Import Positions…	Positionen importieren…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} Änderungen aus {file} importiert (Bearbeiten › Rückgängig macht sie rückgängig)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Verschiebt, ändert den Typ, fügt hinzu und entfernt Bedienelemente (gespeicherte Auswahlen) gemäß einer Positions-CSV, in einem Schritt.
+	No file chosen	Keine Datei gewählt
+	Nothing to change: the controls match the file.	Nichts zu ändern: Die Bedienelemente entsprechen der Datei.
+	Warnings ({count})	Warnungen ({count})
+	Will be added ({count})	Werden hinzugefügt ({count})
+	Will be removed ({count})	Werden entfernt ({count})
+	Will change type ({count})	Ändern den Typ ({count})
+	Will move ({count})	Werden verschoben ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Schreibt die Position jeder gespeicherten Auswahl und den Platinenumriss als CSV für die Platine.
+	Check Positions	Positionen prüfen
+	Import	Importieren
+	PCB Outline Layer	Ebene für Platinenumriss
+	Panel Positions	Panel-Positionen
+	Position Layer	Positionsebene
+	Positions Settings	Positionseinstellungen
+	Type Layer	Ebene für Bauteiltyp
+	Type Library	Bibliothek der Bauteiltypen

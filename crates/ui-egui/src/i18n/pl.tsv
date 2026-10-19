@@ -5106,3 +5106,29 @@ mark-style	Japanese	Japońskie
 	Move Library Group	Przenieś grupę biblioteki
 	Plaster…	Gips…
 	Plaster	Gips
+	Check Again	Sprawdź ponownie
+	Choose the CSV to import.	Wybierz plik CSV do zaimportowania.
+	Errors ({count})	Błędy ({count})
+	Export Positions	Eksportuj pozycje
+	Export Positions…	Eksportuj pozycje…
+	Exported {count} controls to {file}	Wyeksportowano elementy sterujące ({count}) do {file}
+	Import Positions	Importuj pozycje
+	Import Positions…	Importuj pozycje…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Zaimportowano zmiany ({count}) z {file} (Edycja › Cofnij je odwraca)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Przesuwa, zmienia typ, dodaje i usuwa elementy sterujące (zapisane zaznaczenia) zgodnie z plikiem CSV pozycji, w jednym kroku.
+	No file chosen	Nie wybrano pliku
+	Nothing to change: the controls match the file.	Nic do zmiany: elementy sterujące zgadzają się z plikiem.
+	Warnings ({count})	Ostrzeżenia ({count})
+	Will be added ({count})	Zostaną dodane ({count})
+	Will be removed ({count})	Zostaną usunięte ({count})
+	Will change type ({count})	Zmienią typ ({count})
+	Will move ({count})	Zostaną przesunięte ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Zapisuje pozycję każdego zapisanego zaznaczenia oraz obrys płytki jako plik CSV dla płytki.
+	Check Positions	Sprawdź pozycje
+	Import	Importuj
+	PCB Outline Layer	Warstwa obrysu płytki
+	Panel Positions	Pozycje panelu
+	Position Layer	Warstwa pozycji
+	Positions Settings	Ustawienia pozycji
+	Type Layer	Warstwa typu elementu
+	Type Library	Biblioteka typów elementów

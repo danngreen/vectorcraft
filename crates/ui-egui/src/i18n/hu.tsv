@@ -5240,3 +5240,29 @@ imageTrace	Outline	Körvonal
 	Move Library Group	Könyvtárcsoport áthelyezése
 	Plaster…	Gipsz…
 	Plaster	Gipsz
+	Check Again	Ellenőrzés újra
+	Choose the CSV to import.	Válassza ki az importálandó CSV-fájlt.
+	Errors ({count})	Hibák ({count})
+	Export Positions	Pozíciók exportálása
+	Export Positions…	Pozíciók exportálása…
+	Exported {count} controls to {file}	{count} kezelőelem exportálva ide: {file}
+	Import Positions	Pozíciók importálása
+	Import Positions…	Pozíciók importálása…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} módosítás importálva innen: {file} (Szerkesztés › Visszavonás visszavonja őket)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Áthelyezi, átírja a típusát, hozzáadja és eltávolítja a kezelőelemeket (mentett kijelöléseket) egy pozíció-CSV szerint, egy lépésben.
+	No file chosen	Nincs kiválasztott fájl
+	Nothing to change: the controls match the file.	Nincs mit módosítani: a kezelőelemek megfelelnek a fájlnak.
+	Warnings ({count})	Figyelmeztetések ({count})
+	Will be added ({count})	Hozzáadásra kerül ({count})
+	Will be removed ({count})	Eltávolításra kerül ({count})
+	Will change type ({count})	Típusa megváltozik ({count})
+	Will move ({count})	Áthelyezésre kerül ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Minden mentett kijelölés pozícióját és a nyomtatott áramkör körvonalát CSV-fájlba írja az áramkörhöz.
+	Check Positions	Pozíciók ellenőrzése
+	Import	Importálás
+	PCB Outline Layer	Panelkörvonal rétege
+	Panel Positions	Panelpozíciók
+	Position Layer	Pozíció rétege
+	Positions Settings	Pozíciók beállításai
+	Type Layer	Alkatrésztípus rétege
+	Type Library	Alkatrésztípusok könyvtára

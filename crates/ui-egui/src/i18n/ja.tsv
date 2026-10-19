@@ -4908,3 +4908,29 @@ lighting	Light	ライト
 	Move Library Group	ライブラリグループを移動
 	Plaster…	石膏…
 	Plaster	石膏
+	Check Again	再確認
+	Choose the CSV to import.	読み込む CSV を選択してください。
+	Errors ({count})	エラー ({count})
+	Export Positions	位置を書き出し
+	Export Positions…	位置を書き出し…
+	Exported {count} controls to {file}	{count} 個のコントロールを {file} に書き出しました
+	Import Positions	位置を読み込み
+	Import Positions…	位置を読み込み…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{file} から {count} 件の変更を読み込みました (編集 › 取り消しで元に戻せます)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	位置 CSV に合わせて、コントロール (保存した選択範囲) を移動、種類変更、追加、削除します。1 ステップで行います。
+	No file chosen	ファイルが選択されていません
+	Nothing to change: the controls match the file.	変更なし: コントロールはファイルと一致しています。
+	Warnings ({count})	警告 ({count})
+	Will be added ({count})	追加 ({count})
+	Will be removed ({count})	削除 ({count})
+	Will change type ({count})	種類の変更 ({count})
+	Will move ({count})	移動 ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	保存した各選択範囲の位置と基板の外形を、基板用の CSV に書き出します。
+	Check Positions	位置を確認
+	Import	読み込み
+	PCB Outline Layer	基板外形レイヤー
+	Panel Positions	パネルの位置
+	Position Layer	位置レイヤー
+	Positions Settings	位置の設定
+	Type Layer	部品の種類レイヤー
+	Type Library	部品の種類ライブラリ

@@ -5215,3 +5215,29 @@ theme	Appearance	Външен вид
 	Move Library Group	Преместване на библиотечна група
 	Plaster…	Гипс…
 	Plaster	Гипс
+	Check Again	Провери отново
+	Choose the CSV to import.	Изберете CSV файла за импортиране.
+	Errors ({count})	Грешки ({count})
+	Export Positions	Експортиране на позиции
+	Export Positions…	Експортиране на позиции…
+	Exported {count} controls to {file}	Експортирани органи за управление в {file}: {count}
+	Import Positions	Импортиране на позиции
+	Import Positions…	Импортиране на позиции…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Импортирани промени от {file}: {count} (Редактиране › Отмени ги връща)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Премества, сменя типа, добавя и премахва органи за управление (запазени селекции) според CSV файл с позиции, с една стъпка.
+	No file chosen	Не е избран файл
+	Nothing to change: the controls match the file.	Няма какво да се промени: органите за управление съвпадат с файла.
+	Warnings ({count})	Предупреждения ({count})
+	Will be added ({count})	Ще бъдат добавени ({count})
+	Will be removed ({count})	Ще бъдат премахнати ({count})
+	Will change type ({count})	Ще сменят типа си ({count})
+	Will move ({count})	Ще бъдат преместени ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Записва позицията на всяка запазена селекция и контура на печатната платка като CSV файл за платката.
+	Check Positions	Проверка на позиции
+	Import	Импортиране
+	PCB Outline Layer	Слой за контура на платката
+	Panel Positions	Позиции на панела
+	Position Layer	Слой за позиции
+	Positions Settings	Настройки на позициите
+	Type Layer	Слой за типа компонент
+	Type Library	Библиотека с типове компоненти

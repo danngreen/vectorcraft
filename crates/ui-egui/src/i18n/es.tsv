@@ -5196,3 +5196,29 @@ mark-style	Japanese	Japonesas
 	Move Library Group	Mover grupo de biblioteca
 	Plaster…	Yeso…
 	Plaster	Yeso
+	Check Again	Comprobar de nuevo
+	Choose the CSV to import.	Elija el CSV que desea importar.
+	Errors ({count})	Errores ({count})
+	Export Positions	Exportar posiciones
+	Export Positions…	Exportar posiciones…
+	Exported {count} controls to {file}	{count} controles exportados a {file}
+	Import Positions	Importar posiciones
+	Import Positions…	Importar posiciones…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} cambios importados de {file} (Edición › Deshacer los revierte)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Mueve, cambia de tipo, añade y elimina controles (selecciones guardadas) según un CSV de posiciones, en un solo paso.
+	No file chosen	Ningún archivo elegido
+	Nothing to change: the controls match the file.	Nada que cambiar: los controles coinciden con el archivo.
+	Warnings ({count})	Advertencias ({count})
+	Will be added ({count})	Se añadirán ({count})
+	Will be removed ({count})	Se eliminarán ({count})
+	Will change type ({count})	Cambiarán de tipo ({count})
+	Will move ({count})	Se moverán ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Escribe la posición de cada selección guardada, y el contorno de la placa, como un CSV para la placa.
+	Check Positions	Comprobar posiciones
+	Import	Importar
+	PCB Outline Layer	Capa del contorno de la placa
+	Panel Positions	Posiciones del panel
+	Position Layer	Capa de posición
+	Positions Settings	Ajustes de posiciones
+	Type Layer	Capa del tipo de componente
+	Type Library	Biblioteca de tipos de componente

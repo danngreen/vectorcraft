@@ -5285,3 +5285,29 @@ swatch	Bright Violet	Kirkas violetti
 	Move Library Group	Siirrä kirjastoryhmä
 	Plaster…	Kipsi…
 	Plaster	Kipsi
+	Check Again	Tarkista uudelleen
+	Choose the CSV to import.	Valitse tuotava CSV-tiedosto.
+	Errors ({count})	Virheet ({count})
+	Export Positions	Vie sijainnit
+	Export Positions…	Vie sijainnit…
+	Exported {count} controls to {file}	{count} säädintä viety tiedostoon {file}
+	Import Positions	Tuo sijainnit
+	Import Positions…	Tuo sijainnit…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} muutosta tuotu tiedostosta {file} (Muokkaa › Kumoa kumoaa ne)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Siirtää, vaihtaa tyypin, lisää ja poistaa säätimiä (tallennettuja valintoja) sijainti-CSV:n mukaisiksi yhdellä vaiheella.
+	No file chosen	Tiedostoa ei ole valittu
+	Nothing to change: the controls match the file.	Ei muutettavaa: säätimet vastaavat tiedostoa.
+	Warnings ({count})	Varoitukset ({count})
+	Will be added ({count})	Lisätään ({count})
+	Will be removed ({count})	Poistetaan ({count})
+	Will change type ({count})	Tyyppi vaihtuu ({count})
+	Will move ({count})	Siirretään ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Kirjoittaa jokaisen tallennetun valinnan sijainnin ja piirilevyn ääriviivan CSV-tiedostoksi piirilevyä varten.
+	Check Positions	Tarkista sijainnit
+	Import	Tuo
+	PCB Outline Layer	Piirilevyn ääriviivan taso
+	Panel Positions	Paneelin sijainnit
+	Position Layer	Sijaintitaso
+	Positions Settings	Sijaintien asetukset
+	Type Layer	Komponenttityypin taso
+	Type Library	Komponenttityyppien kirjasto

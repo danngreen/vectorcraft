@@ -61,6 +61,7 @@ pub mod pdfcmds;
 pub mod perspgrid;
 pub(crate) mod place;
 pub mod plugin;
+pub mod positions;
 pub mod prefscmds;
 pub mod print;
 pub(crate) mod printadvanced;
@@ -251,6 +252,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(tabs::specs());
         v.extend(docmenu::specs());
         v.extend(variablecmds::specs());
+        v.extend(positions::specs());
         v.extend(docinfo::specs());
         v.extend(panelcmds::specs());
         v.extend(buildcmds::specs());

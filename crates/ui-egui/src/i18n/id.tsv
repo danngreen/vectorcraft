@@ -5233,3 +5233,29 @@ swatch	Bright Violet	Violet cerah
 	Open a document to see its saved selections.	Buka dokumen untuk melihat seleksi tersimpannya.
 	Save a selection to list it here.	Simpan seleksi untuk menampilkannya di sini.
 	Move Saved Selection	Pindahkan seleksi tersimpan
+	Check Again	Periksa lagi
+	Choose the CSV to import.	Pilih CSV yang akan diimpor.
+	Errors ({count})	Galat ({count})
+	Export Positions	Ekspor posisi
+	Export Positions…	Ekspor posisi…
+	Exported {count} controls to {file}	{count} kontrol diekspor ke {file}
+	Import Positions	Impor posisi
+	Import Positions…	Impor posisi…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} perubahan diimpor dari {file} (Edit › Urungkan membatalkannya)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Memindahkan, mengubah tipe, menambahkan, dan menghapus kontrol (seleksi tersimpan) agar sesuai dengan CSV posisi, dalam satu langkah urungkan.
+	No file chosen	Tidak ada file yang dipilih
+	Nothing to change: the controls match the file.	Tidak ada yang diubah: kontrol sudah sesuai dengan file.
+	Warnings ({count})	Peringatan ({count})
+	Will be added ({count})	Akan ditambahkan ({count})
+	Will be removed ({count})	Akan dihapus ({count})
+	Will change type ({count})	Akan berganti tipe ({count})
+	Will move ({count})	Akan dipindahkan ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Menulis posisi setiap seleksi tersimpan, dan garis tepi PCB, sebagai CSV untuk PCB.
+	Check Positions	Periksa posisi
+	Import	Impor
+	PCB Outline Layer	Lapisan garis tepi PCB
+	Panel Positions	Posisi panel
+	Position Layer	Lapisan posisi
+	Positions Settings	Pengaturan posisi
+	Type Layer	Lapisan tipe komponen
+	Type Library	Pustaka tipe komponen

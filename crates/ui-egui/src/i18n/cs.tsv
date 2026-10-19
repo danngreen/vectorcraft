@@ -5254,3 +5254,29 @@ mark-style	Japanese	Japonské
 	Move Library Group	Přesunout skupinu knihovny
 	Plaster…	Sádra…
 	Plaster	Sádra
+	Check Again	Zkontrolovat znovu
+	Choose the CSV to import.	Vyberte soubor CSV k importu.
+	Errors ({count})	Chyby ({count})
+	Export Positions	Exportovat pozice
+	Export Positions…	Exportovat pozice…
+	Exported {count} controls to {file}	Ovládací prvky ({count}) exportovány do {file}
+	Import Positions	Importovat pozice
+	Import Positions…	Importovat pozice…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Importované změny ({count}) z {file} (Úpravy › Zpět je vrátí)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Přesune, změní typ, přidá a odstraní ovládací prvky (uložené výběry) podle souboru CSV s pozicemi, v jednom kroku.
+	No file chosen	Není vybrán žádný soubor
+	Nothing to change: the controls match the file.	Není co měnit: ovládací prvky odpovídají souboru.
+	Warnings ({count})	Upozornění ({count})
+	Will be added ({count})	Budou přidány ({count})
+	Will be removed ({count})	Budou odstraněny ({count})
+	Will change type ({count})	Změní typ ({count})
+	Will move ({count})	Budou přesunuty ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Zapíše pozici každého uloženého výběru a obrys desky plošných spojů jako CSV pro desku.
+	Check Positions	Zkontrolovat pozice
+	Import	Importovat
+	PCB Outline Layer	Vrstva obrysu desky
+	Panel Positions	Pozice panelu
+	Position Layer	Vrstva pozic
+	Positions Settings	Nastavení pozic
+	Type Layer	Vrstva typu součástky
+	Type Library	Knihovna typů součástek

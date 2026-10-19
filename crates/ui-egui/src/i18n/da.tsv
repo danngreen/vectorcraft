@@ -5233,3 +5233,29 @@ swatch	Bright Violet	Kraftig violet
 	Open a document to see its saved selections.	Åbn et dokument for at se dets gemte markeringer.
 	Save a selection to list it here.	Gem en markering for at vise den her.
 	Move Saved Selection	Flyt gemt markering
+	Check Again	Kontrollér igen
+	Choose the CSV to import.	Vælg den CSV-fil, der skal importeres.
+	Errors ({count})	Fejl ({count})
+	Export Positions	Eksportér placeringer
+	Export Positions…	Eksportér placeringer…
+	Exported {count} controls to {file}	Eksporterede {count} betjeningselementer til {file}
+	Import Positions	Importér placeringer
+	Import Positions…	Importér placeringer…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Importerede {count} ændringer fra {file} (Redigér › Fortryd fortryder dem)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Flytter, ændrer type på, tilføjer og fjerner betjeningselementer (gemte markeringer), så de svarer til en placerings-CSV, i ét fortryd-trin.
+	No file chosen	Ingen fil valgt
+	Nothing to change: the controls match the file.	Intet at ændre: betjeningselementerne svarer til filen.
+	Warnings ({count})	Advarsler ({count})
+	Will be added ({count})	Tilføjes ({count})
+	Will be removed ({count})	Fjernes ({count})
+	Will change type ({count})	Skifter type ({count})
+	Will move ({count})	Flyttes ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Skriver hver gemt markerings placering og printkortets omrids som en CSV til printkortet.
+	Check Positions	Kontrollér placeringer
+	Import	Importér
+	PCB Outline Layer	Lag for printkortets omrids
+	Panel Positions	Panelplaceringer
+	Position Layer	Placeringslag
+	Positions Settings	Indstillinger for placeringer
+	Type Layer	Lag for komponenttype
+	Type Library	Bibliotek med komponenttyper

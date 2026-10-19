@@ -5253,3 +5253,29 @@ theme	Appearance	Apparence
 	Move Library Group	Déplacer le groupe de bibliothèque
 	Plaster…	Plâtre…
 	Plaster	Plâtre
+	Check Again	Vérifier à nouveau
+	Choose the CSV to import.	Choisissez le fichier CSV à importer.
+	Errors ({count})	Erreurs ({count})
+	Export Positions	Exporter les positions
+	Export Positions…	Exporter les positions…
+	Exported {count} controls to {file}	{count} commandes exportées vers {file}
+	Import Positions	Importer les positions
+	Import Positions…	Importer les positions…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} modifications importées depuis {file} (Édition › Annuler les annule)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Déplace, change le type, ajoute et supprime les commandes (sélections enregistrées) d’après un fichier CSV de positions, en une seule étape.
+	No file chosen	Aucun fichier choisi
+	Nothing to change: the controls match the file.	Rien à changer : les commandes correspondent au fichier.
+	Warnings ({count})	Avertissements ({count})
+	Will be added ({count})	Seront ajoutées ({count})
+	Will be removed ({count})	Seront supprimées ({count})
+	Will change type ({count})	Changeront de type ({count})
+	Will move ({count})	Seront déplacées ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Écrit la position de chaque sélection enregistrée, et le contour du circuit imprimé, dans un CSV pour le circuit.
+	Check Positions	Vérifier les positions
+	Import	Importer
+	PCB Outline Layer	Calque du contour du circuit
+	Panel Positions	Positions du panneau
+	Position Layer	Calque de position
+	Positions Settings	Paramètres des positions
+	Type Layer	Calque du type de composant
+	Type Library	Bibliothèque des types de composants

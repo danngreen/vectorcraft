@@ -4831,3 +4831,29 @@ lighting	Light	광원
 	Move Library Group	라이브러리 그룹 이동
 	Plaster…	석고…
 	Plaster	석고
+	Check Again	다시 확인
+	Choose the CSV to import.	가져올 CSV를 선택하십시오.
+	Errors ({count})	오류 ({count})
+	Export Positions	위치 내보내기
+	Export Positions…	위치 내보내기…
+	Exported {count} controls to {file}	컨트롤 {count}개를 {file}(으)로 내보냈습니다
+	Import Positions	위치 가져오기
+	Import Positions…	위치 가져오기…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{file}에서 변경 {count}개를 가져왔습니다 (편집 › 실행 취소로 되돌릴 수 있음)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	위치 CSV에 맞게 컨트롤(저장된 선택 영역)을 이동, 유형 변경, 추가, 제거합니다. 한 단계로 실행됩니다.
+	No file chosen	선택한 파일 없음
+	Nothing to change: the controls match the file.	변경할 내용 없음: 컨트롤이 파일과 일치합니다.
+	Warnings ({count})	경고 ({count})
+	Will be added ({count})	추가됨 ({count})
+	Will be removed ({count})	제거됨 ({count})
+	Will change type ({count})	유형 변경 ({count})
+	Will move ({count})	이동 ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	저장된 각 선택 영역의 위치와 PCB 외곽선을 PCB용 CSV로 씁니다.
+	Check Positions	위치 확인
+	Import	가져오기
+	PCB Outline Layer	PCB 외곽선 레이어
+	Panel Positions	패널 위치
+	Position Layer	위치 레이어
+	Positions Settings	위치 설정
+	Type Layer	부품 유형 레이어
+	Type Library	부품 유형 라이브러리

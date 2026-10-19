@@ -5206,3 +5206,29 @@ effect	Points	Σημεία
 	Move Library Group	Μετακίνηση ομάδας βιβλιοθήκης
 	Plaster…	Γύψος…
 	Plaster	Γύψος
+	Check Again	Έλεγχος ξανά
+	Choose the CSV to import.	Επιλέξτε το αρχείο CSV για εισαγωγή.
+	Errors ({count})	Σφάλματα ({count})
+	Export Positions	Εξαγωγή θέσεων
+	Export Positions…	Εξαγωγή θέσεων…
+	Exported {count} controls to {file}	Εξήχθησαν στοιχεία ελέγχου στο {file}: {count}
+	Import Positions	Εισαγωγή θέσεων
+	Import Positions…	Εισαγωγή θέσεων…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Εισήχθησαν αλλαγές από το {file}: {count} (Επεξεργασία › Αναίρεση τις αναιρεί)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Μετακινεί, αλλάζει τύπο, προσθέτει και αφαιρεί στοιχεία ελέγχου (αποθηκευμένες επιλογές) σύμφωνα με ένα CSV θέσεων, σε ένα βήμα.
+	No file chosen	Δεν επιλέχθηκε αρχείο
+	Nothing to change: the controls match the file.	Τίποτα προς αλλαγή: τα στοιχεία ελέγχου συμφωνούν με το αρχείο.
+	Warnings ({count})	Προειδοποιήσεις ({count})
+	Will be added ({count})	Θα προστεθούν ({count})
+	Will be removed ({count})	Θα αφαιρεθούν ({count})
+	Will change type ({count})	Θα αλλάξουν τύπο ({count})
+	Will move ({count})	Θα μετακινηθούν ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Γράφει τη θέση κάθε αποθηκευμένης επιλογής και το περίγραμμα της πλακέτας σε CSV για την πλακέτα.
+	Check Positions	Έλεγχος θέσεων
+	Import	Εισαγωγή
+	PCB Outline Layer	Επίπεδο περιγράμματος πλακέτας
+	Panel Positions	Θέσεις πάνελ
+	Position Layer	Επίπεδο θέσης
+	Positions Settings	Ρυθμίσεις θέσεων
+	Type Layer	Επίπεδο τύπου εξαρτήματος
+	Type Library	Βιβλιοθήκη τύπων εξαρτημάτων

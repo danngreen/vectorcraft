@@ -5091,3 +5091,29 @@ lighting	Light	光源
 	Move Library Group	移动库组
 	Plaster…	塑料效果…
 	Plaster	塑料效果
+	Check Again	重新检查
+	Choose the CSV to import.	选择要导入的 CSV。
+	Errors ({count})	错误 ({count})
+	Export Positions	导出位置
+	Export Positions…	导出位置…
+	Exported {count} controls to {file}	已将 {count} 个控件导出到 {file}
+	Import Positions	导入位置
+	Import Positions…	导入位置…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	已从 {file} 导入 {count} 项更改（编辑 › 撤销可还原）
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	按照位置 CSV 移动、更改类型、添加和删除控件（已保存的选区），一步完成。
+	No file chosen	未选择文件
+	Nothing to change: the controls match the file.	无需更改：控件与文件一致。
+	Warnings ({count})	警告 ({count})
+	Will be added ({count})	将添加 ({count})
+	Will be removed ({count})	将删除 ({count})
+	Will change type ({count})	将更改类型 ({count})
+	Will move ({count})	将移动 ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	将每个已保存选区的位置以及电路板外形写入供电路板使用的 CSV。
+	Check Positions	检查位置
+	Import	导入
+	PCB Outline Layer	电路板外形图层
+	Panel Positions	面板位置
+	Position Layer	位置图层
+	Positions Settings	位置设置
+	Type Layer	元件类型图层
+	Type Library	元件类型库

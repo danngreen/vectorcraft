@@ -5275,3 +5275,29 @@ swatch	Bright Violet	Felviolet
 	Open a document to see its saved selections.	Open een document om de opgeslagen selecties te zien.
 	Save a selection to list it here.	Sla een selectie op om die hier te tonen.
 	Move Saved Selection	Opgeslagen selectie verplaatsen
+	Check Again	Opnieuw controleren
+	Choose the CSV to import.	Kies de CSV om te importeren.
+	Errors ({count})	Fouten ({count})
+	Export Positions	Posities exporteren
+	Export Positions…	Posities exporteren…
+	Exported {count} controls to {file}	{count} bedieningselementen geëxporteerd naar {file}
+	Import Positions	Posities importeren
+	Import Positions…	Posities importeren…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} wijzigingen geïmporteerd uit {file} (Bewerken › Ongedaan maken draait ze terug)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Verplaatst, wijzigt het type van, voegt toe en verwijdert bedieningselementen (opgeslagen selecties) volgens een posities-CSV, in één stap.
+	No file chosen	Geen bestand gekozen
+	Nothing to change: the controls match the file.	Niets te wijzigen: de bedieningselementen komen overeen met het bestand.
+	Warnings ({count})	Waarschuwingen ({count})
+	Will be added ({count})	Worden toegevoegd ({count})
+	Will be removed ({count})	Worden verwijderd ({count})
+	Will change type ({count})	Wijzigen van type ({count})
+	Will move ({count})	Worden verplaatst ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Schrijft de positie van elke opgeslagen selectie en de printplaatomtrek als CSV voor de printplaat.
+	Check Positions	Posities controleren
+	Import	Importeren
+	PCB Outline Layer	Laag voor printplaatomtrek
+	Panel Positions	Paneelposities
+	Position Layer	Positielaag
+	Positions Settings	Positie-instellingen
+	Type Layer	Laag voor onderdeeltype
+	Type Library	Bibliotheek met onderdeeltypen

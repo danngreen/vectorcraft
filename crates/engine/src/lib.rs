@@ -863,6 +863,14 @@ pub struct Prefs {
     /// (`select.savedClick`; Cmd+Option-click does the opposite: the saved selection while this is
     /// off, the object alone while it is on).
     pub click_selects_saved_selections: bool,
+    /// Saved Selections panel → Export/Import Positions, the defaults a document may override
+    /// (`positions.*`): the layer whose member is a control's position, the layer whose named
+    /// group is its type, the layer whose largest rectangle is the PCB outline, and the Library
+    /// holding a group per type.
+    pub positions_anchor_layer: String,
+    pub positions_type_layer: String,
+    pub positions_outline_layer: String,
+    pub positions_library: String,
     pub zoom_to_selection: bool,
     pub move_locked_with_artboard: bool,
     pub anchor_size: u32,
@@ -1119,6 +1127,10 @@ impl Default for Prefs {
             snap_to_point_tolerance: 2.0,
             ctrl_click_selects_behind: true,
             click_selects_saved_selections: false,
+            positions_anchor_layer: s("cutout"),
+            positions_type_layer: s("mount"),
+            positions_outline_layer: s("pcb"),
+            positions_library: s("4ms-controls"),
             zoom_to_selection: true,
             move_locked_with_artboard: false,
             anchor_size: 3,
@@ -2266,6 +2278,8 @@ mod tests_place;
 mod tests_placed_document;
 #[cfg(test)]
 mod tests_plugins;
+#[cfg(test)]
+mod tests_positions;
 #[cfg(test)]
 mod tests_prefs;
 #[cfg(test)]

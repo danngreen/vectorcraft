@@ -324,6 +324,10 @@ pub const PREF_SPECS: &[PrefSpec] = &[
         "Update Links",
         choice(&[("automatically", "Automatically"), ("manually", "Manually"), ("askWhenModified", "Ask When Modified")])
     ),
+    p!("positionsAnchorLayer", "File Handling", "Panel Positions", "Position Layer", text),
+    p!("positionsTypeLayer", "File Handling", "Panel Positions", "Type Layer", text),
+    p!("positionsOutlineLayer", "File Handling", "Panel Positions", "PCB Outline Layer", text),
+    p!("positionsLibrary", "File Handling", "Panel Positions", "Type Library", text),
     // Clipboard Handling
     p!("copyAsSvg", "Clipboard Handling", "On Copy", "Include SVG Code", bool),
     p!("copyAsPdf", "Clipboard Handling", "On Copy", "PDF", bool),

@@ -5161,3 +5161,29 @@ imageTrace	Outline	კონტური
 	Open a document to see its saved selections.	გახსენით დოკუმენტი მისი შენახული მონიშვნების სანახავად.
 	Save a selection to list it here.	შეინახეთ მონიშნული, რომ აქ გამოჩნდეს.
 	Move Saved Selection	შენახული მონიშვნის გადატანა
+	Check Again	ხელახლა შემოწმება
+	Choose the CSV to import.	აირჩიეთ იმპორტირებადი CSV.
+	Errors ({count})	შეცდომები ({count})
+	Export Positions	პოზიციების ექსპორტირება
+	Export Positions…	პოზიციების ექსპორტირება…
+	Exported {count} controls to {file}	მართვის ელემენტები ({count}) ექსპორტირებულია ფაილში {file}
+	Import Positions	პოზიციების იმპორტირება
+	Import Positions…	პოზიციების იმპორტირება…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	იმპორტირებულია ცვლილებები ({count}) ფაილიდან {file} (რედაქტირება › დაბრუნება აუქმებს მათ)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	პოზიციების CSV-ის მიხედვით ერთი ნაბიჯით გადაადგილებს, ცვლის ტიპს, ამატებს და შლის მართვის ელემენტებს (შენახულ მონიშვნებს).
+	No file chosen	ფაილი არჩეული არ არის
+	Nothing to change: the controls match the file.	შესაცვლელი არაფერია: მართვის ელემენტები ფაილს ემთხვევა.
+	Warnings ({count})	გაფრთხილებები ({count})
+	Will be added ({count})	დაემატება ({count})
+	Will be removed ({count})	წაიშლება ({count})
+	Will change type ({count})	ტიპი შეიცვლება ({count})
+	Will move ({count})	გადაადგილდება ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	წერს თითოეული შენახული მონიშვნის პოზიციას და დაფის კონტურს CSV-ად დაბეჭდილი დაფისთვის.
+	Check Positions	პოზიციების შემოწმება
+	Import	იმპორტირება
+	PCB Outline Layer	დაფის კონტურის შრე
+	Panel Positions	პანელის პოზიციები
+	Position Layer	პოზიციების შრე
+	Positions Settings	პოზიციების პარამეტრები
+	Type Layer	კომპონენტის ტიპის შრე
+	Type Library	კომპონენტის ტიპების ბიბლიოთეკა

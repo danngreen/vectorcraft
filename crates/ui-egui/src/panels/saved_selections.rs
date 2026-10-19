@@ -8,8 +8,10 @@
 //! they are. The buttons save the selection as a new saved selection (its row scrolled into view,
 //! its name selected to type over), add the selected objects to the chosen row's or remove them
 //! from it, and delete the chosen row. The
-//! flyout holds Save Selection…, Edit Selection… and Click Selects Saved Selections
-//! (`select.savedClick`: a Selection tool click on an object selects the saved selection holding it).
+//! flyout holds Save Selection…, Edit Selection…, Export Positions… and Import Positions… (a
+//! panel's controls as a CSV for a PCB tool: `positions.*`, [`crate::dialogs::positions`]) and
+//! Click Selects Saved Selections (`select.savedClick`: a Selection tool click on an object selects
+//! the saved selection holding it).
 
 use egui::{Sense, Ui, pos2, vec2};
 use serde_json::json;
@@ -209,6 +211,13 @@ pub fn menu(app: &mut VectorcraftApp, ui: &mut Ui) {
     }
     if menu_item(ui, tl!("Edit Selection…"), saved, false) {
         crate::menus::invoke(app, "select.editSaved", json!({}));
+    }
+    ui.separator();
+    if menu_item(ui, tl!("Export Positions…"), saved, false) {
+        crate::dialogs::positions::open(app, false);
+    }
+    if menu_item(ui, tl!("Import Positions…"), has_doc, false) {
+        crate::dialogs::positions::open(app, true);
     }
     ui.separator();
     let on = app.session.prefs.click_selects_saved_selections;

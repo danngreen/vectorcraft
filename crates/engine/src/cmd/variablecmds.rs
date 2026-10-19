@@ -551,7 +551,7 @@ fn datasets_csv_bytes(p: &Value, cmd: &str) -> Result<Vec<u8>> {
 }
 
 /// A row of a datasets CSV: the file line it starts on, and its cells.
-type CsvRow = (usize, Vec<String>);
+pub(super) type CsvRow = (usize, Vec<String>);
 
 /// Whether a datasets CSV separates its cells with tabs: its header row (the first line that
 /// isn't blank), read with tabs between cells, has a tab outside quotes and no comma outside
@@ -598,7 +598,7 @@ fn tab_separated(text: &str) -> bool {
 /// which may then hold separators and line breaks, as [`csv_escape`] writes them. An unquoted
 /// cell is trimmed. A quoted cell keeps what its quotes hold as written, spaces included, and
 /// drops white space after the closing quote at the end of the cell. Blank lines are skipped.
-fn parse_datasets_csv(text: &str, cmd: &str) -> Result<Vec<CsvRow>> {
+pub(super) fn parse_datasets_csv(text: &str, cmd: &str) -> Result<Vec<CsvRow>> {
     let text = text.strip_prefix('\u{feff}').unwrap_or(text);
     let sep = if tab_separated(text) { '\t' } else { ',' };
     let (mut rows, mut row, mut cur) = (Vec::new(), Vec::<String>::new(), String::new());
@@ -663,7 +663,7 @@ fn end_csv_cell(cur: &mut String, closed: &mut Option<usize>) -> String {
     }
 }
 
-fn csv_escape(s: &str) -> String {
+pub(super) fn csv_escape(s: &str) -> String {
     if s.contains([',', '"', '\n', '\r']) || s != s.trim() { format!("\"{}\"", s.replace('"', "\"\"")) } else { s.to_string() }
 }
 

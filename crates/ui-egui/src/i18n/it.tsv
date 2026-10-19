@@ -4868,3 +4868,29 @@ lighting	Light	Luce
 	Move Library Group	Sposta gruppo di libreria
 	Plaster…	Gesso…
 	Plaster	Gesso
+	Check Again	Controlla di nuovo
+	Choose the CSV to import.	Scegli il CSV da importare.
+	Errors ({count})	Errori ({count})
+	Export Positions	Esporta posizioni
+	Export Positions…	Esporta posizioni…
+	Exported {count} controls to {file}	{count} controlli esportati in {file}
+	Import Positions	Importa posizioni
+	Import Positions…	Importa posizioni…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} modifiche importate da {file} (Modifica › Annulla le annulla)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Sposta, cambia tipo, aggiunge e rimuove i controlli (selezioni salvate) secondo un CSV di posizioni, in un solo passaggio.
+	No file chosen	Nessun file scelto
+	Nothing to change: the controls match the file.	Niente da cambiare: i controlli corrispondono al file.
+	Warnings ({count})	Avvisi ({count})
+	Will be added ({count})	Verranno aggiunti ({count})
+	Will be removed ({count})	Verranno rimossi ({count})
+	Will change type ({count})	Cambieranno tipo ({count})
+	Will move ({count})	Verranno spostati ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Scrive la posizione di ogni selezione salvata, e il contorno del PCB, come CSV per il PCB.
+	Check Positions	Controlla posizioni
+	Import	Importa
+	PCB Outline Layer	Livello del contorno PCB
+	Panel Positions	Posizioni del pannello
+	Position Layer	Livello di posizione
+	Positions Settings	Impostazioni posizioni
+	Type Layer	Livello del tipo di componente
+	Type Library	Libreria dei tipi di componente

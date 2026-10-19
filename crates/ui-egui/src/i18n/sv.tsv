@@ -5210,3 +5210,29 @@ theme	Appearance	Utseende
 	Move Library Group	Flytta biblioteksgrupp
 	Plaster…	Gips…
 	Plaster	Gips
+	Check Again	Kontrollera igen
+	Choose the CSV to import.	Välj CSV-filen att importera.
+	Errors ({count})	Fel ({count})
+	Export Positions	Exportera positioner
+	Export Positions…	Exportera positioner…
+	Exported {count} controls to {file}	{count} reglage exporterade till {file}
+	Import Positions	Importera positioner
+	Import Positions…	Importera positioner…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} ändringar importerade från {file} (Redigera › Ångra ångrar dem)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Flyttar, byter typ på, lägger till och tar bort reglage (sparade markeringar) så att de stämmer med en positions-CSV, i ett steg.
+	No file chosen	Ingen fil vald
+	Nothing to change: the controls match the file.	Inget att ändra: reglagen stämmer med filen.
+	Warnings ({count})	Varningar ({count})
+	Will be added ({count})	Läggs till ({count})
+	Will be removed ({count})	Tas bort ({count})
+	Will change type ({count})	Byter typ ({count})
+	Will move ({count})	Flyttas ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Skriver varje sparad markerings position, och kretskortets kontur, som en CSV för kretskortet.
+	Check Positions	Kontrollera positioner
+	Import	Importera
+	PCB Outline Layer	Lager för kretskortskontur
+	Panel Positions	Panelpositioner
+	Position Layer	Positionslager
+	Positions Settings	Positionsinställningar
+	Type Layer	Lager för komponenttyp
+	Type Library	Bibliotek med komponenttyper

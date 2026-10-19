@@ -4848,3 +4848,29 @@ theme	Appearance	Giao diện
 	Move Library Group	Di chuyển nhóm thư viện
 	Plaster…	Thạch cao…
 	Plaster	Thạch cao
+	Check Again	Kiểm tra lại
+	Choose the CSV to import.	Chọn tệp CSV để nhập.
+	Errors ({count})	Lỗi ({count})
+	Export Positions	Xuất vị trí
+	Export Positions…	Xuất vị trí…
+	Exported {count} controls to {file}	Đã xuất {count} điều khiển vào {file}
+	Import Positions	Nhập vị trí
+	Import Positions…	Nhập vị trí…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Đã nhập {count} thay đổi từ {file} (Chỉnh sửa › Hoàn tác để đảo ngược)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Di chuyển, đổi loại, thêm và xóa các điều khiển (vùng chọn đã lưu) cho khớp với tệp CSV vị trí, trong một bước.
+	No file chosen	Chưa chọn tệp
+	Nothing to change: the controls match the file.	Không có gì thay đổi: các điều khiển khớp với tệp.
+	Warnings ({count})	Cảnh báo ({count})
+	Will be added ({count})	Sẽ được thêm ({count})
+	Will be removed ({count})	Sẽ bị xóa ({count})
+	Will change type ({count})	Sẽ đổi loại ({count})
+	Will move ({count})	Sẽ được di chuyển ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Ghi vị trí của từng vùng chọn đã lưu, và đường viền bảng mạch, thành tệp CSV cho bảng mạch.
+	Check Positions	Kiểm tra vị trí
+	Import	Nhập
+	PCB Outline Layer	Lớp đường viền bảng mạch
+	Panel Positions	Vị trí trên panel
+	Position Layer	Lớp vị trí
+	Positions Settings	Cài đặt vị trí
+	Type Layer	Lớp loại linh kiện
+	Type Library	Thư viện loại linh kiện
