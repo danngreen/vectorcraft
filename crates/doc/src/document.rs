@@ -62,6 +62,7 @@ impl Document {
             layers_open,
             color_profiles,
             export_settings,
+            positions,
             extra,
             slices,
             slices_clip_to_artboard,
@@ -129,6 +130,7 @@ impl Document {
             && *layers_open == other.layers_open
             && *color_profiles == other.color_profiles
             && *export_settings == other.export_settings
+            && *positions == other.positions
             && *extra == other.extra
             && *slices == other.slices
             && *slices_clip_to_artboard == other.slices_clip_to_artboard
@@ -239,6 +241,7 @@ impl Document {
             layers_open: None,
             color_profiles: ColorProfiles::default(),
             export_settings: Default::default(),
+            positions: Default::default(),
             extra: Default::default(),
             slices: vec![],
             slices_clip_to_artboard: true,

@@ -56,7 +56,7 @@ fn datasets_csv_text(bytes: &[u8], cmd: &str) -> Result<String> {
 }
 
 /// A row of a datasets CSV: the file line it starts on, its cells, and for each cell whether it was quoted.
-type CsvRow = (usize, Vec<String>, Vec<bool>);
+pub(in crate::cmd) type CsvRow = (usize, Vec<String>, Vec<bool>);
 
 /// Whether a datasets CSV separates its cells with tabs: its header row (the first line that
 /// isn't blank), read with tabs between cells, has a tab outside quotes and no comma outside
@@ -104,7 +104,7 @@ fn tab_separated(text: &str) -> bool {
 /// cell is trimmed. A quoted cell keeps what its quotes hold as written, spaces included, and
 /// drops white space after the closing quote at the end of the cell. A line whose cells are all
 /// blank and unquoted is skipped; a quoted empty cell keeps its line as a row.
-fn parse_datasets_csv(text: &str, cmd: &str) -> Result<Vec<CsvRow>> {
+pub(in crate::cmd) fn parse_datasets_csv(text: &str, cmd: &str) -> Result<Vec<CsvRow>> {
     let text = text.strip_prefix('\u{feff}').unwrap_or(text);
     let sep = if tab_separated(text) { '\t' } else { ',' };
     let (mut rows, mut row, mut quoted, mut cur) = (Vec::new(), Vec::<String>::new(), Vec::<bool>::new(), String::new());
@@ -177,7 +177,7 @@ fn end_csv_cell(cur: &mut String, closed: &mut Option<usize>) -> String {
     }
 }
 
-fn csv_escape(s: &str) -> String {
+pub(in crate::cmd) fn csv_escape(s: &str) -> String {
     // An empty string is quoted so that it reads back as an empty value, not as a missing one. A
     // tab is quoted so that a header of one variable whose name holds a tab isn't read as
     // tab-separated.

@@ -124,6 +124,7 @@ mod perspgrid;
 mod place;
 mod placed_document;
 mod plugins;
+mod positions;
 mod prefs;
 mod previewbounds;
 mod print;
