@@ -1309,6 +1309,11 @@ pub struct Session {
     /// Envelope Options with no envelope selected: the options and fidelity new envelopes get
     /// (`None`: the reference app's defaults, fidelity 50); not saved.
     pub(crate) envelope_defaults: Option<(vectorcraft_doc::live::EnvelopeOptions, f64)>,
+    /// The character attributes last applied to type, in document units: new type starts with
+    /// them (`text.create`, the Type tools). `None` until type is styled; not saved.
+    pub(crate) type_style: Option<vectorcraft_doc::CharStyle>,
+    /// Character attributes applied by a live preview: remembered when the interaction commits.
+    pub(crate) pending_type_style: Option<vectorcraft_doc::CharStyle>,
     /// The Liquify stroke the last live preview applied, which the next sample of the drag goes on
     /// from ([`cmd::distortcmds::LiquifyStroke`]).
     pub(crate) liquify_stroke: Option<Box<cmd::distortcmds::LiquifyStroke>>,
@@ -1388,6 +1393,8 @@ impl Session {
             in_tool_actions: false,
             previewing: false,
             envelope_defaults: None,
+            type_style: None,
+            pending_type_style: None,
             liquify_stroke: None,
             plane_widget_press: false,
             ruler_guide: None,
@@ -1869,8 +1876,9 @@ impl Session {
                 st.selection.clone_from(&it.selection);
             }
         }
-        // The previous preview's paint is undone with it.
+        // The previous preview's paint and type style are undone with it.
         self.pending_paint = None;
+        self.pending_type_style = None;
         let rw = cmd::distortcmds::perspective_rewrite(self, cmd, params);
         let (cmd, params) = rw.as_ref().map_or((cmd, params), |(c, p)| (c.as_str(), p));
         let outer = std::mem::replace(&mut self.previewing, true);
@@ -1929,15 +1937,19 @@ impl Session {
         Ok(())
     }
 
-    /// Remember the paint a live preview applied (as its interaction is kept).
+    /// Remember the paint and type style a live preview applied (as its interaction is kept).
     pub(crate) fn remember_pending_paint(&mut self) {
         if let Some(p) = self.pending_paint.take() {
             self.remember_paint_now(&p);
+        }
+        if let Some(t) = self.pending_type_style.take() {
+            self.type_style = Some(t);
         }
     }
 
     pub fn cancel_interaction(&mut self) -> Result<()> {
         self.pending_paint = None;
+        self.pending_type_style = None;
         let guides_locked = self.menu.guides_locked;
         let st = self.doc_mut()?;
         st.undo_interaction();
@@ -2329,6 +2341,8 @@ mod tests_toolsettings;
 mod tests_transparencygrid;
 #[cfg(test)]
 mod tests_typearea;
+#[cfg(test)]
+mod tests_typedefaults;
 #[cfg(test)]
 mod tests_typescale;
 #[cfg(test)]

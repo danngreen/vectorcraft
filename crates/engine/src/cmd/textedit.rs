@@ -618,6 +618,7 @@ fn set_range_style(s: &mut Session, p: &Value) -> Result<Value> {
     let t = text_ref(s, id)?;
     change.localize(&t, C)?;
     let (a, b) = range_of(p, edit::runs_len(&t.runs));
+    let styles = a < b || t.plain_text().is_empty();
     let n = s.edit("Character", |d, _| {
         let t = text_mut(d, id).ok_or(EngineError::NoNode(id))?;
         if a == b && !t.plain_text().is_empty() {
@@ -632,6 +633,9 @@ fn set_range_style(s: &mut Session, p: &Value) -> Result<Value> {
         refresh_bounds(t);
         Ok(t.runs.len())
     })?;
+    if styles {
+        super::create::remember_type_style(s, id, |_| (a, b));
+    }
     Ok(json!({"id": id.0, "runs": n}))
 }
 

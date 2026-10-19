@@ -538,5 +538,26 @@ fn set_format(s: &mut Session, p: &Value) -> Result<Value> {
         }
         Ok(())
     })?;
+    let char_keys = [
+        "kerning",
+        "baselineShift",
+        "hScale",
+        "vScale",
+        "rotation",
+        "underline",
+        "strikethrough",
+        "allCaps",
+        "smallCaps",
+        "position",
+        "charAlign",
+        "proportionalMetrics",
+        "digits",
+        "fontAxes",
+    ];
+    if let Some(&id) = ids.first()
+        && char_keys.iter().any(|k| p.get(*k).is_some_and(|v| !v.is_null()))
+    {
+        super::create::remember_type_style(s, id, |t| super::typecmd::styled_bytes(range, t));
+    }
     Ok(json!({ "ids": ids.iter().map(|i| i.0).collect::<Vec<_>>() }))
 }

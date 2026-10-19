@@ -640,7 +640,17 @@ fn set_style(s: &mut Session, p: &Value) -> Result<Value> {
         }
         Ok(())
     })?;
+    if let Some(&id) = ids.first()
+        && (font.is_some() || style.is_some() || size.is_some() || leading.is_some() || tracking.is_some() || features.is_some())
+    {
+        super::create::remember_type_style(s, id, |t| styled_bytes(range, t));
+    }
     Ok(with_overflow(s, &ids, json!({ "ids": ids.iter().map(|i| i.0).collect::<Vec<_>>() })))
+}
+
+/// The bytes of `t` a styling command with `range` styles: all of them without one.
+pub(crate) fn styled_bytes(range: Option<TextRange>, t: &TextObject) -> (usize, usize) {
+    range.map_or((0, vectorcraft_text::edit::runs_len(&t.runs)), |r| r.bytes(t))
 }
 
 /// Reshape area type's frame with `f` ([`TextObject::transform_area`],
