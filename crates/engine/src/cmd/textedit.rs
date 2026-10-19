@@ -634,7 +634,7 @@ fn set_range_style(s: &mut Session, p: &Value) -> Result<Value> {
         Ok(t.runs.len())
     })?;
     if styles {
-        super::create::remember_type_style(s, id, |_| (a, b));
+        super::create::remember_type(s, id, true, false, |_| (a, b));
     }
     Ok(json!({"id": id.0, "runs": n}))
 }
@@ -846,7 +846,7 @@ fn create_in_path(s: &mut Session, p: &Value) -> Result<Value> {
         kind,
         xf: Affine::IDENTITY,
         runs: vec![TextRun { text, style, inline: None }],
-        para: super::create::new_type_para(),
+        para: super::create::new_type_para(s),
         paras: Vec::new(),
         area: Default::default(),
         path_effect: Default::default(),

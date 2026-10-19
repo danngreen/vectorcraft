@@ -1309,11 +1309,11 @@ pub struct Session {
     /// Envelope Options with no envelope selected: the options and fidelity new envelopes get
     /// (`None`: the reference app's defaults, fidelity 50); not saved.
     pub(crate) envelope_defaults: Option<(vectorcraft_doc::live::EnvelopeOptions, f64)>,
-    /// The character attributes last applied to type, in document units: new type starts with
-    /// them (`text.create`, the Type tools). `None` until type is styled; not saved.
-    pub(crate) type_style: Option<vectorcraft_doc::CharStyle>,
-    /// Character attributes applied by a live preview: remembered when the interaction commits.
-    pub(crate) pending_type_style: Option<vectorcraft_doc::CharStyle>,
+    /// The character and paragraph attributes last applied to type: new type starts with them
+    /// (`text.create`, the Type tools); not saved.
+    pub(crate) type_defaults: cmd::create::TypeDefaults,
+    /// Type attributes applied by a live preview: remembered when the interaction commits.
+    pub(crate) pending_type: cmd::create::TypeDefaults,
     /// The Liquify stroke the last live preview applied, which the next sample of the drag goes on
     /// from ([`cmd::distortcmds::LiquifyStroke`]).
     pub(crate) liquify_stroke: Option<Box<cmd::distortcmds::LiquifyStroke>>,
@@ -1393,8 +1393,8 @@ impl Session {
             in_tool_actions: false,
             previewing: false,
             envelope_defaults: None,
-            type_style: None,
-            pending_type_style: None,
+            type_defaults: Default::default(),
+            pending_type: Default::default(),
             liquify_stroke: None,
             plane_widget_press: false,
             ruler_guide: None,
@@ -1878,7 +1878,7 @@ impl Session {
         }
         // The previous preview's paint and type style are undone with it.
         self.pending_paint = None;
-        self.pending_type_style = None;
+        self.pending_type = Default::default();
         let rw = cmd::distortcmds::perspective_rewrite(self, cmd, params);
         let (cmd, params) = rw.as_ref().map_or((cmd, params), |(c, p)| (c.as_str(), p));
         let outer = std::mem::replace(&mut self.previewing, true);
@@ -1942,14 +1942,13 @@ impl Session {
         if let Some(p) = self.pending_paint.take() {
             self.remember_paint_now(&p);
         }
-        if let Some(t) = self.pending_type_style.take() {
-            self.type_style = Some(t);
-        }
+        let pending = std::mem::take(&mut self.pending_type);
+        self.type_defaults.update(pending);
     }
 
     pub fn cancel_interaction(&mut self) -> Result<()> {
         self.pending_paint = None;
-        self.pending_type_style = None;
+        self.pending_type = Default::default();
         let guides_locked = self.menu.guides_locked;
         let st = self.doc_mut()?;
         st.undo_interaction();

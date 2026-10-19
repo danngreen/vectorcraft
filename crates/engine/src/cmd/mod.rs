@@ -9,7 +9,7 @@ pub mod clipboard;
 mod colorcmds;
 pub mod colormgmt;
 pub mod colortheme;
-mod create;
+pub(crate) mod create;
 mod css;
 mod cut;
 pub(crate) mod dimension;

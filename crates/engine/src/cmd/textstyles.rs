@@ -765,7 +765,7 @@ mod tests {
         s.execute("text.setStyle", &json!({"leading": 30})).unwrap();
         s.execute("charStyle.new", &json!({"name": "Spaced"})).unwrap();
         // New type at the defaults, not the leading just applied.
-        s.type_style = None;
+        s.type_defaults = Default::default();
         let fresh = s.execute("text.create", &json!({"x": 10, "y": 90, "text": "B"})).unwrap()["id"].as_u64().unwrap();
         assert_eq!(runs(&s, fresh)[0].style.leading, None);
         for clear in [false, true] {

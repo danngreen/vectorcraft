@@ -543,7 +543,8 @@ mod tests {
         app.run("text.setStyle", json!({"justify": "center"})).unwrap();
         assert_eq!(alignment_frame(&ctx, &mut app, 28.0).0, [Justify::Center]);
         let group = app.session.active().unwrap().selection.objects.clone();
-        let other = app.run("text.create", json!({"x": 20, "y": 100, "text": "C"})).unwrap()["id"].clone();
+        // Aligned unlike the group: new type would take the centring just applied.
+        let other = app.run("text.create", json!({"x": 20, "y": 100, "text": "C", "justify": "left"})).unwrap()["id"].clone();
         let mut ids: Vec<Value> = group.iter().map(|id| json!(id.0)).collect();
         ids.push(other);
         app.run("select.set", json!({"ids": ids})).unwrap();

@@ -74,7 +74,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Create Text",
             [],
             None,
-            "{x, y, text, vertical?: bool = false, size?: pt, font?: family, style?, color?, keepModel?: bool (as paint.setFill), area?: {width, height, fit?: none|autoHeight|shrinkText, fitMinPercent?}, placeholder?: bool (fill it with placeholder text instead, as the Type tools do with prefs placeholderText), justify?: \"auto\" (default: the start of each paragraph's direction)|\"left\"|\"center\"|\"right\"|\"justifyAll\" (point type: aligned on x, so \"center\" centres each line on the point and \"right\" ends it there; text.setStyle changes it later), leadingModel?: \"romanBaseline\"|\"emBoxTop\", charAlign?: \"romanBaseline\"|\"emBoxTop\"|\"emBoxCenter\"|\"emBoxBottom\"|\"icfTop\"|\"icfBottom\" (default: emBoxTop and emBoxCenter while the interface is in Japanese, else romanBaseline)} → {id, bounds: {x, y, width, height} (the new type's box as document.inspect reports it, after justify), overflow?: [id] (area type whose text doesn't fit its frame: the lines past it aren't drawn; left out when it fits)}; new area type gets Auto Size (fit autoHeight) when the autoSizeAreaType preference is on; character attributes not given are the ones last applied to type (text.setStyle, text.setFormat, text.setRangeStyle; fill and stroke from the toolbar), else the defaults",
+            "{x, y, text, vertical?: bool = false, size?: pt, font?: family, style?, color?, keepModel?: bool (as paint.setFill), area?: {width, height, fit?: none|autoHeight|shrinkText, fitMinPercent?}, placeholder?: bool (fill it with placeholder text instead, as the Type tools do with prefs placeholderText), justify?: \"auto\" (default: the start of each paragraph's direction)|\"left\"|\"center\"|\"right\"|\"justifyAll\" (point type: aligned on x, so \"center\" centres each line on the point and \"right\" ends it there; text.setStyle changes it later), leadingModel?: \"romanBaseline\"|\"emBoxTop\", charAlign?: \"romanBaseline\"|\"emBoxTop\"|\"emBoxCenter\"|\"emBoxBottom\"|\"icfTop\"|\"icfBottom\" (default: emBoxTop and emBoxCenter while the interface is in Japanese, else romanBaseline)} → {id, bounds: {x, y, width, height} (the new type's box as document.inspect reports it, after justify), overflow?: [id] (area type whose text doesn't fit its frame: the lines past it aren't drawn; left out when it fits)}; new area type gets Auto Size (fit autoHeight) when the autoSizeAreaType preference is on; character and paragraph attributes not given are the ones last applied to type (text.setStyle, text.setFormat, text.setRangeStyle; fill and stroke from the toolbar), else the defaults",
             has_doc,
             text_create
         ),
@@ -496,7 +496,7 @@ fn text_create(s: &mut Session, p: &Value) -> Result<Value> {
     let text = str_param(p, "text").unwrap_or("");
     let mut t = TextObject::point(Point::new(x, y), text, new_type_style(s, p));
     t.vertical = p.get("vertical").and_then(Value::as_bool).unwrap_or(false);
-    t.para = new_type_para();
+    t.para = new_type_para(s);
     new_type_alignment(s, p, "text.create", &mut t)?;
     if let Some(a) = p.get("area") {
         let w = f64_or(a, "width", 200.0);
@@ -516,16 +516,17 @@ fn text_create(s: &mut Session, p: &Value) -> Result<Value> {
     Ok(super::typecmd::with_overflow(s, id.as_slice(), made))
 }
 
-/// The paragraph attributes new type gets (the Type tools, `text.create`): aligned to the start of
-/// each paragraph's direction (left, right for Hebrew and Arabic), Japanese punctuation composed
-/// with Line-end Punctuation Half Width and Standard burasagari. Imported text keeps its own.
-pub(crate) fn new_type_para() -> vectorcraft_doc::ParaStyle {
-    vectorcraft_doc::ParaStyle {
+/// The paragraph attributes new type gets (the Type tools, `text.create`): those last applied to
+/// type ([`remember_type`]), else aligned to the start of each paragraph's direction (left, right
+/// for Hebrew and Arabic), Japanese punctuation composed with Line-end Punctuation Half Width and
+/// Standard burasagari. Imported text keeps its own.
+pub(crate) fn new_type_para(s: &Session) -> vectorcraft_doc::ParaStyle {
+    s.type_defaults.para.clone().unwrap_or_else(|| vectorcraft_doc::ParaStyle {
         justify: vectorcraft_doc::Justify::Auto,
         mojikumi: vectorcraft_doc::Mojikumi::LineEndHalf,
         burasagari: vectorcraft_doc::Burasagari::Standard,
         ..Default::default()
-    }
+    })
 }
 
 /// The paragraph alignment, leading model and character alignment new type starts with (`t`'s
@@ -573,27 +574,56 @@ pub(crate) fn new_area_fit(s: &Session, p: &Value, c: &str) -> Result<vectorcraf
     Ok(super::typecmd::fit_param(p, default, c)?.unwrap_or(default))
 }
 
-/// Remember the character attributes of `id`'s type over the bytes `range` gives (its first
-/// character's, the caret's when empty) for new type ([`new_type_style`]): in document units, so
-/// scaled type gives the sizes the Character panel shows. Called after a command styles type;
-/// during a live preview (a font hovered in the font menu) this waits for the commit.
-pub(crate) fn remember_type_style(s: &mut Session, id: NodeId, range: impl FnOnce(&TextObject) -> (usize, usize)) {
+/// The attributes last applied to type, which new type starts with ([`new_type_style`],
+/// [`new_type_para`]); `None` until a command applies some.
+#[derive(Clone, Debug, Default)]
+pub(crate) struct TypeDefaults {
+    /// Character attributes, in document units.
+    pub(crate) chars: Option<CharStyle>,
+    /// Paragraph attributes, without a paragraph style.
+    pub(crate) para: Option<vectorcraft_doc::ParaStyle>,
+}
+
+impl TypeDefaults {
+    /// Take the attributes `newer` has.
+    pub(crate) fn update(&mut self, newer: TypeDefaults) {
+        if newer.chars.is_some() {
+            self.chars = newer.chars;
+        }
+        if newer.para.is_some() {
+            self.para = newer.para;
+        }
+    }
+}
+
+/// Remember the attributes of `id`'s type over the bytes `range` gives for new type: the
+/// character attributes (`chars`) of its first character (the caret's when empty), in document
+/// units so scaled type gives the sizes the Character panel shows, and the paragraph attributes
+/// (`para`) of the paragraph it starts in. Called after a command styles type; during a live
+/// preview (a font hovered in the font menu) this waits for the commit.
+pub(crate) fn remember_type(s: &mut Session, id: NodeId, chars: bool, para: bool, range: impl FnOnce(&TextObject) -> (usize, usize)) {
+    if !(chars || para) {
+        return;
+    }
     let Some(NodeKind::Text(t)) = s.doc().ok().and_then(|d| d.doc.node(id)).map(|n| &n.kind) else { return };
     let (a, b) = range(t);
-    let Some(style) = t.effective_char_style(&vectorcraft_text::edit::insertion_style(&t.runs, a, b)) else { return };
+    let newer = TypeDefaults {
+        chars: chars.then(|| t.effective_char_style(&vectorcraft_text::edit::insertion_style(&t.runs, a, b))).flatten(),
+        para: para.then(|| vectorcraft_doc::ParaStyle { style_name: None, ..t.para_at(t.paragraphs_in(a, a).start).clone() }),
+    };
     if s.in_interaction() {
-        s.pending_type_style = Some(style);
+        s.pending_type.update(newer);
     } else {
-        s.type_style = Some(style);
+        s.type_defaults.update(newer);
     }
 }
 
 /// The character style new type gets: `size`, `font`, `style` and `color` from `p` (an RGB
 /// `color` in a CMYK document as [`super::paint::new_color`] stores it), else the attributes
-/// last applied to type ([`remember_type_style`]), else the defaults. Its paint isn't
+/// last applied to type ([`remember_type`]), else the defaults. Its paint isn't
 /// remembered: filled with the current fill unless that is None or white (black then), no stroke.
 pub(crate) fn new_type_style(s: &Session, p: &Value) -> CharStyle {
-    let mut style = match &s.type_style {
+    let mut style = match &s.type_defaults.chars {
         Some(last) => {
             let paint = CharStyle::default();
             CharStyle {

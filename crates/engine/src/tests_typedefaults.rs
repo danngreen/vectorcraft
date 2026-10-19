@@ -1,8 +1,9 @@
-//! New type starts with the character attributes last applied to type (font, size, tracking,
-//! kerning, scales, …), not the defaults; its paint still comes from the toolbar.
+//! New type starts with the character attributes (font, size, tracking, kerning, scales, …) and
+//! paragraph attributes (alignment, indents, spacing, …) last applied to type, not the defaults;
+//! its paint still comes from the toolbar.
 
 use serde_json::{Value, json};
-use vectorcraft_doc::{CharStyle, NodeKind};
+use vectorcraft_doc::{CharStyle, Justify, NodeKind, ParaStyle};
 use vectorcraft_tools::{PointerEvent, PointerKind};
 
 use super::*;
@@ -81,13 +82,57 @@ fn sizes_are_remembered_in_document_points() {
 }
 
 #[test]
-fn only_character_changes_are_remembered() {
+fn fill_alone_is_not_remembered() {
     let mut s = session();
     s.execute("text.create", &json!({"x": 10, "y": 50, "text": "Odd", "font": "Probe Serif", "size": 50})).unwrap();
-    // Paragraph attributes and fill alone don't make this type's style the one new type takes.
-    s.execute("text.setFormat", &json!({"leftIndent": 6})).unwrap();
-    s.execute("text.setStyle", &json!({"fill": "#336699", "justify": "center"})).unwrap();
+    // A fill alone doesn't make this type's attributes the ones new type takes.
+    s.execute("text.setStyle", &json!({"fill": "#336699"})).unwrap();
     assert_eq!(made(&mut s, json!({"x": 10, "y": 300, "text": "b"})), made(&mut session(), json!({"x": 10, "y": 300, "text": "b"})));
+}
+
+fn para(s: &Session, id: &Value) -> ParaStyle {
+    match &s.doc().unwrap().doc.node(NodeId(id.as_u64().unwrap())).unwrap().kind {
+        NodeKind::Text(t) => t.para_at(0).clone(),
+        _ => panic!("not text"),
+    }
+}
+
+#[test]
+fn type_tool_keeps_the_last_paragraph_attributes() {
+    let mut s = session();
+    let first = click_type(&mut s, 100.0, 100.0);
+    s.tool_text("Hello", ViewInfo::default()).unwrap();
+    s.set_tool_option("commitTyping", &json!(true));
+    s.commit_interaction().unwrap();
+    // The Paragraph panel's alignment buttons and fields, on the paragraphs being edited.
+    s.execute("text.setStyle", &json!({"ids": [first], "start": 0, "end": 5, "justify": "center"})).unwrap();
+    s.execute("text.setFormat", &json!({"ids": [first], "start": 0, "end": 5, "leftIndent": 12, "spaceAfter": 4, "hyphenate": true})).unwrap();
+    s.select_tool("selection", ViewInfo::default()).unwrap();
+    let second = click_type(&mut s, 100.0, 300.0);
+    let p = para(&s, &second);
+    assert_eq!((p.justify, p.left_indent, p.space_after, p.hyphenate), (Justify::Center, 12.0, 4.0, true));
+    // The character attributes stay as they were: none were applied.
+    assert_eq!(style(&s, &second), style(&s, &first));
+    // text.create's `justify` still wins; text.createInPath takes them too.
+    let id = s.execute("text.create", &json!({"x": 10, "y": 500, "text": "a", "justify": "right"})).unwrap()["id"].clone();
+    assert_eq!((para(&s, &id).justify, para(&s, &id).left_indent), (Justify::Right, 12.0));
+    let path = s.execute("shape.rectangle", &json!({"x": 400, "y": 200, "width": 100, "height": 80})).unwrap()["id"].clone();
+    let id = s.execute("text.createInPath", &json!({"path": path, "mode": "area", "text": "in"})).unwrap()["id"].clone();
+    assert_eq!(para(&s, &id).justify, Justify::Center);
+}
+
+#[test]
+fn paragraph_changes_leave_the_character_attributes_and_style_link_out() {
+    let mut s = session();
+    s.execute("text.create", &json!({"x": 10, "y": 50, "text": "Odd", "font": "Probe Serif", "size": 50})).unwrap();
+    s.execute("paraStyle.new", &json!({"name": "Airy", "attrs": {"space_before": 9}})).unwrap();
+    s.execute("paraStyle.apply", &json!({"name": "Airy"})).unwrap();
+    s.execute("text.setFormat", &json!({"firstLineIndent": 6})).unwrap();
+    let id = s.execute("text.create", &json!({"x": 10, "y": 300, "text": "b"})).unwrap()["id"].clone();
+    let p = para(&s, &id);
+    assert_eq!((p.first_line_indent, p.space_before, p.style_name.as_deref()), (6.0, 9.0, None));
+    // Only the paragraph attributes were applied: the character attributes are the defaults.
+    assert_eq!(style(&s, &id), made(&mut session(), json!({"x": 10, "y": 300, "text": "b"})));
 }
 
 #[test]

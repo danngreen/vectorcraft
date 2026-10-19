@@ -32,7 +32,7 @@ pub(super) fn batch(s: &mut Session, p: &Value) -> Result<Value> {
             s.active = active;
             (s.paint, s.fill_active, s.draw_mode, s.draw_inside, s.clipboard, s.untitled_counter) = saved;
             s.pending_paint = None;
-            s.pending_type_style = None;
+            s.pending_type = Default::default();
             return Err(e);
         }
     };

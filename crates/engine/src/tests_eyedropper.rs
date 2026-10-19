@@ -89,7 +89,7 @@ fn type_picks_up_font_and_size() {
     let src = id_of(s.execute("text.create", &json!({"x": 10, "y": 300, "text": "Source"})).unwrap());
     s.execute("text.setStyle", &json!({"font": "Inter", "size": 30, "tracking": 50, "justify": "center", "fill": "#00ff00"})).unwrap();
     // The target at the defaults, not the attributes just applied.
-    s.type_style = None;
+    s.type_defaults = Default::default();
     let dst = id_of(s.execute("text.create", &json!({"x": 10, "y": 400, "text": "Target"})).unwrap());
     let style = |s: &Session, id| match &node(s, id).kind {
         NodeKind::Text(t) => (t.first_style(), t.para.justify),

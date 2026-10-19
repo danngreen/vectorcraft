@@ -113,8 +113,6 @@ pub fn rich_session() -> Session {
     let l = id_of(&exec(&mut s, "shape.line", json!({"x1": 20, "y1": 300, "x2": 200, "y2": 350})));
     exec(&mut s, "stroke.set", json!({"weight": 3, "endArrow": "Arrow"}));
     let tx = id_of(&exec(&mut s, "text.create", json!({"x": 250, "y": 300, "text": "VectorCraft", "size": 30})));
-    // A non-default paragraph composer, so format round trips cover it.
-    exec(&mut s, "text.setFormat", json!({"ids": [tx.0], "composer": "singleLine"}));
     // Area type with non-default Area Type Options (vertical alignment, inset).
     let area = id_of(&exec(
         &mut s,
@@ -129,15 +127,12 @@ pub fn rich_session() -> Session {
         json!({"x": 300, "y": 330, "size": 14, "text": "Area type shrinks its text to fit the frame.",
                "area": {"width": 150, "height": 40, "fit": "shrinkText", "fitMinPercent": 40}}),
     ));
-    // Area type whose paragraphs differ (alignment, spacing, tabs).
+    // Area type whose paragraphs differ (alignment, spacing, tabs: styled below).
     let para = id_of(&exec(
         &mut s,
         "text.create",
         json!({"x": 20, "y": 360, "text": "Heading\nBody one\tx\nBody two", "size": 9, "area": {"width": 160, "height": 36}}),
     ));
-    exec(&mut s, "text.setStyle", json!({"id": para, "justify": "center", "start": 0, "end": 0}));
-    exec(&mut s, "text.setFormat", json!({"ids": [para], "spaceBefore": 3, "firstLineIndent": 6, "start": 9, "end": 9}));
-    exec(&mut s, "text.tabs.set", json!({"ids": [para], "stops": [{"position": 80, "align": "right"}], "start": 9, "end": 9}));
     exec(&mut s, "layer.new", json!({"name": "Top"}));
     let d = rect(&mut s, 350.0, 200.0, 80.0, 80.0);
     let e = ellipse(&mut s, 380.0, 230.0, 80.0, 80.0);
@@ -154,6 +149,13 @@ pub fn rich_session() -> Session {
     exec(&mut s, "symbol.new", json!({"name": "Dot"}));
     let t = id_of(&exec(&mut s, "text.create", json!({"x": 250, "y": 370, "text": "Tap  to add", "size": 18})));
     exec(&mut s, "text.insertInline", json!({"id": t.0, "at": 4, "symbol": "Dot"}));
+    // Type is styled after the last is made (new type takes the attributes last applied, and the
+    // rest keeps the defaults): a non-default paragraph composer, so format round trips cover it,
+    // and the paragraphs of `para` made to differ.
+    exec(&mut s, "text.setFormat", json!({"ids": [tx.0], "composer": "singleLine"}));
+    exec(&mut s, "text.setStyle", json!({"id": para, "justify": "center", "start": 0, "end": 0}));
+    exec(&mut s, "text.setFormat", json!({"ids": [para], "spaceBefore": 3, "firstLineIndent": 6, "start": 9, "end": 9}));
+    exec(&mut s, "text.tabs.set", json!({"ids": [para], "stops": [{"position": 80, "align": "right"}], "start": 9, "end": 9}));
     // Variables (data merge): both kinds, bound to art, with two dataset rows and one applied,
     // so format round trips cover the definitions, the bindings and the rows.
     exec(&mut s, "variable.define", json!({"name": "Title", "kind": "text"}));

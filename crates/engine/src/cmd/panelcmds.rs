@@ -554,10 +554,11 @@ fn set_format(s: &mut Session, p: &Value) -> Result<Value> {
         "digits",
         "fontAxes",
     ];
-    if let Some(&id) = ids.first()
-        && char_keys.iter().any(|k| p.get(*k).is_some_and(|v| !v.is_null()))
-    {
-        super::create::remember_type_style(s, id, |t| super::typecmd::styled_bytes(range, t));
+    let given = |k: &&str| p.get(*k).is_some_and(|v| !v.is_null());
+    let chars = char_keys.iter().any(given);
+    let paras = keys.iter().filter(|k| !char_keys.contains(k)).any(given);
+    if let Some(&id) = ids.first() {
+        super::create::remember_type(s, id, chars, paras, |t| super::typecmd::styled_bytes(range, t));
     }
     Ok(json!({ "ids": ids.iter().map(|i| i.0).collect::<Vec<_>>() }))
 }

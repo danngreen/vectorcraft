@@ -640,10 +640,9 @@ fn set_style(s: &mut Session, p: &Value) -> Result<Value> {
         }
         Ok(())
     })?;
-    if let Some(&id) = ids.first()
-        && (font.is_some() || style.is_some() || size.is_some() || leading.is_some() || tracking.is_some() || features.is_some())
-    {
-        super::create::remember_type_style(s, id, |t| styled_bytes(range, t));
+    let chars = font.is_some() || style.is_some() || size.is_some() || leading.is_some() || tracking.is_some() || features.is_some();
+    if let Some(&id) = ids.first() {
+        super::create::remember_type(s, id, chars, justify.is_some(), |t| styled_bytes(range, t));
     }
     Ok(with_overflow(s, &ids, json!({ "ids": ids.iter().map(|i| i.0).collect::<Vec<_>>() })))
 }
