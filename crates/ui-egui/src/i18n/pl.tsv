@@ -3925,6 +3925,13 @@ imageTrace	Outline	Kontur
 @plural	{n} step|{n} steps	{n} krok|{n} kroki|{n} kroków
 @plural	{n} stroke|{n} strokes	{n} obrys|{n} obrysy|{n} obrysów
 @msg	no library `{id}`	brak biblioteki `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	podaj `path` lub `csv` (albo wyeksportuj raz, aby dokument znał swój plik)
+@msg	more than {MAX_ROWS} rows	więcej niż {MAX_ROWS} wierszy
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	plik CSV jest większy niż {MAX_CSV_BYTES} bajtów
+@msg	the CSV isn't UTF-8	plik CSV nie jest w UTF-8
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	plik CSV byłby większy niż {MAX_CSV_BYTES} bajtów
+@msg	the document has no layer named {_1}, where the Library's groups go	dokument nie ma warstwy o nazwie {_1}, do której trafiają grupy biblioteki
+@msg	the first line must be {_1}	pierwszy wiersz musi mieć postać {_1}
 @msg	missing to: a place from 0	brak to: pozycja od 0
 @msg	unknown mode `{m}`: set, add or remove	nieznany tryb `{m}`: set, add lub remove
 @msg	select some type first	najpierw zaznacz tekst
@@ -5474,3 +5481,29 @@ axis	Y Axis	Oś Y
 @msg	a {width}×{height} screenshot's byte count overflows	liczba bajtów zrzutu ekranu {width}×{height} przekracza limit
 @msg	the window's {what} ({points} points × {scale} DPI) cannot size a screenshot	{what} okna ({points} punktów × {scale} DPI) nie pozwala ustalić rozmiaru zrzutu ekranu
 	Live preview	Podgląd na żywo
+	Check Again	Sprawdź ponownie
+	Choose the CSV to import.	Wybierz plik CSV do zaimportowania.
+	Errors ({count})	Błędy ({count})
+	Export Positions	Eksportuj pozycje
+	Export Positions…	Eksportuj pozycje…
+	Exported {count} controls to {file}	Wyeksportowano elementy sterujące ({count}) do {file}
+	Import Positions	Importuj pozycje
+	Import Positions…	Importuj pozycje…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Zaimportowano zmiany ({count}) z {file} (Edycja › Cofnij je odwraca)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Przesuwa, zmienia typ, dodaje i usuwa elementy sterujące (zapisane zaznaczenia) zgodnie z plikiem CSV pozycji, w jednym kroku.
+	No file chosen	Nie wybrano pliku
+	Nothing to change: the controls match the file.	Nic do zmiany: elementy sterujące zgadzają się z plikiem.
+	Warnings ({count})	Ostrzeżenia ({count})
+	Will be added ({count})	Zostaną dodane ({count})
+	Will be removed ({count})	Zostaną usunięte ({count})
+	Will change type ({count})	Zmienią typ ({count})
+	Will move ({count})	Zostaną przesunięte ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Zapisuje pozycję każdego zapisanego zaznaczenia oraz obrys płytki jako plik CSV dla płytki.
+	Check Positions	Sprawdź pozycje
+	Import	Importuj
+	PCB Outline Layer	Warstwa obrysu płytki
+	Panel Positions	Pozycje panelu
+	Position Layer	Warstwa pozycji
+	Positions Settings	Ustawienia pozycji
+	Type Layer	Warstwa typu elementu
+	Type Library	Biblioteka typów elementów

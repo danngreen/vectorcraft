@@ -3839,6 +3839,13 @@ axis	Both	Entrambi
 # (`untranslated_report` lists any that are missing). Command ids, parameter
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	nessuna libreria `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	indica `path` o `csv` (o esporta una volta, così il documento conosce il suo file)
+@msg	more than {MAX_ROWS} rows	più di {MAX_ROWS} righe
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	il CSV supera {MAX_CSV_BYTES} byte
+@msg	the CSV isn't UTF-8	il CSV non è in UTF-8
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	il CSV supererebbe {MAX_CSV_BYTES} byte
+@msg	the document has no layer named {_1}, where the Library's groups go	il documento non ha un livello chiamato {_1}, dove vanno i gruppi della libreria
+@msg	the first line must be {_1}	la prima riga deve essere {_1}
 @msg	missing to: a place from 0	manca to: una posizione da 0
 @msg	unknown mode `{m}`: set, add or remove	modalità sconosciuta `{m}`: set, add o remove
 @msg	select some type first	seleziona prima del testo
@@ -5238,3 +5245,29 @@ axis	Y Axis	Asse Y
 @msg	a {width}×{height} screenshot's byte count overflows	il numero di byte di uno screenshot {width}×{height} va in overflow
 @msg	the window's {what} ({points} points × {scale} DPI) cannot size a screenshot	la {what} della finestra ({points} punti × {scale} DPI) non può dimensionare uno screenshot
 	Live preview	Anteprima dal vivo
+	Check Again	Controlla di nuovo
+	Choose the CSV to import.	Scegli il CSV da importare.
+	Errors ({count})	Errori ({count})
+	Export Positions	Esporta posizioni
+	Export Positions…	Esporta posizioni…
+	Exported {count} controls to {file}	{count} controlli esportati in {file}
+	Import Positions	Importa posizioni
+	Import Positions…	Importa posizioni…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} modifiche importate da {file} (Modifica › Annulla le annulla)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Sposta, cambia tipo, aggiunge e rimuove i controlli (selezioni salvate) secondo un CSV di posizioni, in un solo passaggio.
+	No file chosen	Nessun file scelto
+	Nothing to change: the controls match the file.	Niente da cambiare: i controlli corrispondono al file.
+	Warnings ({count})	Avvisi ({count})
+	Will be added ({count})	Verranno aggiunti ({count})
+	Will be removed ({count})	Verranno rimossi ({count})
+	Will change type ({count})	Cambieranno tipo ({count})
+	Will move ({count})	Verranno spostati ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Scrive la posizione di ogni selezione salvata, e il contorno del PCB, come CSV per il PCB.
+	Check Positions	Controlla posizioni
+	Import	Importa
+	PCB Outline Layer	Livello del contorno PCB
+	Panel Positions	Posizioni del pannello
+	Position Layer	Livello di posizione
+	Positions Settings	Impostazioni posizioni
+	Type Layer	Livello del tipo di componente
+	Type Library	Libreria dei tipi di componente

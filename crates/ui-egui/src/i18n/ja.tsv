@@ -4082,6 +4082,13 @@ swatch	Bright Violet	ビビッドバイオレット
 @msg	the layer to flatten into is hidden	統合先のレイヤーが非表示になっています
 @msg	there are no objects to release	レイヤーに分配するオブジェクトがありません
 @msg	no library `{id}`	ライブラリ `{id}` が見つかりません
+@msg	give `path` or `csv` (or export once, so the document knows its file)	`path` か `csv` を指定してください（一度書き出せば、ドキュメントがそのファイルを覚えます）
+@msg	more than {MAX_ROWS} rows	{MAX_ROWS} 行を超えています
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	CSV が {MAX_CSV_BYTES} バイトを超えています
+@msg	the CSV isn't UTF-8	CSV が UTF-8 ではありません
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	CSV が {MAX_CSV_BYTES} バイトを超えてしまいます
+@msg	the document has no layer named {_1}, where the Library's groups go	ドキュメントに {_1} という名前のレイヤーがありません（ライブラリのグループの配置先です）
+@msg	the first line must be {_1}	1 行目は {_1} である必要があります
 @msg	missing to: a place from 0	to がありません：0 から数えた位置です
 @msg	unknown mode `{m}`: set, add or remove	不明なモード `{m}`：set、add、remove のいずれかです
 @msg	{path}: not a file	{path}: ファイルではありません
@@ -5300,3 +5307,29 @@ axis	Y Axis	Y 軸
 @msg	a {width}×{height} screenshot's byte count overflows	{width}×{height} のスクリーンショットのバイト数がオーバーフローします
 @msg	the window's {what} ({points} points × {scale} DPI) cannot size a screenshot	ウィンドウの {what}（{points} ポイント × {scale} DPI）ではスクリーンショットのサイズを決められません
 	Live preview	ライブプレビュー
+	Check Again	再確認
+	Choose the CSV to import.	読み込む CSV を選択してください。
+	Errors ({count})	エラー ({count})
+	Export Positions	位置を書き出し
+	Export Positions…	位置を書き出し…
+	Exported {count} controls to {file}	{count} 個のコントロールを {file} に書き出しました
+	Import Positions	位置を読み込み
+	Import Positions…	位置を読み込み…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{file} から {count} 件の変更を読み込みました (編集 › 取り消しで元に戻せます)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	位置 CSV に合わせて、コントロール (保存した選択範囲) を移動、種類変更、追加、削除します。1 ステップで行います。
+	No file chosen	ファイルが選択されていません
+	Nothing to change: the controls match the file.	変更なし: コントロールはファイルと一致しています。
+	Warnings ({count})	警告 ({count})
+	Will be added ({count})	追加 ({count})
+	Will be removed ({count})	削除 ({count})
+	Will change type ({count})	種類の変更 ({count})
+	Will move ({count})	移動 ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	保存した各選択範囲の位置と基板の外形を、基板用の CSV に書き出します。
+	Check Positions	位置を確認
+	Import	読み込み
+	PCB Outline Layer	基板外形レイヤー
+	Panel Positions	パネルの位置
+	Position Layer	位置レイヤー
+	Positions Settings	位置の設定
+	Type Layer	部品の種類レイヤー
+	Type Library	部品の種類ライブラリ

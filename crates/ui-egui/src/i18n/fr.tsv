@@ -3796,6 +3796,13 @@ axis	Both	Les deux
 # (`untranslated_report` lists any that are missing). Command ids, parameter
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	aucune bibliothèque `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	indiquez `path` ou `csv` (ou exportez une fois, pour que le document connaisse son fichier)
+@msg	more than {MAX_ROWS} rows	plus de {MAX_ROWS} lignes
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	le CSV dépasse {MAX_CSV_BYTES} octets
+@msg	the CSV isn't UTF-8	le CSV n'est pas en UTF-8
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	le CSV dépasserait {MAX_CSV_BYTES} octets
+@msg	the document has no layer named {_1}, where the Library's groups go	le document n'a pas de calque nommé {_1}, où vont les groupes de la bibliothèque
+@msg	the first line must be {_1}	la première ligne doit être {_1}
 @msg	missing to: a place from 0	to manquant : une position à partir de 0
 @msg	unknown mode `{m}`: set, add or remove	mode inconnu `{m}` : set, add ou remove
 @msg	select some type first	sélectionnez d’abord du texte
@@ -5621,3 +5628,29 @@ axis	Y Axis	Axe Y
 @msg	a {width}×{height} screenshot's byte count overflows	le nombre d'octets d'une capture {width}×{height} dépasse la limite
 @msg	the window's {what} ({points} points × {scale} DPI) cannot size a screenshot	la {what} de la fenêtre ({points} points × {scale} DPI) ne permet pas de dimensionner une capture
 	Live preview	Aperçu en direct
+	Check Again	Vérifier à nouveau
+	Choose the CSV to import.	Choisissez le fichier CSV à importer.
+	Errors ({count})	Erreurs ({count})
+	Export Positions	Exporter les positions
+	Export Positions…	Exporter les positions…
+	Exported {count} controls to {file}	{count} commandes exportées vers {file}
+	Import Positions	Importer les positions
+	Import Positions…	Importer les positions…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} modifications importées depuis {file} (Édition › Annuler les annule)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Déplace, change le type, ajoute et supprime les commandes (sélections enregistrées) d’après un fichier CSV de positions, en une seule étape.
+	No file chosen	Aucun fichier choisi
+	Nothing to change: the controls match the file.	Rien à changer : les commandes correspondent au fichier.
+	Warnings ({count})	Avertissements ({count})
+	Will be added ({count})	Seront ajoutées ({count})
+	Will be removed ({count})	Seront supprimées ({count})
+	Will change type ({count})	Changeront de type ({count})
+	Will move ({count})	Seront déplacées ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Écrit la position de chaque sélection enregistrée, et le contour du circuit imprimé, dans un CSV pour le circuit.
+	Check Positions	Vérifier les positions
+	Import	Importer
+	PCB Outline Layer	Calque du contour du circuit
+	Panel Positions	Positions du panneau
+	Position Layer	Calque de position
+	Positions Settings	Paramètres des positions
+	Type Layer	Calque du type de composant
+	Type Library	Bibliothèque des types de composants
