@@ -4058,6 +4058,13 @@ theme	Appearance	외관
 @msg	the layer to flatten into is hidden	병합 대상 레이어가 숨겨져 있습니다
 @msg	there are no objects to release	해제할 개체가 없습니다
 @msg	no library `{id}`	`{id}` 라이브러리가 없습니다
+@msg	give `path` or `csv` (or export once, so the document knows its file)	`path` 또는 `csv`를 지정하세요(한 번 내보내면 문서가 파일을 기억합니다)
+@msg	more than {MAX_ROWS} rows	{MAX_ROWS}행을 초과합니다
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	CSV가 {MAX_CSV_BYTES}바이트보다 큽니다
+@msg	the CSV isn't UTF-8	CSV가 UTF-8이 아닙니다
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	CSV가 {MAX_CSV_BYTES}바이트보다 커집니다
+@msg	the document has no layer named {_1}, where the Library's groups go	문서에 라이브러리 그룹이 들어갈 {_1} 레이어가 없습니다
+@msg	the first line must be {_1}	첫 줄은 {_1}이어야 합니다
 @msg	missing to: a place from 0	to가 없습니다: 0부터 센 위치
 @msg	unknown mode `{m}`: set, add or remove	알 수 없는 모드 `{m}`: set, add 또는 remove
 @msg	{path}: not a file	{path}: 파일이 아닙니다
@@ -5581,3 +5588,29 @@ breakText	Glyphs	글리프
 	Gap 4	간격 4
 	Dash 5	대시 5
 	Gap 5	간격 5
+	Check Again	다시 확인
+	Choose the CSV to import.	가져올 CSV를 선택하십시오.
+	Errors ({count})	오류 ({count})
+	Export Positions	위치 내보내기
+	Export Positions…	위치 내보내기…
+	Exported {count} controls to {file}	컨트롤 {count}개를 {file}(으)로 내보냈습니다
+	Import Positions	위치 가져오기
+	Import Positions…	위치 가져오기…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{file}에서 변경 {count}개를 가져왔습니다 (편집 › 실행 취소로 되돌릴 수 있음)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	위치 CSV에 맞게 컨트롤(저장된 선택 영역)을 이동, 유형 변경, 추가, 제거합니다. 한 단계로 실행됩니다.
+	No file chosen	선택한 파일 없음
+	Nothing to change: the controls match the file.	변경할 내용 없음: 컨트롤이 파일과 일치합니다.
+	Warnings ({count})	경고 ({count})
+	Will be added ({count})	추가됨 ({count})
+	Will be removed ({count})	제거됨 ({count})
+	Will change type ({count})	유형 변경 ({count})
+	Will move ({count})	이동 ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	저장된 각 선택 영역의 위치와 PCB 외곽선을 PCB용 CSV로 씁니다.
+	Check Positions	위치 확인
+	Import	가져오기
+	PCB Outline Layer	PCB 외곽선 레이어
+	Panel Positions	패널 위치
+	Position Layer	위치 레이어
+	Positions Settings	위치 설정
+	Type Layer	부품 유형 레이어
+	Type Library	부품 유형 라이브러리

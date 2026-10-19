@@ -4839,6 +4839,13 @@ imageTrace	Outline	Körvonal
 @msg	no interaction in progress	nincs folyamatban lévő művelet
 @msg	no key object	nincs kulcsobjektum
 @msg	no library `{id}`	nincs ilyen könyvtár: `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	adja meg a `path` vagy a `csv` értékét (vagy exportáljon egyszer, hogy a dokumentum ismerje a fájlját)
+@msg	more than {MAX_ROWS} rows	több mint {MAX_ROWS} sor
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	a CSV nagyobb, mint {MAX_CSV_BYTES} bájt
+@msg	the CSV isn't UTF-8	a CSV nem UTF-8 kódolású
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	a CSV nagyobb lenne, mint {MAX_CSV_BYTES} bájt
+@msg	the document has no layer named {_1}, where the Library's groups go	a dokumentumban nincs {_1} nevű réteg, ahová a könyvtár csoportjai kerülnek
+@msg	the first line must be {_1}	az első sornak ennek kell lennie: {_1}
 @msg	missing to: a place from 0	hiányzik a to: egy hely 0-tól
 @msg	unknown mode `{m}`: set, add or remove	ismeretlen mód: `{m}`; set, add vagy remove
 @msg	no library `{key}` (see {list})	nincs ilyen könyvtár: `{key}` (lásd: {list})
@@ -5985,3 +5992,29 @@ breakText	Glyphs	Glifák
 	Gap 4	Hézag 4
 	Dash 5	Vonal 5
 	Gap 5	Hézag 5
+	Check Again	Ellenőrzés újra
+	Choose the CSV to import.	Válassza ki az importálandó CSV-fájlt.
+	Errors ({count})	Hibák ({count})
+	Export Positions	Pozíciók exportálása
+	Export Positions…	Pozíciók exportálása…
+	Exported {count} controls to {file}	{count} kezelőelem exportálva ide: {file}
+	Import Positions	Pozíciók importálása
+	Import Positions…	Pozíciók importálása…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} módosítás importálva innen: {file} (Szerkesztés › Visszavonás visszavonja őket)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Áthelyezi, átírja a típusát, hozzáadja és eltávolítja a kezelőelemeket (mentett kijelöléseket) egy pozíció-CSV szerint, egy lépésben.
+	No file chosen	Nincs kiválasztott fájl
+	Nothing to change: the controls match the file.	Nincs mit módosítani: a kezelőelemek megfelelnek a fájlnak.
+	Warnings ({count})	Figyelmeztetések ({count})
+	Will be added ({count})	Hozzáadásra kerül ({count})
+	Will be removed ({count})	Eltávolításra kerül ({count})
+	Will change type ({count})	Típusa megváltozik ({count})
+	Will move ({count})	Áthelyezésre kerül ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Minden mentett kijelölés pozícióját és a nyomtatott áramkör körvonalát CSV-fájlba írja az áramkörhöz.
+	Check Positions	Pozíciók ellenőrzése
+	Import	Importálás
+	PCB Outline Layer	Panelkörvonal rétege
+	Panel Positions	Panelpozíciók
+	Position Layer	Pozíció rétege
+	Positions Settings	Pozíciók beállításai
+	Type Layer	Alkatrésztípus rétege
+	Type Library	Alkatrésztípusok könyvtára

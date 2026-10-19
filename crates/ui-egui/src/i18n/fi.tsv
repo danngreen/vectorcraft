@@ -4058,6 +4058,13 @@ imageTrace	Outline	Ääriviiva
 @plural	{n} step|{n} steps	{n} vaihe|{n} vaihetta
 @plural	{n} stroke|{n} strokes	{n} viiva|{n} viivaa
 @msg	no library `{id}`	ei kirjastoa `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	anna `path` tai `csv` (tai vie kerran, jotta asiakirja tuntee tiedostonsa)
+@msg	more than {MAX_ROWS} rows	yli {MAX_ROWS} riviä
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	CSV on suurempi kuin {MAX_CSV_BYTES} tavua
+@msg	the CSV isn't UTF-8	CSV ei ole UTF-8-muodossa
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	CSV olisi suurempi kuin {MAX_CSV_BYTES} tavua
+@msg	the document has no layer named {_1}, where the Library's groups go	asiakirjassa ei ole tasoa nimeltä {_1}, johon kirjaston ryhmät tulevat
+@msg	the first line must be {_1}	ensimmäisen rivin on oltava {_1}
 @msg	missing to: a place from 0	to puuttuu: paikka alkaen 0:sta
 @msg	unknown mode `{m}`: set, add or remove	tuntematon tila `{m}`: set, add tai remove
 @msg	select some type first	valitse ensin tekstiä
@@ -6029,3 +6036,29 @@ breakText	Glyphs	Merkit
 	Gap 4	Väli 4
 	Dash 5	Viiva 5
 	Gap 5	Väli 5
+	Check Again	Tarkista uudelleen
+	Choose the CSV to import.	Valitse tuotava CSV-tiedosto.
+	Errors ({count})	Virheet ({count})
+	Export Positions	Vie sijainnit
+	Export Positions…	Vie sijainnit…
+	Exported {count} controls to {file}	{count} säädintä viety tiedostoon {file}
+	Import Positions	Tuo sijainnit
+	Import Positions…	Tuo sijainnit…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} muutosta tuotu tiedostosta {file} (Muokkaa › Kumoa kumoaa ne)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Siirtää, vaihtaa tyypin, lisää ja poistaa säätimiä (tallennettuja valintoja) sijainti-CSV:n mukaisiksi yhdellä vaiheella.
+	No file chosen	Tiedostoa ei ole valittu
+	Nothing to change: the controls match the file.	Ei muutettavaa: säätimet vastaavat tiedostoa.
+	Warnings ({count})	Varoitukset ({count})
+	Will be added ({count})	Lisätään ({count})
+	Will be removed ({count})	Poistetaan ({count})
+	Will change type ({count})	Tyyppi vaihtuu ({count})
+	Will move ({count})	Siirretään ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Kirjoittaa jokaisen tallennetun valinnan sijainnin ja piirilevyn ääriviivan CSV-tiedostoksi piirilevyä varten.
+	Check Positions	Tarkista sijainnit
+	Import	Tuo
+	PCB Outline Layer	Piirilevyn ääriviivan taso
+	Panel Positions	Paneelin sijainnit
+	Position Layer	Sijaintitaso
+	Positions Settings	Sijaintien asetukset
+	Type Layer	Komponenttityypin taso
+	Type Library	Komponenttityyppien kirjasto

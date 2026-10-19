@@ -25,6 +25,8 @@ mod csv;
 mod library;
 
 use csv::{MAX_GRAPH_CSV, dataset_export, dataset_import};
+// Export/Import Positions reads and writes its CSV the same way.
+pub(super) use csv::{csv_escape, parse_datasets_csv};
 use library::load_library;
 
 /// The longest variable or dataset name, in characters (names arrive from MCP and files).

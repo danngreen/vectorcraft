@@ -270,6 +270,10 @@ pub struct Document {
     /// params), so the dialog reopens on them.
     #[serde(default, skip_serializing_if = "serde_json::Map::is_empty")]
     pub export_settings: serde_json::Map<String, serde_json::Value>,
+    /// Saved Selections panel → Export/Import Positions: the CSV it last used (`path`) and the
+    /// settings this document keeps apart from the preferences' (`positions.*` params).
+    #[serde(default, skip_serializing_if = "serde_json::Map::is_empty")]
+    pub positions: serde_json::Map<String, serde_json::Value>,
     /// Top-level keys this version doesn't know (written by a newer one), kept so saving doesn't
     /// lose them. Separate from [`Document::unknown`], which holds foreign data by design.
     #[serde(flatten)]

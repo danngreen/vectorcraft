@@ -4487,6 +4487,13 @@ theme	Appearance	Giao diện
 @msg	no interaction in progress	không có tương tác nào đang tiến hành
 @msg	no key object	không có đối tượng khóa
 @msg	no library `{id}`	không có thư viện `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	hãy cho `path` hoặc `csv` (hoặc xuất một lần để tài liệu biết tệp của nó)
+@msg	more than {MAX_ROWS} rows	nhiều hơn {MAX_ROWS} hàng
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	CSV lớn hơn {MAX_CSV_BYTES} byte
+@msg	the CSV isn't UTF-8	CSV không phải UTF-8
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	CSV sẽ lớn hơn {MAX_CSV_BYTES} byte
+@msg	the document has no layer named {_1}, where the Library's groups go	tài liệu không có lớp nào tên {_1}, nơi chứa các nhóm của thư viện
+@msg	the first line must be {_1}	dòng đầu tiên phải là {_1}
 @msg	missing to: a place from 0	thiếu to: một vị trí từ 0
 @msg	unknown mode `{m}`: set, add or remove	chế độ không xác định `{m}`: set, add hoặc remove
 @msg	no library `{key}` (see {list})	không có thư viện `{key}` (xem {list})
@@ -5600,3 +5607,29 @@ breakText	Glyphs	Glyph
 	Gap 4	Khoảng hở 4
 	Dash 5	Nét 5
 	Gap 5	Khoảng hở 5
+	Check Again	Kiểm tra lại
+	Choose the CSV to import.	Chọn tệp CSV để nhập.
+	Errors ({count})	Lỗi ({count})
+	Export Positions	Xuất vị trí
+	Export Positions…	Xuất vị trí…
+	Exported {count} controls to {file}	Đã xuất {count} điều khiển vào {file}
+	Import Positions	Nhập vị trí
+	Import Positions…	Nhập vị trí…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Đã nhập {count} thay đổi từ {file} (Chỉnh sửa › Hoàn tác để đảo ngược)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Di chuyển, đổi loại, thêm và xóa các điều khiển (vùng chọn đã lưu) cho khớp với tệp CSV vị trí, trong một bước.
+	No file chosen	Chưa chọn tệp
+	Nothing to change: the controls match the file.	Không có gì thay đổi: các điều khiển khớp với tệp.
+	Warnings ({count})	Cảnh báo ({count})
+	Will be added ({count})	Sẽ được thêm ({count})
+	Will be removed ({count})	Sẽ bị xóa ({count})
+	Will change type ({count})	Sẽ đổi loại ({count})
+	Will move ({count})	Sẽ được di chuyển ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Ghi vị trí của từng vùng chọn đã lưu, và đường viền bảng mạch, thành tệp CSV cho bảng mạch.
+	Check Positions	Kiểm tra vị trí
+	Import	Nhập
+	PCB Outline Layer	Lớp đường viền bảng mạch
+	Panel Positions	Vị trí trên panel
+	Position Layer	Lớp vị trí
+	Positions Settings	Cài đặt vị trí
+	Type Layer	Lớp loại linh kiện
+	Type Library	Thư viện loại linh kiện
