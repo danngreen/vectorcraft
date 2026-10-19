@@ -4085,6 +4085,13 @@ imageTrace	Outline	Obrys
 
 # Status and error messages
 @msg	no library `{id}`	knihovna `{id}` neexistuje
+@msg	give `path` or `csv` (or export once, so the document knows its file)	zadejte `path` nebo `csv` (nebo jednou exportujte, aby dokument znal svůj soubor)
+@msg	more than {MAX_ROWS} rows	více než {MAX_ROWS} řádků
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	CSV je větší než {MAX_CSV_BYTES} bajtů
+@msg	the CSV isn't UTF-8	CSV není v kódování UTF-8
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	CSV by bylo větší než {MAX_CSV_BYTES} bajtů
+@msg	the document has no layer named {_1}, where the Library's groups go	dokument nemá vrstvu s názvem {_1}, kam patří skupiny knihovny
+@msg	the first line must be {_1}	první řádek musí být {_1}
 @msg	missing to: a place from 0	chybí to: pozice od 0
 @msg	unknown mode `{m}`: set, add or remove	neznámý režim `{m}`: set, add nebo remove
 @msg	select some type first	nejprve vyberte text
@@ -5541,3 +5548,29 @@ axis	Y Axis	osa Y
 	Rectangular Grid Tool Options	Možnosti nástroje Obdélníková mřížka
 	Polar Grid Tool Options	Možnosti nástroje Polární mřížka
 	Fill Line	Výplň úsečky
+	Check Again	Zkontrolovat znovu
+	Choose the CSV to import.	Vyberte soubor CSV k importu.
+	Errors ({count})	Chyby ({count})
+	Export Positions	Exportovat pozice
+	Export Positions…	Exportovat pozice…
+	Exported {count} controls to {file}	Ovládací prvky ({count}) exportovány do {file}
+	Import Positions	Importovat pozice
+	Import Positions…	Importovat pozice…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Importované změny ({count}) z {file} (Úpravy › Zpět je vrátí)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Přesune, změní typ, přidá a odstraní ovládací prvky (uložené výběry) podle souboru CSV s pozicemi, v jednom kroku.
+	No file chosen	Není vybrán žádný soubor
+	Nothing to change: the controls match the file.	Není co měnit: ovládací prvky odpovídají souboru.
+	Warnings ({count})	Upozornění ({count})
+	Will be added ({count})	Budou přidány ({count})
+	Will be removed ({count})	Budou odstraněny ({count})
+	Will change type ({count})	Změní typ ({count})
+	Will move ({count})	Budou přesunuty ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Zapíše pozici každého uloženého výběru a obrys desky plošných spojů jako CSV pro desku.
+	Check Positions	Zkontrolovat pozice
+	Import	Importovat
+	PCB Outline Layer	Vrstva obrysu desky
+	Panel Positions	Pozice panelu
+	Position Layer	Vrstva pozic
+	Positions Settings	Nastavení pozic
+	Type Layer	Vrstva typu součástky
+	Type Library	Knihovna typů součástek

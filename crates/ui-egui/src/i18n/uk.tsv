@@ -3805,6 +3805,13 @@ axis	Both	Обидві
 	Drag to the window's left edge to dock	Перетягніть до лівого краю вікна для прикріплення
 	Float Tool Group	Від’єднати групу інструментів
 @msg	no library `{id}`	немає бібліотеки `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	укажіть `path` або `csv` (або виконайте експорт один раз, щоб документ знав свій файл)
+@msg	more than {MAX_ROWS} rows	більше ніж {MAX_ROWS} рядків
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	CSV більший за {MAX_CSV_BYTES} байтів
+@msg	the CSV isn't UTF-8	CSV не в кодуванні UTF-8
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	CSV був би більшим за {MAX_CSV_BYTES} байтів
+@msg	the document has no layer named {_1}, where the Library's groups go	у документі немає шару з назвою {_1}, куди потрапляють групи бібліотеки
+@msg	the first line must be {_1}	перший рядок має бути {_1}
 @msg	missing to: a place from 0	не вказано to: позиція від 0
 @msg	unknown mode `{m}`: set, add or remove	невідомий режим `{m}`: set, add або remove
 @msg	select some type first	спочатку виділіть текст
@@ -5138,3 +5145,29 @@ axis	Y Axis	Вісь Y
 	Rectangular Grid Tool Options	Параметри інструменту «Прямокутна сітка»
 	Polar Grid Tool Options	Параметри інструменту «Полярна сітка»
 	Fill Line	Заливка відрізка
+	Check Again	Перевірити знову
+	Choose the CSV to import.	Виберіть CSV-файл для імпорту.
+	Errors ({count})	Помилки ({count})
+	Export Positions	Експорт позицій
+	Export Positions…	Експорт позицій…
+	Exported {count} controls to {file}	Елементів керування експортовано до {file}: {count}
+	Import Positions	Імпорт позицій
+	Import Positions…	Імпорт позицій…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Змін імпортовано з {file}: {count} (Редагування › Скасувати скасує їх)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Переміщує, змінює тип, додає та вилучає елементи керування (збережені виділення) за CSV-файлом позицій за один крок.
+	No file chosen	Файл не вибрано
+	Nothing to change: the controls match the file.	Нічого змінювати: елементи керування збігаються з файлом.
+	Warnings ({count})	Попередження ({count})
+	Will be added ({count})	Буде додано ({count})
+	Will be removed ({count})	Буде вилучено ({count})
+	Will change type ({count})	Змінять тип ({count})
+	Will move ({count})	Буде переміщено ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Записує позицію кожного збереженого виділення та контур друкованої плати у CSV-файл для плати.
+	Check Positions	Перевірити позиції
+	Import	Імпорт
+	PCB Outline Layer	Шар контуру плати
+	Panel Positions	Позиції панелі
+	Position Layer	Шар позицій
+	Positions Settings	Налаштування позицій
+	Type Layer	Шар типу компонента
+	Type Library	Бібліотека типів компонентів

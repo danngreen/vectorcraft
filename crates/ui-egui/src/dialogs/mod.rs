@@ -73,6 +73,7 @@ pub mod place;
 pub mod placement_options;
 pub mod plugin;
 mod png_options;
+pub mod positions;
 pub mod print;
 pub mod print_presets;
 mod psd_options;
@@ -318,6 +319,8 @@ registry! {
     DxfOptions: [dxf_options::KIND] => dxf_options::SPEC,
     PlacementOptions: [placement_options::KIND] => placement_options::SPEC,
     Package: [package::KIND] => package::SPEC,
+    PositionsExport: [positions::EXPORT] => positions::EXPORT_SPEC,
+    PositionsImport: [positions::IMPORT] => positions::IMPORT_SPEC,
     ActionBatch: [action_batch::KIND] => action_batch::SPEC,
     ActionSetOptions: [action_set_options::KIND] => action_set_options::SPEC,
     SliceOptions: [slices::OPTIONS] => slices::OPTIONS_SPEC,

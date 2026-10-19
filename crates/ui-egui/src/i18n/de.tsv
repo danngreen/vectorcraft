@@ -3705,6 +3705,13 @@ theme	Appearance	Erscheinungsbild
 # (`untranslated_report` lists any that are missing). Command ids, parameter
 # names and values in backticks or code (`colorModel rgb`, `document.export`) stay as they are.
 @msg	no library `{id}`	keine Bibliothek `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	`path` oder `csv` angeben (oder einmal exportieren, damit das Dokument seine Datei kennt)
+@msg	more than {MAX_ROWS} rows	mehr als {MAX_ROWS} Zeilen
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	die CSV-Datei ist größer als {MAX_CSV_BYTES} Byte
+@msg	the CSV isn't UTF-8	die CSV-Datei ist nicht UTF-8-kodiert
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	die CSV-Datei wäre größer als {MAX_CSV_BYTES} Byte
+@msg	the document has no layer named {_1}, where the Library's groups go	das Dokument hat keine Ebene namens {_1}, in die die Gruppen der Bibliothek gehören
+@msg	the first line must be {_1}	die erste Zeile muss {_1} lauten
 @msg	missing to: a place from 0	to fehlt: eine Position ab 0
 @msg	unknown mode `{m}`: set, add or remove	unbekannter Modus `{m}`: set, add oder remove
 @msg	select some type first	wählen Sie zuerst Text aus
@@ -5124,3 +5131,29 @@ axis	Y Axis	Y-Achse
 	Rectangular Grid Tool Options	Optionen für das Rechteckiges-Raster-Werkzeug
 	Polar Grid Tool Options	Optionen für das Radiales-Raster-Werkzeug
 	Fill Line	Linie füllen
+	Check Again	Erneut prüfen
+	Choose the CSV to import.	Wählen Sie die zu importierende CSV-Datei.
+	Errors ({count})	Fehler ({count})
+	Export Positions	Positionen exportieren
+	Export Positions…	Positionen exportieren…
+	Exported {count} controls to {file}	{count} Bedienelemente nach {file} exportiert
+	Import Positions	Positionen importieren
+	Import Positions…	Positionen importieren…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} Änderungen aus {file} importiert (Bearbeiten › Rückgängig macht sie rückgängig)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Verschiebt, ändert den Typ, fügt hinzu und entfernt Bedienelemente (gespeicherte Auswahlen) gemäß einer Positions-CSV, in einem Schritt.
+	No file chosen	Keine Datei gewählt
+	Nothing to change: the controls match the file.	Nichts zu ändern: Die Bedienelemente entsprechen der Datei.
+	Warnings ({count})	Warnungen ({count})
+	Will be added ({count})	Werden hinzugefügt ({count})
+	Will be removed ({count})	Werden entfernt ({count})
+	Will change type ({count})	Ändern den Typ ({count})
+	Will move ({count})	Werden verschoben ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Schreibt die Position jeder gespeicherten Auswahl und den Platinenumriss als CSV für die Platine.
+	Check Positions	Positionen prüfen
+	Import	Importieren
+	PCB Outline Layer	Ebene für Platinenumriss
+	Panel Positions	Panel-Positionen
+	Position Layer	Positionsebene
+	Positions Settings	Positionseinstellungen
+	Type Layer	Ebene für Bauteiltyp
+	Type Library	Bibliothek der Bauteiltypen

@@ -2042,6 +2042,13 @@ axis	Both	Και τα δύο
 	Float Panel	Αιωρούμενο πάνελ
 	Dock Panel	Αγκύρωση πάνελ
 @msg	no library `{id}`	Δεν υπάρχει βιβλιοθήκη με αναγνωριστικό `{id}`
+@msg	give `path` or `csv` (or export once, so the document knows its file)	δώστε `path` ή `csv` (ή κάντε μία εξαγωγή, ώστε το έγγραφο να γνωρίζει το αρχείο του)
+@msg	more than {MAX_ROWS} rows	περισσότερες από {MAX_ROWS} γραμμές
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	το CSV είναι μεγαλύτερο από {MAX_CSV_BYTES} byte
+@msg	the CSV isn't UTF-8	το CSV δεν είναι σε UTF-8
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	το CSV θα ήταν μεγαλύτερο από {MAX_CSV_BYTES} byte
+@msg	the document has no layer named {_1}, where the Library's groups go	το έγγραφο δεν έχει επίπεδο με όνομα {_1}, όπου πηγαίνουν οι ομάδες της βιβλιοθήκης
+@msg	the first line must be {_1}	η πρώτη γραμμή πρέπει να είναι {_1}
 @msg	missing to: a place from 0	λείπει το to: μια θέση από 0
 @msg	unknown mode `{m}`: set, add or remove	άγνωστη λειτουργία `{m}`: set, add ή remove
 @msg	select some type first	Επιλέξτε πρώτα κάποιο κείμενο
@@ -5493,3 +5500,29 @@ axis	Y Axis	Άξονας Y
 	Rectangular Grid Tool Options	Επιλογές εργαλείου ορθογώνιου πλέγματος
 	Polar Grid Tool Options	Επιλογές εργαλείου πολικού πλέγματος
 	Fill Line	Γέμισμα γραμμής
+	Check Again	Έλεγχος ξανά
+	Choose the CSV to import.	Επιλέξτε το αρχείο CSV για εισαγωγή.
+	Errors ({count})	Σφάλματα ({count})
+	Export Positions	Εξαγωγή θέσεων
+	Export Positions…	Εξαγωγή θέσεων…
+	Exported {count} controls to {file}	Εξήχθησαν στοιχεία ελέγχου στο {file}: {count}
+	Import Positions	Εισαγωγή θέσεων
+	Import Positions…	Εισαγωγή θέσεων…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	Εισήχθησαν αλλαγές από το {file}: {count} (Επεξεργασία › Αναίρεση τις αναιρεί)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Μετακινεί, αλλάζει τύπο, προσθέτει και αφαιρεί στοιχεία ελέγχου (αποθηκευμένες επιλογές) σύμφωνα με ένα CSV θέσεων, σε ένα βήμα.
+	No file chosen	Δεν επιλέχθηκε αρχείο
+	Nothing to change: the controls match the file.	Τίποτα προς αλλαγή: τα στοιχεία ελέγχου συμφωνούν με το αρχείο.
+	Warnings ({count})	Προειδοποιήσεις ({count})
+	Will be added ({count})	Θα προστεθούν ({count})
+	Will be removed ({count})	Θα αφαιρεθούν ({count})
+	Will change type ({count})	Θα αλλάξουν τύπο ({count})
+	Will move ({count})	Θα μετακινηθούν ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	Γράφει τη θέση κάθε αποθηκευμένης επιλογής και το περίγραμμα της πλακέτας σε CSV για την πλακέτα.
+	Check Positions	Έλεγχος θέσεων
+	Import	Εισαγωγή
+	PCB Outline Layer	Επίπεδο περιγράμματος πλακέτας
+	Panel Positions	Θέσεις πάνελ
+	Position Layer	Επίπεδο θέσης
+	Positions Settings	Ρυθμίσεις θέσεων
+	Type Layer	Επίπεδο τύπου εξαρτήματος
+	Type Library	Βιβλιοθήκη τύπων εξαρτημάτων

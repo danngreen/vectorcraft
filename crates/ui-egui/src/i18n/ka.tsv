@@ -3582,6 +3582,13 @@ font-technology	Variable	ცვლადი
 @plural	{n} step|{n} steps	ნაბიჯი: {n}
 @plural	{n} stroke|{n} strokes	კონტური: {n}
 @msg	no library `{id}`	ბიბლიოთეკა `{id}` არ არსებობს
+@msg	give `path` or `csv` (or export once, so the document knows its file)	მიუთითეთ `path` ან `csv` (ან ერთხელ გაიტანეთ, რომ დოკუმენტმა იცოდეს თავისი ფაილი)
+@msg	more than {MAX_ROWS} rows	{MAX_ROWS}-ზე მეტი სტრიქონი
+@msg	the CSV is larger than {MAX_CSV_BYTES} bytes	CSV {MAX_CSV_BYTES} ბაიტზე დიდია
+@msg	the CSV isn't UTF-8	CSV არ არის UTF-8
+@msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	CSV {MAX_CSV_BYTES} ბაიტზე დიდი იქნებოდა
+@msg	the document has no layer named {_1}, where the Library's groups go	დოკუმენტს არ აქვს შრე სახელით {_1}, სადაც ბიბლიოთეკის ჯგუფები თავსდება
+@msg	the first line must be {_1}	პირველი სტრიქონი უნდა იყოს {_1}
 @msg	missing to: a place from 0	to აკლია: ადგილი 0-დან
 @msg	unknown mode `{m}`: set, add or remove	უცნობი რეჟიმი `{m}`: set, add ან remove
 @msg	select some type first	ჯერ მონიშნეთ ტექსტი
@@ -5457,3 +5464,29 @@ axis	Y Axis	Y ღერძი
 	Open a document to see its saved selections.	გახსენით დოკუმენტი მისი შენახული მონიშვნების სანახავად.
 	Save a selection to list it here.	შეინახეთ მონიშნული, რომ აქ გამოჩნდეს.
 	Move Saved Selection	შენახული მონიშვნის გადატანა
+	Check Again	ხელახლა შემოწმება
+	Choose the CSV to import.	აირჩიეთ იმპორტირებადი CSV.
+	Errors ({count})	შეცდომები ({count})
+	Export Positions	პოზიციების ექსპორტირება
+	Export Positions…	პოზიციების ექსპორტირება…
+	Exported {count} controls to {file}	მართვის ელემენტები ({count}) ექსპორტირებულია ფაილში {file}
+	Import Positions	პოზიციების იმპორტირება
+	Import Positions…	პოზიციების იმპორტირება…
+	Imported {count} changes from {file} (Edit › Undo reverses them)	იმპორტირებულია ცვლილებები ({count}) ფაილიდან {file} (რედაქტირება › დაბრუნება აუქმებს მათ)
+	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	პოზიციების CSV-ის მიხედვით ერთი ნაბიჯით გადაადგილებს, ცვლის ტიპს, ამატებს და შლის მართვის ელემენტებს (შენახულ მონიშვნებს).
+	No file chosen	ფაილი არჩეული არ არის
+	Nothing to change: the controls match the file.	შესაცვლელი არაფერია: მართვის ელემენტები ფაილს ემთხვევა.
+	Warnings ({count})	გაფრთხილებები ({count})
+	Will be added ({count})	დაემატება ({count})
+	Will be removed ({count})	წაიშლება ({count})
+	Will change type ({count})	ტიპი შეიცვლება ({count})
+	Will move ({count})	გადაადგილდება ({count})
+	Writes each saved selection's position, and the PCB outline, as a CSV for the PCB.	წერს თითოეული შენახული მონიშვნის პოზიციას და დაფის კონტურს CSV-ად დაბეჭდილი დაფისთვის.
+	Check Positions	პოზიციების შემოწმება
+	Import	იმპორტირება
+	PCB Outline Layer	დაფის კონტურის შრე
+	Panel Positions	პანელის პოზიციები
+	Position Layer	პოზიციების შრე
+	Positions Settings	პოზიციების პარამეტრები
+	Type Layer	კომპონენტის ტიპის შრე
+	Type Library	კომპონენტის ტიპების ბიბლიოთეკა
