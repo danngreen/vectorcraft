@@ -107,6 +107,10 @@ const WAIT_FOR_TOOL_EDIT: &[&str] = &[
     "prefs.reset",
     "prefs.import",
     "text.addFontFiles",
+    // Not journaled (the batch Import Positions runs is), but both remember the CSV and its
+    // settings in the document, and Import moves the controls.
+    "positions.export",
+    "positions.import",
 ];
 
 /// Does command `id`, run on its own, first apply the edit the active tool is computing on

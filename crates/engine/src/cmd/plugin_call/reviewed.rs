@@ -694,7 +694,8 @@ pub(super) const ALLOWED: &[&str] = &[
 
 /// Commands a plug-in may not call although no rule refuses them, in order: they change the
 /// preferences, a tool's options, a drag's state or the font names the whole app knows, run
-/// plug-ins again, or read a file and report where it is on disk.
+/// plug-ins again, read a file and report where it is on disk, or report the path of the CSV a
+/// document last used (`positions.settings`).
 pub(super) const DENIED: &[&str] = &[
     "addon.cleanup.splitText",
     "addon.pathtools.movePointsTogether",
@@ -705,6 +706,7 @@ pub(super) const DENIED: &[&str] = &[
     "object.blend.options",
     "object.liquify",
     "object.pathfinder.options",
+    "positions.settings",
     "stroke.arrowheads.edit",
     "stroke.arrowheads.list",
     "type.compositeFonts.set",

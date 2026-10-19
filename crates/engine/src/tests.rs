@@ -135,6 +135,7 @@ mod pixelalign;
 mod place;
 mod placed_document;
 mod plugins;
+mod positions;
 mod prefs;
 mod prefs_file;
 mod prefs_roots;
