@@ -26,6 +26,12 @@ const CHOSEN: &str = "ss-chosen";
 /// The row being renamed (by name).
 const EDITING: &str = "ss-edit";
 
+/// The height under the list the bottom bar takes (its divider and buttons) until it has been
+/// measured.
+const BAR: f32 = 34.0;
+/// The least height the list takes.
+const MIN_LIST: f32 = 110.0;
+
 /// A row dragged in the list: its place.
 #[derive(Clone, Copy)]
 struct RowDrag(usize);
@@ -77,15 +83,20 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         return;
     };
     let something_selected = super::selection_len(app) > 0;
+    let bar_id = egui::Id::unique("ss-bottom-bar");
     let chosen: Option<String> = pstate::<Option<String>>(ui.ctx(), CHOSEN).filter(|c| rows.iter().any(|r| r.name == *c));
     if rows.is_empty() {
         super::empty_state(ui, "square-dashed", tl!("No saved selections"), tl!("Save a selection to list it here."));
     } else {
         let editing: Option<String> = pstate(ui.ctx(), EDITING);
+        // The list takes the panel's height down to the bottom bar (as tall as it was last frame),
+        // as Layers does, and scrolls.
+        let bar: f32 = ui.data(|d| d.get_temp(bar_id)).unwrap_or(BAR);
+        let list_h = ui.available_height() - bar;
+        let list_h = if list_h.is_finite() { list_h.max(MIN_LIST) } else { MIN_LIST };
         widgets::list_box(ui, |ui| {
-            ui.set_min_height(110.0);
             ui.spacing_mut().item_spacing.y = 0.0;
-            egui::ScrollArea::vertical().id_salt("ss-scroll").max_height(320.0).show(ui, |ui| {
+            egui::ScrollArea::vertical().id_salt("ss-scroll").max_height(list_h).auto_shrink([false, false]).show(ui, |ui| {
                 for (i, row) in rows.iter().enumerate() {
                     let (r, resp) = ui.allocate_exact_size(vec2(ui.available_width(), 24.0), Sense::click_and_drag());
                     if resp.drag_started() {
@@ -156,9 +167,14 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
                         recall(app, &row.name, mode);
                     }
                 }
+                // A row dragged near the list's top or bottom scrolls it, to move it out of view.
+                if egui::DragAndDrop::has_payload_of_type::<RowDrag>(ui.ctx()) {
+                    widgets::scroll_at_edges(ui);
+                }
             });
         });
     }
+    let bar_top = ui.cursor().top();
     widgets::bottom_bar(ui, |ui| {
         ui.add_space((ui.available_width() - 4.0 * 28.0).max(0.0));
         if widgets::icon_button_enabled(ui, "plus", tl!("Add Selected Objects"), false, something_selected && chosen.is_some(), 24.0).clicked()
@@ -181,6 +197,10 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
             set_pstate::<Option<String>>(ui.ctx(), CHOSEN, None);
         }
     });
+    let bar_h = ui.min_rect().bottom() - bar_top;
+    if bar_h.is_finite() && bar_h > 0.0 {
+        ui.data_mut(|d| d.insert_temp(bar_id, bar_h));
+    }
 }
 
 /// Row `i` at `r` as a drop target for a dragged row: a line above or below it shows where the
@@ -398,6 +418,55 @@ mod tests {
         drag(&mut app, knob - vec2(0.0, 6.0), cap + vec2(0.0, 8.0));
         assert_eq!(saved(&app), ["Knob", "Cap", "Label"]);
         assert!(selected(&app).is_empty(), "a drag selects nothing");
+    }
+
+    /// One frame of the panel in a window `height` tall, with `events`; the shapes it painted.
+    fn frame_at(app: &mut VectorcraftApp, ctx: &egui::Context, height: f32, events: Vec<egui::Event>) -> Vec<egui::epaint::ClippedShape> {
+        let screen_rect = Some(egui::Rect::from_min_size(egui::Pos2::ZERO, vec2(260.0, height)));
+        let time = Some(ctx.input(|i| i.time) + 0.2);
+        let mut out = ctx.run_ui(egui::RawInput { events, time, screen_rect, ..Default::default() }, |ui| show(app, ui));
+        out.textures_delta.clear();
+        out.shapes
+    }
+
+    /// The list (the clip of its rows' names) as painted in `shapes`.
+    fn list_rect(shapes: &[egui::epaint::ClippedShape]) -> egui::Rect {
+        shapes
+            .iter()
+            .find_map(|c| match &c.shape {
+                egui::Shape::Text(t) if t.galley.text() == "S 0" => Some(c.clip_rect),
+                _ => None,
+            })
+            .expect("a row for S 0")
+    }
+
+    /// The list takes the panel's height down to its bottom bar, as Layers does: a taller panel
+    /// shows more rows. A row dragged near the list's bottom edge scrolls it.
+    #[test]
+    fn the_list_fills_the_panel_and_scrolls_while_a_row_is_dragged_at_its_edge() {
+        let (mut app, [a, _]) = app();
+        app.session.execute("select.set", &json!({"ids": [a.0]})).unwrap();
+        app.session.execute("select.editSaved", &json!({"name": "Knob", "delete": true})).unwrap();
+        for i in 0..60 {
+            app.session.execute("select.save", &json!({"name": format!("S {i}")})).unwrap();
+        }
+        app.session.execute("select.none", &json!({})).unwrap();
+        let ctx = egui::Context::default();
+        let list = |app: &mut VectorcraftApp, height: f32| {
+            frame_at(app, &ctx, height, vec![]);
+            list_rect(&frame_at(app, &ctx, height, vec![]))
+        };
+        let (short, tall) = (list(&mut app, 300.0), list(&mut app, 600.0));
+        assert!(short.bottom() < 300.0 - 24.0 && tall.bottom() < 600.0 - 24.0, "the bottom bar shows under it: {short:?} {tall:?}");
+        assert!(tall.height() > short.height() + 250.0, "the list grows with the panel: {short:?} → {tall:?}");
+        let first = text_at(&frame_at(&mut app, &ctx, 300.0, vec![]), "S 0").unwrap();
+        egui::DragAndDrop::set_payload(&ctx, RowDrag(0));
+        let hold = egui::pos2(first.x, short.bottom() - 4.0);
+        for _ in 0..5 {
+            frame_at(&mut app, &ctx, 300.0, vec![egui::Event::PointerMoved(hold)]);
+        }
+        let moved = text_at(&frame_at(&mut app, &ctx, 300.0, vec![egui::Event::PointerMoved(hold)]), "S 0").unwrap();
+        assert!(moved.y < first.y, "the list scrolled down: {} → {}", first.y, moved.y);
     }
 
     /// Without saved selections the panel says how to make one.
