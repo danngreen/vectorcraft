@@ -2538,6 +2538,25 @@ pub fn list_box<R>(ui: &mut Ui, add: impl FnOnce(&mut Ui) -> R) -> R {
     egui::Frame::NONE.stroke(Stroke::new(1.0, t.input_border)).inner_margin(egui::Margin::same(1)).show(ui, add).inner
 }
 
+/// How near a scrolled list's top or bottom edge a drag scrolls it ([`scroll_at_edges`]).
+const SCROLL_EDGE: f32 = 28.0;
+
+/// While something is dragged near the top or bottom edge of the scrolled list (`ui`: its
+/// contents), scroll that way, faster nearer the edge.
+pub fn scroll_at_edges(ui: &mut Ui) {
+    let Some(pos) = ui.ctx().pointer_hover_pos() else { return };
+    let view = ui.clip_rect();
+    if !view.x_range().contains(pos.x) {
+        return;
+    }
+    let speed = |depth: f32| if (0.0..SCROLL_EDGE).contains(&depth) { 2.0 + 10.0 * (1.0 - depth / SCROLL_EDGE) } else { 0.0 };
+    let delta = speed(pos.y - view.top()) - speed(view.bottom() - pos.y);
+    if delta != 0.0 {
+        ui.scroll_with_delta(vec2(0.0, delta));
+        ui.ctx().request_repaint();
+    }
+}
+
 /// A bottom button bar separated from the content by a divider (panel footers).
 pub fn bottom_bar(ui: &mut Ui, add: impl FnOnce(&mut Ui)) {
     let t = Tokens::get(ui.ctx());

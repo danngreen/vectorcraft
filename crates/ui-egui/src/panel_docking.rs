@@ -1203,7 +1203,7 @@ impl craft_ui::docking::DockContent<String> for PanelContent<'_> {
         }
         let width = ui.available_width();
         let height = (ui.available_height() - 20.0).max(0.0);
-        if DockTab::from_id(id).is_some() {
+        if crate::dock::fills_height(id) {
             crate::dock::panel_body(self.app, ui, id, width, height);
         } else {
             // Shrinking to the content's height lets craft-ui fit a float or flyout to it.
