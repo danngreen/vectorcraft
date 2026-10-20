@@ -1406,7 +1406,7 @@ impl craft_ui::docking::DockContent<String> for PanelContent<'_> {
         let bottom = (!fitted && id != "properties").then_some(back.bottom() - 10.0);
         let info = egui::UiStackInfo::default().with_tag_value(crate::widgets::PANEL_FOOTER, bottom);
         ui.scope_builder(egui::UiBuilder::new().ui_stack_info(info), |ui| {
-            if DockTab::from_id(id).is_some() {
+            if crate::dock::fills_height(id) {
                 crate::dock::panel_body(self.app, ui, id, width, height);
             } else {
                 // Shrinking to the content's height lets craft-ui fit a float or flyout to it.
