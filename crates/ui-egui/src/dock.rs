@@ -506,8 +506,14 @@ pub(crate) fn panel_width(id: &str) -> f32 {
     if DockTab::from_id(id).is_some() { DOCK_WIDTH } else { 256.0 }
 }
 
+/// Whether panel `id` sizes itself to the height it is given (its list fills it and scrolls), so
+/// its host gives it that height instead of scrolling it whole.
+pub(crate) fn fills_height(id: &str) -> bool {
+    DockTab::from_id(id).is_some() || id == panels::saved_selections::ID
+}
+
 /// Panel `id`'s contents in a popped-out or floating panel `width` wide; the tabbed group's panels
-/// fill (Layers) or scroll (Properties) `tall` points.
+/// fill (Layers) or scroll (Properties) `tall` points, as does the Saved Selections list.
 pub(crate) fn panel_body(app: &mut VectorcraftApp, ui: &mut Ui, id: &str, width: f32, tall: f32) {
     egui::Frame::NONE.inner_margin(egui::Margin::same(10)).show(ui, |ui| {
         ui.set_width(width - 20.0);
@@ -531,7 +537,12 @@ pub(crate) fn panel_body(app: &mut VectorcraftApp, ui: &mut Ui, id: &str, width:
                 ui.set_max_height(tall);
                 panels::libraries(app, ui);
             }
-            None => panels::show_icon_panel(app, ui, id),
+            None => {
+                if fills_height(id) {
+                    ui.set_max_height(tall);
+                }
+                panels::show_icon_panel(app, ui, id);
+            }
         }
     });
 }

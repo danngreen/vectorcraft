@@ -768,7 +768,7 @@ impl craft_ui::docking::DockContent<String> for PanelContent<'_> {
         }
         let width = ui.available_width();
         let height = (ui.available_height() - 20.0).max(0.0);
-        if crate::state::DockTab::from_id(panel).is_some() {
+        if crate::dock::fills_height(panel) {
             crate::dock::panel_body(self.app, ui, panel, width, height);
         } else {
             // The body is as wide as the scroll area leaves it beside its scroll bar.
