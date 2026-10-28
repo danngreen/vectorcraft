@@ -165,4 +165,14 @@ egui_system_font_provider = { git = "https://github.com/storytold/egui.git", rev
 eframe = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
 egui_demo_lib = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
 egui_inspection = { git = "https://github.com/storytold/egui.git", rev = "6d518fc799681571963842f95b55a6b68431b15a" }
-winit = { git = "https://github.com/storytold/winit.git", rev = "a517b3846ee8457d84ee4975110bfda6797c44dc" }
+# In-house: storytold's winit with the macOS cursor fixes not merged yet (danngreen/winit
+# `inhouse`): a mouse move re-sets the cursor, so a hidden pointer stays hidden after Spotlight
+# (storytold/winit#13), and custom cursor images are sized in points (`macos-os-cursors`).
+winit = { git = "https://github.com/danngreen/winit.git", rev = "9355781974179d950e670029c93d55f8067a9e75" }
+
+# In-house: craft-ui at the pinned craft-libs revision with the floating panel fixes not merged
+# yet (danngreen/craft-libs `inhouse`): no title in a native window's bar (storytold/craft-libs#367),
+# a field's Enter isn't forwarded (#369), the pointer and keyboard go back to the main window,
+# also around a palette's outer resize area (#370).
+[patch."https://github.com/storytold/craft-libs"]
+craft-ui = { git = "https://github.com/danngreen/craft-libs.git", rev = "69f2d91cf5bfbe4871c93fb18e4008c7cc4ff297" }

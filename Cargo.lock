@@ -964,12 +964,12 @@ source = "git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13af
 [[package]]
 name = "craft-fonts-build"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0"
+source = "git+https://github.com/danngreen/craft-libs.git?rev=69f2d91cf5bfbe4871c93fb18e4008c7cc4ff297#69f2d91cf5bfbe4871c93fb18e4008c7cc4ff297"
 
 [[package]]
 name = "craft-i18n"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0"
+source = "git+https://github.com/danngreen/craft-libs.git?rev=69f2d91cf5bfbe4871c93fb18e4008c7cc4ff297#69f2d91cf5bfbe4871c93fb18e4008c7cc4ff297"
 dependencies = [
  "fixed_decimal",
  "icu_decimal",
@@ -1026,7 +1026,7 @@ dependencies = [
 [[package]]
 name = "craft-ui"
 version = "0.1.0"
-source = "git+https://github.com/storytold/craft-libs?rev=92d392cff132eaf53e13afff77f38b5c11b73aa0#92d392cff132eaf53e13afff77f38b5c11b73aa0"
+source = "git+https://github.com/danngreen/craft-libs.git?rev=69f2d91cf5bfbe4871c93fb18e4008c7cc4ff297#69f2d91cf5bfbe4871c93fb18e4008c7cc4ff297"
 dependencies = [
  "craft-fonts-build",
  "craft-i18n",
@@ -7401,7 +7401,7 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 [[package]]
 name = "winit"
 version = "0.30.13"
-source = "git+https://github.com/storytold/winit.git?rev=a517b3846ee8457d84ee4975110bfda6797c44dc#a517b3846ee8457d84ee4975110bfda6797c44dc"
+source = "git+https://github.com/danngreen/winit.git?rev=9355781974179d950e670029c93d55f8067a9e75#9355781974179d950e670029c93d55f8067a9e75"
 dependencies = [
  "ahash",
  "android-activity",
