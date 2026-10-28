@@ -424,21 +424,25 @@ fn csv_text(p: &Value, cmd: &str, path: Option<&str>) -> Result<String> {
 struct Report {
     errors: Vec<String>,
     removed: Vec<String>,
+    renamed: Vec<String>,
     retyped: Vec<String>,
     moved: Vec<String>,
     added: Vec<String>,
     warnings: Vec<String>,
+    /// When the file both removes and adds controls: what could be renamed instead (see `plan`).
+    rename: Value,
 }
 
 impl Report {
     fn changes(&self) -> usize {
-        self.removed.len() + self.retyped.len() + self.moved.len() + self.added.len()
+        self.removed.len() + self.renamed.len() + self.retyped.len() + self.moved.len() + self.added.len()
     }
 
     fn json(&self) -> Value {
         json!({
-            "errors": self.errors, "removed": self.removed, "retyped": self.retyped,
+            "errors": self.errors, "removed": self.removed, "renamed": self.renamed, "retyped": self.retyped,
             "moved": self.moved, "added": self.added, "warnings": self.warnings, "changes": self.changes(),
+            "rename": self.rename,
         })
     }
 }
@@ -475,8 +479,55 @@ fn library_types(s: &mut Session, library: &str) -> Option<HashSet<String>> {
     )
 }
 
-/// What an import of `text` does: the report, and the commands that do it.
-fn plan(s: &mut Session, set: &Settings, text: &str, cmd: &str) -> Result<(Report, Vec<Value>)> {
+type Row = (String, String, f64, f64);
+
+/// The `renames` param: (from, to) pairs, or None to pair by position.
+fn renames_param(p: &Value) -> Option<Vec<(String, String)>> {
+    let list = p.get("renames")?.as_array()?;
+    let s = |r: &Value, k: &str| r.get(k).and_then(Value::as_str).map(|v| v.trim().to_string());
+    Some(list.iter().filter_map(|r| Some((s(r, "from")?, s(r, "to")?))).collect())
+}
+
+/// The controls the file drops paired with the rows it adds, to rename instead of removing one
+/// and adding the other: `renames` when given, else each dropped control with the first new row
+/// at its position.
+fn pair_renames<'a>(
+    gone: &[&'a Control],
+    new_rows: &[&'a Row],
+    renames: Option<&[(String, String)]>,
+    errors: &mut Vec<String>,
+) -> Vec<(&'a Control, &'a Row)> {
+    let mut pairs: Vec<(&Control, &Row)> = vec![];
+    let taken = |pairs: &[(&Control, &Row)], c: &Control, r: &Row| pairs.iter().any(|(pc, pr)| pc.name == c.name || pr.0 == r.0);
+    match renames {
+        None => {
+            for c in gone {
+                if let Some(r) = new_rows.iter().find(|r| same(r.2, c.x) && same(r.3, c.y) && !taken(&pairs, c, r)) {
+                    pairs.push((c, r));
+                }
+            }
+        }
+        Some(list) => {
+            for (from, to) in list {
+                let c = gone.iter().find(|c| c.name == *from);
+                let r = new_rows.iter().find(|r| r.0 == *to);
+                match (c, r) {
+                    (Some(c), Some(r)) if !taken(&pairs, c, r) => pairs.push((c, r)),
+                    (Some(_), Some(_)) => errors.push(format!("{from} => {to}: each control renames once; this rename is left out")),
+                    (None, _) => errors.push(format!("{from} => {to}: {from} isn't a control the file removes, so it isn't renamed")),
+                    (_, None) => errors.push(format!("{from} => {to}: {to} isn't a control the file adds, so {from} isn't renamed")),
+                }
+            }
+        }
+    }
+    pairs
+}
+
+/// What an import of `text` does: the report, and the commands that do it. A control the file
+/// drops and a row it adds can be one control renamed (`renames`, else those at the same
+/// position): its saved selection takes the row's name, then moves and changes type as the row
+/// says, keeping its artwork.
+fn plan(s: &mut Session, set: &Settings, text: &str, renames: Option<&[(String, String)]>, cmd: &str) -> Result<(Report, Vec<Value>)> {
     let mut r = Report::default();
     let rows = read_rows(text, cmd, &mut r.errors)?;
     let types = library_types(s, &set.library);
@@ -499,21 +550,39 @@ fn plan(s: &mut Session, set: &Settings, text: &str, cmd: &str) -> Result<(Repor
         }
     }
     controls.sort_by_cached_key(|c| natural_key(&c.name));
-    let by_name: HashMap<&str, &(String, String, f64, f64)> = rows.rows.iter().map(|r| (r.0.as_str(), r)).collect();
+    let by_name: HashMap<&str, &Row> = rows.rows.iter().map(|r| (r.0.as_str(), r)).collect();
     let has_type = |k: &str| types.as_ref().is_some_and(|t| t.contains(k));
     let no_library = types.is_none();
     if no_library {
         r.errors.push(format!("there's no Library named {}, so no type can change and new controls are red markers", set.library));
     }
+    let present: HashSet<&str> = controls.iter().map(|c| c.name.as_str()).collect();
+    let mut new_rows: Vec<&Row> = rows.rows.iter().filter(|r| !present.contains(r.0.as_str())).collect();
+    new_rows.sort_by_cached_key(|r| natural_key(&r.0));
+    let gone: Vec<&Control> = controls.iter().filter(|c| !c.object && !by_name.contains_key(c.name.as_str())).collect();
+    let pairs = pair_renames(&gone, &new_rows, renames, &mut r.errors);
+    if !gone.is_empty() && !new_rows.is_empty() {
+        let item = |name: &str, kind: &str, x: f64, y: f64| json!({ "name": name, "detail": format!("{} at {}", or_none(kind), at(x, y)) });
+        r.rename = json!({
+            "removed": gone.iter().map(|c| item(&c.name, &c.kind, c.x, c.y)).collect::<Vec<_>>(),
+            "added": new_rows.iter().map(|r| item(&r.0, &r.1, r.2, r.3)).collect::<Vec<_>>(),
+            "pairs": pairs.iter().map(|(c, r)| json!({ "from": c.name, "to": r.0 })).collect::<Vec<_>>(),
+        });
+    }
+    // A renamed control goes on under its new name, as the control of the row it takes.
+    let renamed: Vec<Control> = pairs.iter().map(|(c, row)| Control { name: row.0.clone(), ..(*c).clone() }).collect();
+    let rename_names: Vec<(String, String)> = pairs.iter().map(|(c, row)| (c.name.clone(), row.0.clone())).collect();
+    new_rows.retain(|row| !pairs.iter().any(|(_, p)| p.0 == row.0));
     let (mut remove, mut retype, mut moves, mut add) = (vec![], vec![], vec![], vec![]);
-    for c in &controls {
-        let Some((_, kind, x, y)) = by_name.get(c.name.as_str()) else {
-            if !c.object {
-                r.removed.push(format!("{}: {} at {}", c.name, if c.kind.is_empty() { "(no type)" } else { &c.kind }, at(c.x, c.y)));
-                remove.push(c);
-            }
-            continue;
-        };
+    for c in gone.iter().filter(|c| !pairs.iter().any(|(p, _)| p.name == c.name)) {
+        r.removed.push(format!("{}: {} at {}", c.name, if c.kind.is_empty() { "(no type)" } else { &c.kind }, at(c.x, c.y)));
+        remove.push(*c);
+    }
+    for (from, to) in &rename_names {
+        r.renamed.push(format!("{from} => {to}"));
+    }
+    for c in controls.iter().filter(|c| by_name.contains_key(c.name.as_str())).chain(&renamed) {
+        let Some((_, kind, x, y)) = by_name.get(c.name.as_str()) else { continue };
         if !kind.is_empty() && *kind != c.kind {
             if c.object {
                 r.warnings.push(format!("{}: an object, not a saved selection, so its type isn't checked", c.name));
@@ -535,9 +604,6 @@ fn plan(s: &mut Session, set: &Settings, text: &str, cmd: &str) -> Result<(Repor
             moves.push((c, x - c.x, y - c.y));
         }
     }
-    let present: HashSet<&str> = controls.iter().map(|c| c.name.as_str()).collect();
-    let mut new_rows: Vec<&(String, String, f64, f64)> = rows.rows.iter().filter(|r| !present.contains(r.0.as_str())).collect();
-    new_rows.sort_by_cached_key(|r| natural_key(&r.0));
     for (name, kind, x, y) in new_rows {
         if has_type(kind) {
             r.added.push(format!("{name}: {kind} at {}", at(*x, *y)));
@@ -567,7 +633,7 @@ fn plan(s: &mut Session, set: &Settings, text: &str, cmd: &str) -> Result<(Repor
             ));
         }
     }
-    let cmds = commands(&scan, set, &remove, &retype, &moves, &add);
+    let cmds = commands(&scan, set, &remove, &rename_names, &retype, &moves, &add);
     Ok((r, cmds))
 }
 
@@ -584,6 +650,7 @@ fn commands(
     scan: &Scan,
     set: &Settings,
     remove: &[&Control],
+    renames: &[(String, String)],
     retype: &[(&Control, String)],
     moves: &[(&Control, f64, f64)],
     add: &[(&String, &String, f64, f64, bool)],
@@ -611,6 +678,11 @@ fn commands(
         c("select.set", json!({ "ids": ids(&ctl.ids) }));
         c("edit.clear", json!({}));
         c("select.editSaved", json!({ "name": ctl.name, "delete": true }));
+    }
+    // Renamed controls take their new names before they move or change type under them.
+    if !renames.is_empty() {
+        let edits: Vec<Value> = renames.iter().map(|(from, to)| json!({ "name": from, "newName": to })).collect();
+        c("select.editSaved", json!({ "edits": edits }));
     }
     // Moves first, while every member still has its id; a retyped control's new group then goes
     // where the old one has moved to.
@@ -709,7 +781,7 @@ fn check(s: &mut Session, p: &Value) -> Result<Value> {
     let set = settings(s, p)?;
     let path = path_param(s, p)?;
     let text = csv_text(p, C, path.as_deref())?;
-    let (report, _) = plan(s, &set, &text, C)?;
+    let (report, _) = plan(s, &set, &text, renames_param(p).as_deref(), C)?;
     Ok(report.json())
 }
 
@@ -718,7 +790,7 @@ fn import(s: &mut Session, p: &Value) -> Result<Value> {
     let set = settings(s, p)?;
     let path = path_param(s, p)?.map(|p| absolute_path(&p));
     let text = csv_text(p, C, path.as_deref())?;
-    let (report, cmds) = plan(s, &set, &text, C)?;
+    let (report, cmds) = plan(s, &set, &text, renames_param(p).as_deref(), C)?;
     if report.changes() > 0 {
         let current = s.doc()?.current_layer();
         s.execute("command.batch", &json!({ "label": "Import Positions", "commands": cmds }))?;
@@ -763,7 +835,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Check Positions",
             [],
             None,
-            "{path? | csv? (default: the CSV the document last used), anchorLayer?, typeLayer?, outlineLayer?, library? (as positions.import)} what positions.import would do, changing nothing → {errors, removed, retyped, moved, added, warnings: [text], changes}",
+            "{path? | csv? (default: the CSV the document last used), anchorLayer?, typeLayer?, outlineLayer?, library?, renames? (as positions.import)} what positions.import would do, changing nothing → {errors, removed, renamed, retyped, moved, added, warnings: [text], changes, rename}",
             has_doc,
             check
         ),
@@ -773,7 +845,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Import Positions…",
             ["Window", "Saved Selections"],
             None,
-            "{path? | csv? (default: the CSV the document last used), anchorLayer?, typeLayer?, outlineLayer?, library? (default: the document's settings, else prefs positions*)} move, retype, add and remove the saved selections (controls) to match a positions CSV, in one undo step; with path, the document remembers it and the settings → {errors, removed, retyped, moved, added, warnings: [text], changes}",
+            "{path? | csv? (default: the CSV the document last used), anchorLayer?, typeLayer?, outlineLayer?, library? (default: the document's settings, else prefs positions*), renames?: [{from, to}…] (default: a removed control and an added row at the same position)} move, retype, add, remove and rename the saved selections (controls) to match a positions CSV, in one undo step; a rename keeps the control's artwork, giving its saved selection the row's name, then moving and retyping it as the row says; with path, the document remembers it and the settings → {errors, removed, renamed, retyped, moved, added, warnings: [text], changes, rename: when the file both removes and adds controls, {removed: [{name, detail}…], added: [{name, detail}…], pairs: [{from, to}…]}, else null}",
             has_doc,
             import
         ),

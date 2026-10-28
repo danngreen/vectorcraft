@@ -348,6 +348,7 @@ registry! {
     Package: [package::KIND] => package::SPEC,
     PositionsExport: [positions::EXPORT] => positions::EXPORT_SPEC,
     PositionsImport: [positions::IMPORT] => positions::IMPORT_SPEC,
+    PositionsRenames: [positions::RENAMES] => positions::RENAMES_SPEC,
     ActionBatch: [action_batch::KIND] => action_batch::SPEC,
     ActionSetOptions: [action_set_options::KIND] => action_set_options::SPEC,
     SliceOptions: [slices::OPTIONS] => slices::OPTIONS_SPEC,
