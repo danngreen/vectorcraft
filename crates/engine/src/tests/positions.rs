@@ -276,3 +276,68 @@ fn settings_come_from_the_params_else_the_document_else_the_preferences() {
     assert_eq!(p.s.execute("positions.settings", &json!({})).unwrap()["anchorLayer"], json!("holes"));
     std::fs::remove_dir_all(&dir).ok();
 }
+
+#[test]
+fn a_control_dropped_where_one_is_added_is_renamed_keeping_its_artwork() {
+    let mut p = Panel::with_controls();
+    let before = p.state();
+    let jack = p.set("Jack 2");
+    // Jack 2 is gone and Jack 3 is new at its place, now mono: one control renamed and retyped.
+    let csv = EXPORTED.replace("Jack 2,JackStereo,30.000,10.000", "Jack 3,JackMono,30.000,10.000");
+    let r = p.import(&csv);
+    assert_eq!(r["renamed"], json!(["Jack 2 => Jack 3"]));
+    assert_eq!(r["retyped"], json!(["Jack 3: JackStereo => JackMono"]));
+    assert_eq!((&r["removed"], &r["added"], &r["changes"]), (&json!([]), &json!([]), &json!(2)), "{r}");
+    assert_eq!(
+        r["rename"],
+        json!({
+            "removed": [{"name": "Jack 2", "detail": "JackStereo at 30.0, 10.0"}],
+            "added": [{"name": "Jack 3", "detail": "JackMono at 30.0, 10.0"}],
+            "pairs": [{"from": "Jack 2", "to": "Jack 3"}],
+        })
+    );
+    // The saved selection has the new name and its cutout, mockup and silk; only the mount is new.
+    let set = p.set("Jack 3");
+    assert!(p.set("Jack 2").is_empty());
+    assert_eq!(set.len(), 4);
+    assert!(jack[1..].iter().all(|m| set.contains(m)) && !set.contains(&jack[0]), "{set:?} {jack:?}");
+    assert_eq!(p.csv(), csv);
+    p.s.execute("edit.undo", &json!({})).unwrap();
+    assert!(p.state() == before, "one undo step restores the panel");
+}
+
+#[test]
+fn renames_given_pair_controls_anywhere_and_none_given_keeps_remove_and_add() {
+    let mut p = Panel::with_controls();
+    let jack = p.set("Jack 2");
+    let csv = EXPORTED.replace("Jack 2,JackStereo,30.000,10.000", "Out 1,JackStereo,35.000,10.000");
+    // Not at the same place: offered, not paired.
+    let r = p.s.execute("positions.check", &json!({"csv": csv})).unwrap();
+    assert_eq!((&r["renamed"], &r["rename"]["pairs"]), (&json!([]), &json!([])));
+    assert_eq!((&r["removed"], &r["added"]), (&json!(["Jack 2: JackStereo at 30.0, 10.0"]), &json!(["Out 1: JackStereo at 35.0, 10.0"])));
+    // Paired by hand: renamed and moved, nothing removed or added.
+    let r = p.s.execute("positions.import", &json!({"csv": csv, "renames": [{"from": "Jack 2", "to": "Out 1"}]})).unwrap();
+    assert_eq!(r["renamed"], json!(["Jack 2 => Out 1"]));
+    assert_eq!(r["moved"], json!(["Out 1: JackStereo moved from 30.0, 10.0 to 35.0, 10.0 (right 5.0mm)"]));
+    assert_eq!((&r["removed"], &r["added"], &r["retyped"]), (&json!([]), &json!([]), &json!([])), "{r}");
+    assert_eq!(p.set("Out 1"), jack);
+    assert_eq!(p.center_mm(jack[1]), (35.0, 10.0));
+    p.s.execute("edit.undo", &json!({})).unwrap();
+    // At the same place but unpaired by hand (an empty list): removed and added as before.
+    let csv = EXPORTED.replace("Jack 2,JackStereo,30.000,10.000", "Out 1,JackStereo,30.000,10.000");
+    let r = p.s.execute("positions.check", &json!({"csv": csv, "renames": []})).unwrap();
+    assert_eq!((&r["renamed"], r["removed"].as_array().unwrap().len(), r["added"].as_array().unwrap().len()), (&json!([]), 1, 1));
+    // A pair that isn't a removed control and a new row is an error, and left out.
+    let r = p.s.execute("positions.check", &json!({"csv": csv, "renames": [{"from": "Jack 1", "to": "Out 1"}]})).unwrap();
+    assert_eq!(r["errors"], json!(["Jack 1 => Out 1: Jack 1 isn't a control the file removes, so it isn't renamed"]));
+    assert_eq!(r["renamed"], json!([]));
+}
+
+#[test]
+fn no_rename_is_offered_unless_the_file_both_removes_and_adds() {
+    let mut p = Panel::with_controls();
+    let r = p.s.execute("positions.check", &json!({"csv": EXPORTED.replace("Jack 2,JackStereo,30.000,10.000,,\n", "")})).unwrap();
+    assert_eq!((r["removed"].as_array().unwrap().len(), &r["rename"]), (1, &Value::Null));
+    let r = p.s.execute("positions.check", &json!({"csv": format!("{EXPORTED}Jack 9,JackMono,1,1,,\n")})).unwrap();
+    assert_eq!((r["added"].as_array().unwrap().len(), &r["rename"]), (1, &Value::Null));
+}
