@@ -81,14 +81,14 @@ fn save_new(app: &mut VectorcraftApp, ctx: &egui::Context) {
 pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     let Some(rows) = rows(app) else {
-        super::empty_state(ui, "square-dashed", tl!("No document"), tl!("Open a document to see its saved selections."));
+        super::empty_state(ui, "dc-saved-selections", tl!("No document"), tl!("Open a document to see its saved selections."));
         return;
     };
     let something_selected = super::selection_len(app) > 0;
     let bar_id = egui::Id::unique("ss-bottom-bar");
     let chosen: Option<String> = pstate::<Option<String>>(ui.ctx(), CHOSEN).filter(|c| rows.iter().any(|r| r.name == *c));
     if rows.is_empty() {
-        super::empty_state(ui, "square-dashed", tl!("No saved selections"), tl!("Save a selection to list it here."));
+        super::empty_state(ui, "dc-saved-selections", tl!("No saved selections"), tl!("Save a selection to list it here."));
     } else {
         let editing: Option<String> = pstate(ui.ctx(), EDITING);
         // The list takes the panel's height down to the bottom bar (as tall as it was last frame),
@@ -485,5 +485,15 @@ mod tests {
         app.session.execute("file.new", &json!({"width": 400, "height": 300})).unwrap();
         let ctx = egui::Context::default();
         assert!(text_at(&frame(&mut app, &ctx, vec![]), "Save a selection to list it here.").is_some());
+    }
+
+    /// The panel has an icon of its own (not `square-dashed`, the stand-in for a missing icon) and
+    /// a row in the icon column, so the default layout shows it there.
+    #[test]
+    fn the_panel_has_its_own_icon_in_the_icon_column() {
+        let row = crate::state::ICON_PANELS.iter().find(|(id, ..)| *id == ID).expect("registered");
+        assert_eq!(row.2, "dc-saved-selections");
+        assert!(crate::icons::exists(row.2), "{} is not a bundled icon", row.2);
+        assert!(crate::state::ICON_PANEL_GROUPS.iter().any(|g| g.contains(&ID)), "in no icon column row");
     }
 }

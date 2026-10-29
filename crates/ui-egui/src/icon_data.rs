@@ -157,6 +157,7 @@ pub static ICONS: &[(&str, &[u8])] = &[
     ("dc-rounded-rect", include_bytes!("../../../assets/icons/dc-rounded-rect.svg")),
     ("dc-rule-evenodd", include_bytes!("../../../assets/icons/dc-rule-evenodd.svg")),
     ("dc-rule-nonzero", include_bytes!("../../../assets/icons/dc-rule-nonzero.svg")),
+    ("dc-saved-selections", include_bytes!("../../../assets/icons/dc-saved-selections.svg")),
     ("dc-scallop", include_bytes!("../../../assets/icons/dc-scallop.svg")),
     ("dc-screen-mode", include_bytes!("../../../assets/icons/dc-screen-mode.svg")),
     ("dc-selection", include_bytes!("../../../assets/icons/dc-selection.svg")),

@@ -202,7 +202,7 @@ pub const ICON_PANELS: &[(&str, &str, &str)] = &[
     (crate::addons::pathtools::ID, "Anchor Inspector", "dc-anchor-smooth"),
     (crate::addons::pathtools::shape::ID, "Parametric Shape", "hexagon"),
     (crate::addons::pen::ID, "Smart Pen", "spline-pointer"),
-    (crate::panels::saved_selections::ID, "Saved Selections", "square-dashed"),
+    (crate::panels::saved_selections::ID, "Saved Selections", "dc-saved-selections"),
 ];
 
 /// Groups of icon panels separated by dividers in the collapsed column.
@@ -220,6 +220,7 @@ pub const ICON_PANEL_GROUPS: &[&[&str]] = &[
     &["character", "paragraph", "glyphs"],
     &["history", "actions", "info", "navigator"],
     &["variables"],
+    &[crate::panels::saved_selections::ID],
 ];
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
