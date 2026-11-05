@@ -1,4 +1,4 @@
-//! `cargo xtask version [set X.Y.Z[-pre]]`: the workspace version, the single source of truth.
+//! `cargo xtask version [set X.Y.Z[-pre][+build]]`: the workspace version, the single source of truth.
 //!
 //! The version lives in `[workspace.package] version` in the root `Cargo.toml`; every crate
 //! inherits it with `version.workspace = true`, and the packaging scripts read it from here.
@@ -37,9 +37,20 @@ pub fn replace(manifest: &str, new: &str) -> Result<String, String> {
     Ok(out)
 }
 
-/// Semver without build metadata: `MAJOR.MINOR.PATCH` plus an optional `-pre.release` tag.
+/// Semver: `MAJOR.MINOR.PATCH` plus an optional `-pre.release` tag and optional `+build`
+/// metadata. Build metadata never changes which version is newer, so an in-house build
+/// (`0.21.0+inhouse.1`) is not offered its own release as an update.
 pub fn validate(v: &str) -> Result<(), String> {
-    let bad = || Err(format!("`{v}` is not a version like 1.2.3 or 1.2.3-rc.1"));
+    let bad = || Err(format!("`{v}` is not a version like 1.2.3, 1.2.3-rc.1 or 1.2.3+inhouse.1"));
+    let (v, build) = match v.split_once('+') {
+        Some((v, b)) => (v, Some(b)),
+        None => (v, None),
+    };
+    if let Some(b) = build
+        && (b.is_empty() || b.split('.').any(|id| id.is_empty() || !id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-')))
+    {
+        return bad();
+    }
     let (core, pre) = match v.split_once('-') {
         Some((c, p)) => (c, Some(p)),
         None => (v, None),
@@ -107,7 +118,7 @@ pub fn run(root: &Path, args: &[&str]) -> Result<(), String> {
             println!("version: {old} -> {new}");
             Ok(())
         }
-        _ => Err("usage: cargo xtask version [set X.Y.Z[-pre]]".into()),
+        _ => Err("usage: cargo xtask version [set X.Y.Z[-pre][+build]]".into()),
     }
 }
 
@@ -143,7 +154,14 @@ mod tests {
         for ok in ["0.1.0", "1.20.300", "1.0.0-rc.1", "1.0.0-alpha", "1.0.0-x-y.2", "1.0.0-0", "1.0.0-rc.0", "1.0.0-01a", "1.0.0-01-2"] {
             assert!(validate(ok).is_ok(), "{ok}");
         }
-        for bad in ["1.0", "1.0.0.0", "v1.0.0", "01.0.0", "1.0.0-", "1.0.0-a..b", "1.0.0+meta", "1.a.0", "", "1.0.0-00", "1.0.0-rc.01"] {
+        for bad in ["1.0", "1.0.0.0", "v1.0.0", "01.0.0", "1.0.0-", "1.0.0-a..b", "1.a.0", "", "1.0.0-00", "1.0.0-rc.01"] {
+            assert!(validate(bad).is_err(), "{bad}");
+        }
+        // Build metadata (an in-house build): leading zeros are allowed there.
+        for ok in ["1.0.0+meta", "0.21.0+inhouse.01", "1.0.0-rc.1+b-2.3"] {
+            assert!(validate(ok).is_ok(), "{ok}");
+        }
+        for bad in ["1.0.0+", "1.0.0+a..b", "1.0.0+a_b", "1.0.0+a+b", "01.0.0+x"] {
             assert!(validate(bad).is_err(), "{bad}");
         }
         assert!(replace(MANIFEST, "nope").is_err());
