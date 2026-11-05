@@ -17,7 +17,7 @@ User-facing names say **VectorCraft**. Files, binaries and ids stay lowercase
 
    ```sh
    cargo xtask version                 # prints the current version, e.g. 0.3.1
-   cargo xtask version set 0.4.0       # or 0.4.0-rc.1; updates Cargo.toml and Cargo.lock
+   cargo xtask version set 0.4.0       # or 0.4.0-rc.1, or 0.4.0+inhouse.1; updates Cargo.toml and Cargo.lock
    ```
 
    Commit the change (`Cargo.toml` + `Cargo.lock`) through the normal review flow, as a

@@ -33,7 +33,7 @@ const INFO_PLIST: &str = include_str!("../../packaging/macos/Info.plist.in");
 
 /// The bundle's `Info.plist`: [`INFO_PLIST`] for `version` and the build commit `sha`.
 fn info_plist(version: &str, sha: &str) -> String {
-    let short = version.split('-').next().unwrap_or(version);
+    let short = version.split(['-', '+']).next().unwrap_or(version);
     INFO_PLIST.replace("@VERSION@", version).replace("@SHORT_VERSION@", short).replace("@BUILD_SHA@", sha)
 }
 
@@ -77,6 +77,8 @@ mod tests {
         let p = info_plist("1.2.3-rc.1", "abc123");
         assert!(p.contains("<string>1.2.3</string>") && p.contains("<string>1.2.3-rc.1</string>"), "{p}");
         assert!(p.contains("<string>abc123</string>"));
+        let inhouse = info_plist("1.2.3+inhouse.1", "abc123");
+        assert!(inhouse.contains("<string>1.2.3</string>") && inhouse.contains("<string>1.2.3+inhouse.1</string>"), "{inhouse}");
         assert!(!p.contains('@'), "every placeholder filled");
         assert!(p.contains("<key>CFBundleDocumentTypes</key>") && p.contains("<string>pdf</string>"), "Finder opens files with it");
     }

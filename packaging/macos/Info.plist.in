@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- Template: packaging/macos/package.sh (release) and `cargo xtask bundle` (development)
-     substitute @VERSION@ (full, e.g. 0.2.0-rc.1), @SHORT_VERSION@ (numeric X.Y.Z) and @BUILD_SHA@. -->
+     substitute @VERSION@ (full, e.g. 0.2.0-rc.1 or 0.2.0+inhouse.1), @SHORT_VERSION@ (numeric X.Y.Z) and @BUILD_SHA@. -->
 <plist version="1.0">
 <dict>
   <key>CFBundleDevelopmentRegion</key>
