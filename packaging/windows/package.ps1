@@ -43,8 +43,8 @@ if (-not $Version) {
   }
 }
 if (-not $Version) { throw 'could not read [workspace.package] version from Cargo.toml' }
-# MSI ProductVersion is numeric (major.minor.build); pre-release tags are dropped there.
-$MsiVersion = ($Version -split '-')[0]
+# MSI ProductVersion is numeric (major.minor.build); pre-release tags and build metadata are dropped there.
+$MsiVersion = ($Version -split '[-+]')[0]
 
 $Target = switch ($Arch) { 'x64' { 'x86_64-pc-windows-msvc' } 'x86' { 'i686-pc-windows-msvc' } 'arm64' { 'aarch64-pc-windows-msvc' } }
 $Dist = if ($env:DIST) { $env:DIST } else { Join-Path $Root 'dist\release' }
