@@ -3116,6 +3116,9 @@ mark-style	Japanese	일본식
 	Create New Library…	새 라이브러리 만들기…
 	Rename Library…	라이브러리 이름 바꾸기…
 	Delete the library “{name}”?	라이브러리 “{name}”을(를) 삭제하시겠습니까?
+	Replace the library “{name}”?	라이브러리 “{name}”을(를) 바꾸시겠습니까?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	이 이름의 라이브러리가 이미 있습니다. 바꾸면 내용이 파일의 내용으로 대체됩니다.
+	Add as New	새로 추가
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	아트웍이나 견본을 여기로 끌어 놓거나, +를 눌러 선택 항목의 색상과 문자 스타일을 추가하세요.
 	Its graphics, colors and text styles are deleted from this machine.	이 라이브러리의 그래픽, 색상, 문자 스타일이 이 컴퓨터에서 삭제됩니다.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	그래픽, 색상, 문자 스타일을 보관해 어떤 문서에서든 사용하세요. 라이브러리는 이 컴퓨터에 저장되며 계정이 필요 없습니다.
@@ -4790,6 +4793,7 @@ theme	Appearance	외관
 	Duplication	복제
 	Interpolation	보간
 @msg	Imported library {name}	라이브러리 {name}을(를) 가져왔습니다
+@msg	Replaced library {name}	라이브러리 {name}을(를) 바꿨습니다
 	RGB:	RGB:
 	CMYK:	CMYK:
 	Texture	텍스처

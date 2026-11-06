@@ -2488,8 +2488,12 @@ items in the order the panel shows them.
 
 `library.export {library?, path?}` writes a library (its colours, gradients, patterns, styles, graphics with their art
 and thumbnails, and its groups) as a `.vclibrary` file, the JSON the library folder keeps (without `path`: `{data}`, the file's text).
-`library.import {path? | data? | dataBase64?, name?}` adds the library of such a file as a new library and makes it
-the current one; a name another library has gets a number (`Brand (2)`). Imported files are checked: at most 10,000
+`library.import {path? | data? | dataBase64?, name?, existing?}` adds the library of such a file as a new library and
+makes it the current one; a name another library has (ignoring case) gets a number (`Brand (2)`). `existing` says what
+happens when a library has the name: `add` (the default, numbered), `replace` (that library takes the file's items and
+groups and keeps its id and file, as when a changed copy of a shared library comes in again; the result says
+`replaced: true`) or `ask` (nothing is imported: `{exists: {id, name}}`). Import Library… in the panel menu, and
+opening or dropping a `.vclibrary` file, ask in a dialog: Replace, Add as New or Cancel. Imported files are checked: at most 10,000
 items of each kind and 1,000 groups, names clipped and made unique, thumbnails kept only when they are small PNGs,
 gradients with fewer than 2 or more than 1,024 stops dropped and the others' offsets, opacities and midpoints put in
 range, and groups naming items that aren't there dropped. Files written before groups load as they are. Using a

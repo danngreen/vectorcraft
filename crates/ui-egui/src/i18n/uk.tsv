@@ -3385,6 +3385,9 @@ effect	Points	Точки
 	Create New Library…	Створити бібліотеку…
 	Rename Library…	Перейменувати бібліотеку…
 	Delete the library “{name}”?	Видалити бібліотеку «{name}»?
+	Replace the library “{name}”?	Замінити бібліотеку «{name}»?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Бібліотека з такою назвою вже існує. Під час заміни її вміст замінюється вмістом файлу.
+	Add as New	Додати як нову
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Перетягніть сюди графіку чи зразки або натисніть +, щоб додати кольори й стилі тексту виділеного.
 	Its graphics, colors and text styles are deleted from this machine.	Її графіку, кольори та стилі тексту буде видалено з цього комп’ютера.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Зберігайте тут графіку, кольори й стилі тексту, щоб використовувати їх у будь-якому документі. Бібліотеки зберігаються на цьому комп’ютері — обліковий запис не потрібен.
@@ -4806,6 +4809,7 @@ axis	Both	Обидві
 	Duplication	Дублюванням
 	Interpolation	Інтерполяцією
 @msg	Imported library {name}	Імпортовано бібліотеку {name}
+@msg	Replaced library {name}	Замінено бібліотеку {name}
 	RGB:	RGB:
 	CMYK:	CMYK:
 	Texture	Текстура

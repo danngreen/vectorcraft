@@ -994,6 +994,9 @@ font-technology	Variable	Változó
 	Delete the action set “{name}” and its actions?	Törlöd ezt a műveletkészletet és a műveleteit: „{name}”?
 	Delete the selected action sets and their actions?	Törlöd a kijelölt műveletkészleteket és a műveleteiket?
 	Delete the library “{name}”?	Törlöd ezt a könyvtárat: „{name}”?
+	Replace the library “{name}”?	Lecseréled ezt a könyvtárat: „{name}”?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Már van ilyen nevű könyvtár. Cserekor a tartalma a fájl tartalmára változik.
+	Add as New	Hozzáadás újként
 	Delete Theme	Téma törlése
 	Delete theme	Téma törlése
 	Delete these {n} graphic styles?	{n} grafikai stílus törlése?
@@ -4833,6 +4836,7 @@ imageTrace	Outline	Körvonal
 @msg	Image Trace: the traced image is missing	Képvektorizálás: a vektorizált kép hiányzik
 @msg	image would be too large; lower the resolution	a kép túl nagy lenne; csökkentsd a felbontást
 @msg	Imported library {name}	Importált könyvtár: {name}
+@msg	Replaced library {name}	Lecserélt könyvtár: {name}
 @msg	Imported {what}: {_1}	Importálva: {what}: {_1}
 @msg	index must be a number or first, previous, next or last	az index szám vagy first, previous, next, last lehet
 @msg	index must be a number or first, previous, next or last, not `{other}`	az index szám vagy first, previous, next, last lehet, ez nem az: `{other}`

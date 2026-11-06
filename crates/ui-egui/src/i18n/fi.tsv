@@ -1735,6 +1735,9 @@ digits	Malayalam	Malajalam
 	Create New Library…	Luo uusi kirjasto…
 	Rename Library…	Nimeä kirjasto uudelleen…
 	Delete the library “{name}”?	Poistetaanko kirjasto ”{name}”?
+	Replace the library “{name}”?	Korvataanko kirjasto ”{name}”?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Tämänniminen kirjasto on jo olemassa. Korvattaessa sen sisältö vaihdetaan tiedoston sisältöön.
+	Add as New	Lisää uutena
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Vedä kuvitusta tai värimalleja tähän tai lisää valinnan värit ja tekstityylit painikkeella +.
 	Its graphics, colors and text styles are deleted from this machine.	Sen grafiikka, värit ja tekstityylit poistetaan tältä koneelta.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Säilytä grafiikkaa, värejä ja tekstityylejä täällä, niin voit käyttää niitä missä tahansa asiakirjassa. Kirjastot tallennetaan tälle koneelle — tiliä ei tarvita.
@@ -4952,6 +4955,7 @@ imageTrace	Outline	Ääriviiva
 @msg	the PSD file's header is damaged	tämän PSD-tiedoston otsake on vaurioitunut
 @msg	the PSD file's image data can't be read: {e}	tämän PSD-tiedoston kuvadataa ei voi lukea: {e}
 @msg	Imported library {name}	Tuotiin kirjasto {name}
+@msg	Replaced library {name}	Korvattiin kirjasto {name}
 @msg	Invalid panel layout; restored the default dock	Virheellinen paneeliasettelu; oletustelakka palautettiin
 @msg	action is required	action vaaditaan
 @msg	anchor must name a registered panel	anchor-arvon on nimettävä rekisteröity paneeli

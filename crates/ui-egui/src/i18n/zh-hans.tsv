@@ -3225,6 +3225,9 @@ digits	Malayalam	马拉雅拉姆数字
 	Create New Library…	创建新库…
 	Rename Library…	重命名库…
 	Delete the library “{name}”?	要删除库“{name}”吗？
+	Replace the library “{name}”?	要替换库“{name}”吗？
+	A library with this name already exists. Replacing it swaps its contents for the file's.	已有同名的库。替换后，其内容将换成文件中的内容。
+	Add as New	添加为新库
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	将图稿或色板拖到此处，或使用 + 添加所选对象的颜色和文字样式。
 	Its graphics, colors and text styles are deleted from this machine.	其图形、颜色和文字样式将从此计算机中删除。
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	在此保存图形、颜色和文字样式，即可在任何文档中使用。库存储在此计算机上，无需帐户。
@@ -4566,6 +4569,7 @@ imageTrace	Outline	轮廓
 @msg	the PSD file's header is damaged	PSD 文件头已损坏
 @msg	the PSD file's image data can't be read: {e}	无法读取 PSD 文件的图像数据：{e}
 @msg	Imported library {name}	已导入库 {name}
+@msg	Replaced library {name}	已替换库 {name}
 @msg	invalid restored panel group	还原的面板组无效
 @msg	Invalid panel layout; restored the default dock	面板布局无效；已还原默认停靠
 @msg	action is required	需要 action

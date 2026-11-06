@@ -3469,6 +3469,9 @@ font-technology	Variable	Variáveis
 	Click to apply to the selected type	Clique para aplicar ao texto selecionado
 	Create New Library	Criar nova biblioteca
 	Delete the library “{name}”?	Excluir a biblioteca “{name}”?
+	Replace the library “{name}”?	Substituir a biblioteca “{name}”?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Já existe uma biblioteca com este nome. Ao substituí-la, o conteúdo dela passa a ser o do arquivo.
+	Add as New	Adicionar como nova
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Arraste arte ou amostras para cá, ou use + para adicionar as cores e os estilos de texto da seleção.
 	Its graphics, colors and text styles are deleted from this machine.	Seus gráficos, cores e estilos de texto são excluídos deste computador.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Mantenha gráficos, cores e estilos de texto aqui para usá-los em qualquer documento. As bibliotecas ficam armazenadas neste computador, sem necessidade de conta.
@@ -4315,6 +4318,7 @@ axis	Both	Ambos
 @msg	the PSD file's header is damaged	o cabeçalho do arquivo PSD está danificado
 @msg	the PSD file's image data can't be read: {e}	os dados de imagem do arquivo PSD não podem ser lidos: {e}
 @msg	Imported library {name}	Biblioteca {name} importada
+@msg	Replaced library {name}	Biblioteca {name} substituída
 	Define a variable first	Defina uma variável primeiro
 	Text	Texto
 	Visibility	Visibilidade

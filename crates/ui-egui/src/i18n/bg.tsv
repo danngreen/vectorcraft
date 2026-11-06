@@ -3273,6 +3273,9 @@ digits	Malayalam	Малаялам
 	Create New Library…	Създаване на нова библиотека…
 	Rename Library…	Преименуване на библиотека…
 	Delete the library “{name}”?	Изтриване на библиотека „{name}“?
+	Replace the library “{name}”?	Да бъде ли заменена библиотеката „{name}“?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Вече има библиотека с това име. При замяна съдържанието ѝ се заменя със съдържанието на файла.
+	Add as New	Добавяне като нова
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Плъзнете графики или образци тук или използвайте +, за да добавите цветовете и текстовите стилове на селекцията.
 	Its graphics, colors and text styles are deleted from this machine.	Нейните графики, цветове и текстови стилове се изтриват от този компютър.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Запазете графиките, цветовете и текстовите стилове тук, за да ги използвате във всеки документ. Библиотеките се съхраняват на този компютър – не се изисква акаунт.
@@ -4634,6 +4637,7 @@ axis	Both	И двете
 	Duplication	Дублиране
 	Interpolation	Интерполация
 @msg	Imported library {name}	Импортирана библиотека {name}
+@msg	Replaced library {name}	Заменена библиотека {name}
 	RGB:	RGB:
 	CMYK:	CMYK:
 	Texture	Текстура

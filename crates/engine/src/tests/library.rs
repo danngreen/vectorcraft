@@ -845,6 +845,57 @@ fn a_library_is_exported_and_imported() {
     }
 }
 
+/// A file whose library has the name of one here (ignoring case) can replace it: that library
+/// takes the file's items and groups and stays where it was, under its id and file, as a pulled
+/// copy of a shared library comes in again. `ask` says which library has the name and imports
+/// nothing; without a library of that name each mode adds one.
+#[cfg(not(target_arch = "wasm32"))]
+#[test]
+fn an_imported_library_can_replace_the_one_of_its_name() {
+    let folder = vectorcraft_testkit::temp_dir("library-import-replace").to_string_lossy().to_string();
+    let mut s = session();
+    s.libraries.set_dir(Some(folder.clone()));
+    run(&mut s, "library.create", json!({"name": "Brand"}));
+    run(&mut s, "library.add", json!({"kind": "fillColor", "color": "#ff0000", "name": "Red"}));
+    let id = run(&mut s, "library.list", json!({}))["current"].as_str().unwrap().to_string();
+    let other = run(&mut s, "library.create", json!({"name": "Other"}))["id"].clone();
+    let file = json!({
+        "name": "brand",
+        "colors": [{"name": "Blue", "color": {"model": "rgb", "r": 0, "g": 0, "b": 1}}],
+        "groups": [{"name": "Cool", "items": [{"kind": "color", "item": "Blue"}]}]
+    })
+    .to_string();
+    let asked = run(&mut s, "library.import", json!({"data": file, "existing": "ask"}));
+    assert_eq!(asked, json!({"exists": {"id": id, "name": "Brand"}}));
+    assert_eq!(run(&mut s, "library.list", json!({}))["libraries"].as_array().unwrap().len(), 2, "ask imports nothing");
+    assert_eq!(run(&mut s, "library.list", json!({}))["current"], other);
+    let r = run(&mut s, "library.import", json!({"data": file, "existing": "replace"}));
+    assert_eq!(
+        (r["id"].as_str(), r["name"].as_str(), r["replaced"].as_bool(), r["colors"].as_u64()),
+        (Some(id.as_str()), Some("brand"), Some(true), Some(1))
+    );
+    let list = run(&mut s, "library.list", json!({}));
+    assert_eq!((list["libraries"].as_array().unwrap().len(), list["current"].as_str()), (2, Some(id.as_str())));
+    let got = run(&mut s, "library.get", json!({"library": id}));
+    assert_eq!((got["colors"][0]["name"].as_str(), got["colors"].as_array().unwrap().len()), (Some("Blue"), 1));
+    assert_eq!(got["groups"], json!([{"name": "Cool", "items": [{"kind": "color", "item": "Blue"}]}]));
+    // Its file holds the new contents: no second file was written.
+    let mut t = session();
+    t.libraries.set_dir(Some(folder));
+    let list = run(&mut t, "library.list", json!({}));
+    assert_eq!(list["libraries"].as_array().unwrap().len(), 2);
+    assert_eq!(run(&mut t, "library.get", json!({"library": id}))["colors"][0]["name"], "Blue");
+    // Given a name, the library of that name; no library of it: added, in every mode.
+    let r = run(&mut s, "library.import", json!({"data": file, "name": "Other", "existing": "replace"}));
+    assert_eq!((r["id"].clone(), r["name"].as_str()), (other, Some("Other")));
+    for existing in ["ask", "replace", "add"] {
+        let r = run(&mut s, "library.import", json!({"data": file, "name": format!("New {existing}"), "existing": existing}));
+        assert_eq!((r["name"].as_str(), r["replaced"].as_bool()), (Some(format!("New {existing}").as_str()), None));
+    }
+    assert_eq!(run(&mut s, "library.import", json!({"data": file}))["name"], "brand (2)", "add is the default");
+    assert!(s.execute("library.import", &json!({"data": file, "existing": "merge"})).is_err());
+}
+
 /// A file written before groups loads; one with repeated names, groups naming items that aren't
 /// there or kinds this version doesn't know, and a thumbnail claiming a huge image is made safe.
 #[test]

@@ -890,6 +890,9 @@ font-technology	Variable	Biến thiên
 	Delete the action set “{name}” and its actions?	Xóa bộ hành động “{name}” và các hành động của nó?
 	Delete the selected action sets and their actions?	Xóa các bộ hành động đã chọn và các hành động của chúng?
 	Delete the library “{name}”?	Xóa thư viện “{name}”?
+	Replace the library “{name}”?	Thay thế thư viện “{name}”?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Đã có một thư viện mang tên này. Khi thay thế, nội dung của thư viện được đổi thành nội dung của tệp.
+	Add as New	Thêm thành thư viện mới
 	Delete Theme	Xóa bộ màu
 	Delete theme	Xóa bộ màu
 	Delete these {n} graphic styles?	Xóa {n} kiểu đồ họa này?
@@ -4480,6 +4483,7 @@ theme	Appearance	Giao diện
 @msg	Image Trace: the traced image is missing	Vector hóa ảnh: ảnh đã vector hóa bị thiếu
 @msg	image would be too large; lower the resolution	ảnh sẽ quá lớn; hãy giảm độ phân giải
 @msg	Imported library {name}	Đã nhập thư viện {name}
+@msg	Replaced library {name}	Đã thay thế thư viện {name}
 @msg	Imported {what}: {_1}	Đã nhập {what}: {_1}
 @msg	index must be a number or first, previous, next or last	chỉ mục phải là số hoặc first, previous, next hoặc last
 @msg	index must be a number or first, previous, next or last, not `{other}`	chỉ mục phải là số hoặc first, previous, next hoặc last, không phải `{other}`

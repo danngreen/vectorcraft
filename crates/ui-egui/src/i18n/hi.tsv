@@ -1195,6 +1195,9 @@
 	Delete the action set “{name}” and its actions?	एक्शन सेट "{name}" और इसके कार्यों को हटाएं?
 	Delete the graphic style “{name}”?	ग्राफिक स्टाइल "{name}" को हटा दें?
 	Delete the library “{name}”?	लाइब्रेरी "{name}" को हटा दें?
+	Replace the library “{name}”?	लाइब्रेरी "{name}" को बदलें?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	इस नाम की लाइब्रेरी पहले से मौजूद है। बदलने पर उसकी सामग्री फ़ाइल की सामग्री से बदल जाती है।
+	Add as New	नई के रूप में जोड़ें
 	Delete the selected action sets and their actions?	सिलेक्टेड कार्रवाई सेट और उनके कार्यों को हटा दें?
 	Delete the selected brushes?	सिलेक्टेड ब्रश को हटा दें?
 	Delete the selected symbol?	सिलेक्टेड सिंबल हटाएँ?
@@ -6265,6 +6268,7 @@
 @msg	imageMap `{m}`: none, client or server	imageMap `{m}`: none, client या server
 @msg	Imported {what}: {_1}	आयात {what}: {_1}
 @msg	Imported library {name}	आयातित लाइब्रेरी {name}
+@msg	Replaced library {name}	लाइब्रेरी {name} बदली गई
 @msg	included must be true or false	included: इसमें सही या गलत होना चाहिए
 @msg	index must be ≥ 0	index: सूचकांक होना चाहिए ≥ 0
 @msg	index must be a number or first, previous, next or last	index: सूचकांक एक नंबर या पहले होना चाहिए, पिछले, अगले या आखिरी

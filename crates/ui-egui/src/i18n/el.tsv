@@ -3706,6 +3706,9 @@ digits	Malayalam	Μαλαγιάλαμ
 	Create New Library…	Δημιουργία νέας βιβλιοθήκης…
 	Rename Library…	Μετονομασία βιβλιοθήκης…
 	Delete the library “{name}”?	Να διαγραφεί η βιβλιοθήκη «{name}»;
+	Replace the library “{name}”?	Να αντικατασταθεί η βιβλιοθήκη «{name}»;
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Υπάρχει ήδη βιβλιοθήκη με αυτό το όνομα. Με την αντικατάσταση, το περιεχόμενό της γίνεται το περιεχόμενο του αρχείου.
+	Add as New	Προσθήκη ως νέας
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Σύρετε εδώ σχέδια ή δείγματα ή χρησιμοποιήστε το + για να προσθέσετε τα χρώματα και τα στυλ κειμένου της επιλογής.
 	Its graphics, colors and text styles are deleted from this machine.	Τα γραφικά, τα χρώματα και τα στυλ κειμένου της διαγράφονται από αυτόν τον υπολογιστή.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Αποθηκεύστε εδώ γραφικά, χρώματα και στυλ κειμένου για χρήση σε κάθε έγγραφο. Οι βιβλιοθήκες αποθηκεύονται σε αυτόν τον υπολογιστή — χωρίς λογαριασμό.
@@ -4732,6 +4735,7 @@ digits	Malayalam	Μαλαγιάλαμ
 @msg	the PSD file's image data can't be read: {e}	τα δεδομένα εικόνας PSD δεν μπορούν να διαβαστούν: {e}
 	Create New Fields by	Δημιουργία νέων πεδίων κατά
 @msg	Imported library {name}	Εισήχθη η βιβλιοθήκη {name}
+@msg	Replaced library {name}	Αντικαταστάθηκε η βιβλιοθήκη {name}
 	RGB:	RGB:
 	CMYK:	CMYK:
 	System Title Bar	Γραμμή τίτλου συστήματος

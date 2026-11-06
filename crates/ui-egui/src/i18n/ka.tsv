@@ -1512,6 +1512,9 @@ digits	Malayalam	მალაიალამური
 	Create New Library…	ახალი ბიბლიოთეკის შექმნა…
 	Rename Library…	ბიბლიოთეკის სახელის შეცვლა…
 	Delete the library “{name}”?	წაიშალოს ბიბლიოთეკა „{name}“?
+	Replace the library “{name}”?	ჩანაცვლდეს ბიბლიოთეკა „{name}“?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	ამ სახელის ბიბლიოთეკა უკვე არსებობს. ჩანაცვლებისას მისი შიგთავსი ფაილის შიგთავსით შეიცვლება.
+	Add as New	ახლის სახით დამატება
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	ჩაავლეთ აქ ნახატი ან ფერის ნიმუშები, ან + -ით დაამატეთ მონიშნულის ფერები და ტექსტის სტილები.
 	Its graphics, colors and text styles are deleted from this machine.	მისი გრაფიკა, ფერები და ტექსტის სტილები ამ კომპიუტერიდან წაიშლება.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	შეინახეთ აქ გრაფიკა, ფერები და ტექსტის სტილები ნებისმიერ დოკუმენტში გამოსაყენებლად. ბიბლიოთეკები ამ კომპიუტერზე ინახება — ანგარიში არ არის საჭირო.
@@ -4473,6 +4476,7 @@ font-technology	Variable	ცვლადი
 @msg	the PSD file's header is damaged	PSD ფაილის სათაური დაზიანებულია
 @msg	the PSD file's image data can't be read: {e}	PSD ფაილის გამოსახულების მონაცემების წაკითხვა ვერ ხერხდება: {e}
 @msg	Imported library {name}	შემოტანილია ბიბლიოთეკა {name}
+@msg	Replaced library {name}	ჩანაცვლებულია ბიბლიოთეკა {name}
 @msg	Invalid panel layout; restored the default dock	პანელების განლაგება არასწორია; აღდგენილია ნაგულისხმევი დოკი
 @msg	action is required	action აუცილებელია
 @msg	anchor must name a registered panel	anchor უნდა ასახელებდეს რეგისტრირებულ პანელს

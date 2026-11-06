@@ -1774,6 +1774,9 @@ digits	Malayalam	Malajálamské
 	Create New Library…	Vytvořit novou knihovnu…
 	Rename Library…	Přejmenovat knihovnu…
 	Delete the library “{name}”?	Odstranit knihovnu „{name}“?
+	Replace the library “{name}”?	Nahradit knihovnu „{name}“?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Knihovna s tímto názvem již existuje. Nahrazením se její obsah změní na obsah souboru.
+	Add as New	Přidat jako novou
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Přetáhněte sem kresbu nebo položky vzorníku, nebo tlačítkem + přidejte barvy a textové styly výběru.
 	Its graphics, colors and text styles are deleted from this machine.	Její grafika, barvy a textové styly budou z tohoto počítače odstraněny.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Uchovávejte zde grafiku, barvy a textové styly a používejte je v libovolném dokumentu. Knihovny se ukládají v tomto počítači — není potřeba žádný účet.
@@ -5050,6 +5053,7 @@ imageTrace	Outline	Obrys
 @msg	the PSD file's header is damaged	hlavička souboru PSD je poškozená
 @msg	the PSD file's image data can't be read: {e}	obrazová data souboru PSD nelze přečíst: {e}
 @msg	Imported library {name}	Importována knihovna {name}
+@msg	Replaced library {name}	Nahrazena knihovna {name}
 @msg	Invalid panel layout; restored the default dock	Neplatné rozložení panelů; obnoveno výchozí ukotvení
 @msg	action is required	action je povinné
 @msg	anchor must name a registered panel	anchor musí určovat registrovaný panel
