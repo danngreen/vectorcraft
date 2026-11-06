@@ -3134,6 +3134,9 @@ mark-style	Japanese	日本式
 	Create New Library…	新規ライブラリを作成…
 	Rename Library…	ライブラリ名を変更…
 	Delete the library “{name}”?	ライブラリ「{name}」を削除しますか？
+	Replace the library “{name}”?	ライブラリ「{name}」を置き換えますか？
+	A library with this name already exists. Replacing it swaps its contents for the file's.	この名前のライブラリは既に存在します。置き換えると、内容がファイルの内容に入れ替わります。
+	Add as New	新規として追加
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	ここにアートやスウォッチをドラッグするか、+ で選択範囲のカラーやテキストスタイルを追加します。
 	Its graphics, colors and text styles are deleted from this machine.	グラフィック、カラー、テキストスタイルはこのコンピューターから削除されます。
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	グラフィック、カラー、テキストスタイルをここに保存すると、どのドキュメントでも使えます。ライブラリはこのコンピューターに保存され、アカウントは不要です。
@@ -4879,6 +4882,7 @@ swatch	Bright Violet	ビビッドバイオレット
 	Duplication	複製
 	Interpolation	補間
 @msg	Imported library {name}	ライブラリ {name} を読み込みました
+@msg	Replaced library {name}	ライブラリ {name} を置き換えました
 	RGB:	RGB:
 	CMYK:	CMYK:
 	Texture	テクスチャ

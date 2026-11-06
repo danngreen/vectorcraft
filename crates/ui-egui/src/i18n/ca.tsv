@@ -1072,6 +1072,9 @@
 	Delete the action set “{name}” and its actions?	Voleu suprimir el conjunt d’accions “{name}” i les seves accions?
 	Delete the selected action sets and their actions?	Voleu suprimir els conjunts d’accions seleccionats i les seves accions?
 	Delete the library “{name}”?	Voleu suprimir la biblioteca “{name}”?
+	Replace the library “{name}”?	Voleu reemplaçar la biblioteca “{name}”?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Ja hi ha una biblioteca amb aquest nom. Si la reemplaceu, el seu contingut se substitueix pel del fitxer.
+	Add as New	Afegeix com a nova
 	Delete Theme	Suprimeix el tema
 	Delete theme	Suprimeix el tema
 	Delete these {n} graphic styles?	Voleu suprimir aquests {n} estils gràfics?
@@ -5118,6 +5121,7 @@ digits	Malayalam	Malaiàlam
 @msg	Image Trace: the traced image is missing	Traça la imatge: falta la imatge traçada
 @msg	image would be too large; lower the resolution	la imatge seria massa gran; reduïu la resolució
 @msg	Imported library {name}	S’ha importat la biblioteca {name}
+@msg	Replaced library {name}	S’ha reemplaçat la biblioteca {name}
 @msg	Imported {what}: {_1}	S’ha importat {what}: {_1}
 @msg	index must be a number or first, previous, next or last	index ha de ser un número o first, previous, next o last
 @msg	index must be a number or first, previous, next or last, not `{other}`	index ha de ser un número o first, previous, next o last, no `{other}`

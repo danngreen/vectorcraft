@@ -1593,6 +1593,9 @@ digits	Malayalam	Malayalam
 	Create New Library…	Buat pustaka baru…
 	Rename Library…	Ganti nama pustaka…
 	Delete the library “{name}”?	Hapus pustaka “{name}”?
+	Replace the library “{name}”?	Ganti pustaka “{name}”?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Pustaka dengan nama ini sudah ada. Mengganti pustaka akan menukar isinya dengan isi file.
+	Add as New	Tambahkan sebagai Baru
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Seret karya seni atau swatch ke sini, atau gunakan + untuk menambahkan warna dan gaya teks dari seleksi.
 	Its graphics, colors and text styles are deleted from this machine.	Grafis, warna, dan gaya teks di dalamnya dihapus dari komputer ini.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Simpan grafis, warna, dan gaya teks di sini untuk menggunakannya di dokumen mana pun. Pustaka disimpan di komputer ini — tanpa perlu akun.
@@ -4668,6 +4671,7 @@ imageTrace	Outline	Kontur
 @msg	the PSD file's header is damaged	header berkas PSD rusak
 @msg	the PSD file's image data can't be read: {e}	data gambar berkas PSD tidak dapat dibaca: {e}
 @msg	Imported library {name}	Pustaka {name} diimpor
+@msg	Replaced library {name}	Pustaka {name} diganti
 @msg	Invalid panel layout; restored the default dock	Tata letak panel tidak valid; dock default dipulihkan
 @msg	action is required	action diperlukan
 @msg	anchor must name a registered panel	anchor harus menyebutkan panel terdaftar

@@ -1593,6 +1593,9 @@ digits	Malayalam	Malayalam
 	Create New Library…	Opret nyt bibliotek…
 	Rename Library…	Omdøb bibliotek…
 	Delete the library “{name}”?	Slet biblioteket »{name}«?
+	Replace the library “{name}”?	Erstat biblioteket »{name}«?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Der findes allerede et bibliotek med dette navn. Hvis du erstatter det, får det filens indhold i stedet for sit eget.
+	Add as New	Tilføj som nyt
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Træk grafik eller farveprøver hertil, eller brug + for at tilføje markeringens farver og teksttypografier.
 	Its graphics, colors and text styles are deleted from this machine.	Dens grafik, farver og teksttypografier slettes fra denne maskine.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Opbevar grafik, farver og teksttypografier her for at bruge dem i alle dokumenter. Biblioteker gemmes på denne maskine — der kræves ingen konto.
@@ -4668,6 +4671,7 @@ imageTrace	Outline	Kontur
 @msg	the PSD file's header is damaged	PSD-filens header er beskadiget
 @msg	the PSD file's image data can't be read: {e}	PSD-filens billeddata kan ikke læses: {e}
 @msg	Imported library {name}	Importerede biblioteket {name}
+@msg	Replaced library {name}	Erstattede biblioteket {name}
 @msg	Invalid panel layout; restored the default dock	Ugyldigt panellayout; gendannede standarddokken
 @msg	action is required	action er påkrævet
 @msg	anchor must name a registered panel	anchor skal angive et registreret panel

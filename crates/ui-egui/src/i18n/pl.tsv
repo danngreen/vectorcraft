@@ -1693,6 +1693,9 @@ digits	Malayalam	Malajalam
 	Create New Library…	Utwórz nową bibliotekę…
 	Rename Library…	Zmień nazwę biblioteki…
 	Delete the library “{name}”?	Usunąć bibliotekę „{name}”?
+	Replace the library “{name}”?	Zastąpić bibliotekę „{name}”?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Biblioteka o tej nazwie już istnieje. Zastąpienie zmieni jej zawartość na zawartość pliku.
+	Add as New	Dodaj jako nową
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Przeciągnij tu kompozycję lub próbki albo użyj +, aby dodać kolory i style tekstu zaznaczenia.
 	Its graphics, colors and text styles are deleted from this machine.	Jej grafiki, kolory i style tekstu zostaną usunięte z tego komputera.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Przechowuj tu grafiki, kolory i style tekstu, aby używać ich w dowolnym dokumencie. Biblioteki są zapisane na tym komputerze — konto nie jest wymagane.
@@ -4892,6 +4895,7 @@ imageTrace	Outline	Kontur
 @msg	the PSD file's header is damaged	nagłówek pliku PSD jest uszkodzony
 @msg	the PSD file's image data can't be read: {e}	nie można odczytać danych obrazu pliku PSD: {e}
 @msg	Imported library {name}	Zaimportowano bibliotekę {name}
+@msg	Replaced library {name}	Zastąpiono bibliotekę {name}
 @msg	Invalid panel layout; restored the default dock	Nieprawidłowy układ paneli; przywrócono domyślny dok
 @msg	action is required	wymagane jest action
 @msg	anchor must name a registered panel	anchor musi wskazywać zarejestrowany panel

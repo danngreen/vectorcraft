@@ -1607,6 +1607,9 @@ digits	Malayalam	Malayalam
 	Create New Library…	Nieuwe bibliotheek maken…
 	Rename Library…	Bibliotheek hernoemen…
 	Delete the library “{name}”?	De bibliotheek „{name}” verwijderen?
+	Replace the library “{name}”?	De bibliotheek „{name}” vervangen?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Er bestaat al een bibliotheek met deze naam. Bij vervangen krijgt die de inhoud van het bestand.
+	Add as New	Toevoegen als nieuw
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Sleep illustraties of stalen hierheen, of gebruik + om de kleuren en tekststijlen van de selectie toe te voegen.
 	Its graphics, colors and text styles are deleted from this machine.	De illustraties, kleuren en tekststijlen worden van deze computer verwijderd.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Bewaar illustraties, kleuren en tekststijlen hier om ze in elk document te gebruiken. Bibliotheken worden op deze computer opgeslagen — geen account vereist.
@@ -4680,6 +4683,7 @@ imageTrace	Outline	Contour
 @msg	the PSD file's header is damaged	de header van het PSD-bestand is beschadigd
 @msg	the PSD file's image data can't be read: {e}	de afbeeldingsgegevens van het PSD-bestand kunnen niet worden gelezen: {e}
 @msg	Imported library {name}	Bibliotheek {name} geïmporteerd
+@msg	Replaced library {name}	Bibliotheek {name} vervangen
 @msg	Invalid panel layout; restored the default dock	Ongeldige paneelindeling; het standaarddok is hersteld
 @msg	action is required	actie is vereist
 @msg	anchor must name a registered panel	anchor moet een geregistreerd paneel benoemen

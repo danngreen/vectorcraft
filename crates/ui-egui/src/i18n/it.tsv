@@ -3399,6 +3399,9 @@ digits	Malayalam	Malayalam
 	Create New Library…	Crea nuova libreria…
 	Rename Library…	Rinomina libreria…
 	Delete the library “{name}”?	Eliminare la libreria “{name}”?
+	Replace the library “{name}”?	Sostituire la libreria “{name}”?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Esiste già una libreria con questo nome. Sostituendola, il suo contenuto diventa quello del file.
+	Add as New	Aggiungi come nuova
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Trascina qui grafica o campioni, oppure usa + per aggiungere i colori e gli stili di testo della selezione.
 	Its graphics, colors and text styles are deleted from this machine.	Grafiche, colori e stili di testo vengono eliminati da questo computer.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Conserva qui grafiche, colori e stili di testo per usarli in qualsiasi documento. Le librerie restano su questo computer: non serve un account.
@@ -4838,6 +4841,7 @@ axis	Both	Entrambi
 	Duplication	Duplicazione
 	Interpolation	Interpolazione
 @msg	Imported library {name}	Libreria {name} importata
+@msg	Replaced library {name}	Libreria {name} sostituita
 	RGB:	RGB:
 	CMYK:	CMYK:
 	Texture	Texture

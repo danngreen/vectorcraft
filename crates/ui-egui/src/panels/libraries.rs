@@ -9,7 +9,9 @@
 //!
 //! The search field filters the items by name; items can be moved into user-named groups, shown as
 //! collapsible sections after the ungrouped items; and the panel menu exports the library to a
-//! `.vclibrary` file and imports one as a new library (#926).
+//! `.vclibrary` file and imports one as a new library (#926). A file whose library has the name of
+//! one here asks whether it replaces that one (a changed copy pulled from a shared folder or a git
+//! repository comes in again) or is added as a new library under a numbered name.
 //!
 //! The list fills the panel down to its bottom bar and scrolls (also while a drag nears its top or
 //! bottom edge). An item dragged within it lands before or after another of its kind, in that one's
@@ -30,6 +32,7 @@ use serde_json::{Value, json};
 use vectorcraft_color::Paint;
 use vectorcraft_engine::cmd::library::{ItemKind, LIBRARY_EXT, LIBRARY_EXTS, Library, LibraryGraphic};
 
+use crate::dialogs::DialogSpec;
 use crate::theme::Tokens;
 use crate::widgets::{self, PanelDrag, menu_item, menu_item_name};
 use crate::{VectorcraftApp, icons};
@@ -757,9 +760,14 @@ fn png_tile(ui: &Ui, r: Rect, library: &str, key: &str, png: &str) {
     }
 }
 
-/// A thumbnail texture's library, item (its kind and key), thumbnail length (for a changed item)
-/// and size.
-type ThumbKey = (String, String, usize, u32);
+/// A thumbnail texture's library, item (its kind and key), thumbnail length and end, and size. The
+/// length and end tell a changed item (a library replaced by a newer copy keeps its items' keys):
+/// a PNG ends with its image data's checksums, so a changed picture ends differently.
+type ThumbKey = (String, String, usize, String, u32);
+
+/// Base64 characters at the end of a thumbnail its key holds: more than the 24 bytes of the image
+/// data's Adler-32 and CRC and the closing IEND chunk.
+const THUMB_END: usize = 48;
 
 /// The texture of item `item`'s PNG thumbnail `png` (base64) at most `px` pixels a side, made once
 /// for each size. It is shrunk here, smoothly: the GPU draws it without mipmaps, so a texture much
@@ -768,7 +776,8 @@ fn thumbnail(ctx: &egui::Context, library: &str, item: &str, png: &str, px: u32)
     thread_local! {
         static CACHE: crate::graphics::TexCache<HashMap<ThumbKey, Option<egui::TextureHandle>>> = crate::graphics::TexCache::default();
     }
-    let key = (library.to_string(), item.to_string(), png.len(), px);
+    let end = png.get(png.len().saturating_sub(THUMB_END)..).unwrap_or_default();
+    let key = (library.to_string(), item.to_string(), png.len(), end.to_string(), px);
     if let Some(t) = CACHE.with(|c| c.borrow().get(&key).cloned()) {
         return t;
     }
@@ -796,13 +805,56 @@ pub(crate) fn chip(app: &VectorcraftApp, ui: &Ui, r: Rect, library: &str, item: 
     }
 }
 
-/// Import a library file (`library.import`'s params), saying so in the status bar.
-pub(crate) fn import(app: &mut VectorcraftApp, p: Value) -> Result<Value, String> {
-    let r = app.run("library.import", p)?;
+/// Import a library file (`library.import`'s params), saying so in the status bar. When a library
+/// has the name of the file's and `p` doesn't say what to do then (`existing`), nothing is imported
+/// yet: the [`EXISTS`] dialog asks → `{dialog}`.
+pub(crate) fn import(app: &mut VectorcraftApp, mut p: Value) -> Result<Value, String> {
+    let asks = p.get("existing").is_none();
+    if asks && let Some(o) = p.as_object_mut() {
+        o.insert("existing".into(), json!("ask"));
+    }
+    let r = app.run("library.import", p.clone())?;
+    if let Some(name) = r["exists"]["name"].as_str().filter(|_| asks) {
+        if let Some(o) = p.as_object_mut() {
+            o.remove("existing");
+        }
+        // Opened as the open panel closes: the Enter that closed it doesn't press Replace.
+        let fields = json!({ "name": name, "__params": p, crate::dialogs::AFTER_PANEL: true });
+        app.ui.dialog = Some(crate::state::Dialog::new(EXISTS, fields));
+        return Ok(json!({ "dialog": EXISTS }));
+    }
     let name = r["name"].as_str().unwrap_or_default().to_string();
-    app.status(format!("Imported library {name}"));
+    if r["replaced"].as_bool() == Some(true) {
+        app.status(format!("Replaced library {name}"));
+    } else {
+        app.status(format!("Imported library {name}"));
+    }
     Ok(r)
 }
+
+/// The dialog kind of the question whether an imported library replaces the library of its name
+/// or is added as a new one ([`import`]): Replace, Add as New or Cancel. Fields: `name` (the
+/// library's), `__params` (`library.import`'s, for the file) and `addNew` (Add as New pressed).
+pub(crate) const EXISTS: &str = "libraryExists";
+
+pub(crate) const EXISTS_SPEC: DialogSpec = DialogSpec {
+    heading: |d| crate::i18n::fmt(tl!("Replace the library “{name}”?"), &[("name", &d.str("name"))]),
+    body: |_, ui, _| {
+        let detail = tl!("A library with this name already exists. Replacing it swaps its contents for the file's.");
+        ui.label(egui::RichText::new(detail).color(Tokens::get(ui.ctx()).text_dim));
+        false
+    },
+    confirm: |app, d| {
+        let mut p = d.fields.get("__params").cloned().filter(Value::is_object).unwrap_or_else(|| json!({}));
+        p["existing"] = json!(if d.bool("addNew") { "add" } else { "replace" });
+        app.ui.dialog = None;
+        import(app, p)
+    },
+    ok: Some("Replace"),
+    alternate: Some(("Add as New", "addNew")),
+    max_width: Some(420.0),
+    ..DialogSpec::FORM
+};
 
 /// Import Library…: a picked `.vclibrary` file becomes a new library (on the web the picked file
 /// arrives later through [`crate::io::open_bytes`]).

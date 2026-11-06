@@ -32,7 +32,12 @@ pub fn open_bytes(app: &mut VectorcraftApp, name: &str, bytes: &[u8], path: Opti
         return Ok(Value::Null);
     }
     if opens == Some(OpensAs::Library) {
-        return crate::panels::libraries::import(app, json!({"dataBase64": vectorcraft_format::base64_encode(bytes)})).map(|_| Value::Null);
+        // By its path where it has one: a Replace or Add as New dialog then holds the path.
+        let p = match path {
+            Some(path) => json!({ "path": path }),
+            None => json!({"dataBase64": vectorcraft_format::base64_encode(bytes)}),
+        };
+        return crate::panels::libraries::import(app, p).map(|_| Value::Null);
     }
     let swatches = opens == Some(OpensAs::SwatchLibrary);
     if swatches || opens == Some(OpensAs::StyleLibrary) {

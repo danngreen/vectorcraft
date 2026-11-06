@@ -416,7 +416,9 @@ fn group_dialogs_run_with_their_library_and_group() {
     assert_eq!(got["groups"], json!([{"name": "Cold", "items": [{"kind": "color", "item": "Blue"}]}]));
 }
 
-/// Export Library… writes the library's file and Import Library… adds it back as a new library.
+/// Export Library… writes the library's file, and Import Library… of a file whose library has the
+/// name of one here asks: Add as New adds it under a numbered name, Replace gives that library the
+/// file's contents (a changed copy comes in again over it), Cancel imports nothing.
 #[cfg(not(target_arch = "wasm32"))]
 #[test]
 fn libraries_are_exported_and_imported_from_the_panel_menu() {
@@ -436,9 +438,53 @@ fn libraries_are_exported_and_imported_from_the_panel_menu() {
     assert!(std::path::Path::new(&path).exists());
     let picked = path.clone();
     app.services.pick_open = Some(Box::new(move |_: &crate::FilePick| Some(picked.clone())));
+    let names = |app: &mut VectorcraftApp| -> Vec<String> {
+        let list = app.run("library.list", json!({})).unwrap();
+        list["libraries"].as_array().unwrap().iter().map(|l| l["name"].as_str().unwrap().to_string()).collect()
+    };
+    let asked = |app: &VectorcraftApp| app.ui.dialog.as_ref().filter(|d| d.kind == EXISTS).map(|d| d.str("name"));
     import_picked(&mut app);
-    let list = app.run("library.list", json!({})).unwrap();
-    let names: Vec<&str> = list["libraries"].as_array().unwrap().iter().map(|l| l["name"].as_str().unwrap()).collect();
-    assert_eq!(names, ["Brand", "Brand (2)"]);
+    assert_eq!(asked(&app).as_deref(), Some("Brand"));
+    assert_eq!(names(&mut app), ["Brand"], "nothing imported while it asks");
+    app.ui.dialog.as_mut().unwrap().fields.insert("addNew".into(), json!(true));
+    crate::dialogs::confirm(&mut app).unwrap();
+    assert!(app.ui.dialog.is_none());
+    assert_eq!(names(&mut app), ["Brand", "Brand (2)"]);
     assert_eq!(app.ui.status, "Imported library Brand (2)");
+    // The file changes (pulled from a repository): Replace brings the change into Brand.
+    let mut file: Value = serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    file["colors"].as_array_mut().unwrap().push(json!({"name": "Red", "color": {"model": "rgb", "r": 1, "g": 0, "b": 0}}));
+    std::fs::write(&path, file.to_string()).unwrap();
+    import_picked(&mut app);
+    crate::dialogs::cancel(&mut app);
+    assert_eq!(app.run("library.get", json!({"library": "Brand"})).unwrap()["colors"].as_array().unwrap().len(), 1, "Cancel imports nothing");
+    import_picked(&mut app);
+    crate::dialogs::confirm(&mut app).unwrap();
+    assert_eq!(names(&mut app), ["Brand", "Brand (2)"]);
+    assert_eq!(app.ui.status, "Replaced library Brand");
+    let got = app.run("library.get", json!({})).unwrap();
+    let colors: Vec<&str> = got["colors"].as_array().unwrap().iter().map(|c| c["name"].as_str().unwrap()).collect();
+    assert_eq!((got["name"].as_str(), colors), (Some("Brand"), vec!["Blue", "Red"]), "the current library, replaced");
+    // Opening the file asks too.
+    crate::io::open_bytes(&mut app, "Brand.vclibrary", &std::fs::read(&path).unwrap(), Some(path.clone())).unwrap();
+    assert_eq!(asked(&app).as_deref(), Some("Brand"));
+    assert_eq!(app.ui.dialog.as_ref().unwrap().fields["__params"], json!({"path": path}));
+}
+
+/// A thumbnail that changes keeps its item's key (a replaced library's graphic) yet gets a new
+/// texture, though it is as long as the old one.
+#[test]
+fn a_changed_thumbnail_of_the_same_length_is_drawn_anew() {
+    let png = |rgb: [u8; 3]| {
+        let mut out = Vec::new();
+        image::RgbImage::from_pixel(8, 8, image::Rgb(rgb)).write_to(&mut std::io::Cursor::new(&mut out), image::ImageFormat::Png).unwrap();
+        vectorcraft_format::base64_encode(&out)
+    };
+    let (red, blue) = (png([255, 0, 0]), png([0, 0, 255]));
+    assert_eq!(red.len(), blue.len());
+    let ctx = egui::Context::default();
+    let a = thumbnail(&ctx, "Brand", "graphic", &red, 256).unwrap();
+    let b = thumbnail(&ctx, "Brand", "graphic", &blue, 256).unwrap();
+    assert_ne!(a.id(), b.id());
+    assert_eq!(thumbnail(&ctx, "Brand", "graphic", &blue, 256).unwrap().id(), b.id(), "made once");
 }

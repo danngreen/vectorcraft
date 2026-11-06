@@ -3355,6 +3355,9 @@ digits	Malayalam	Malayalam
 	Create New Library…	Créer une bibliothèque…
 	Rename Library…	Renommer la bibliothèque…
 	Delete the library “{name}”?	Supprimer la bibliothèque « {name} » ?
+	Replace the library “{name}”?	Remplacer la bibliothèque « {name} » ?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Une bibliothèque de ce nom existe déjà. La remplacer lui donne le contenu du fichier.
+	Add as New	Ajouter comme nouvelle
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Faites glisser ici des illustrations ou des nuances, ou utilisez + pour ajouter les couleurs et les styles de texte de la sélection.
 	Its graphics, colors and text styles are deleted from this machine.	Ses graphiques, couleurs et styles de texte sont supprimés de cet ordinateur.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Conservez ici des graphiques, des couleurs et des styles de texte pour les utiliser dans n’importe quel document. Les bibliothèques sont stockées sur cet ordinateur, sans compte.
@@ -4804,6 +4807,7 @@ axis	Both	Les deux
 	Duplication	Duplication
 	Interpolation	Interpolation
 @msg	Imported library {name}	Bibliothèque {name} importée
+@msg	Replaced library {name}	Bibliothèque {name} remplacée
 	RGB:	RVB :
 	CMYK:	CMJN :
 	Texture	Texture

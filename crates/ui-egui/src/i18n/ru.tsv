@@ -3394,6 +3394,9 @@ digits	Malayalam	Малаялам
 	Create New Library…	Создать библиотеку…
 	Rename Library…	Переименовать библиотеку…
 	Delete the library “{name}”?	Удалить библиотеку «{name}»?
+	Replace the library “{name}”?	Заменить библиотеку «{name}»?
+	A library with this name already exists. Replacing it swaps its contents for the file's.	Библиотека с таким именем уже существует. При замене её содержимое заменяется содержимым файла.
+	Add as New	Добавить как новую
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Перетащите сюда графику или образцы или нажмите +, чтобы добавить цвета и стили текста выделенного.
 	Its graphics, colors and text styles are deleted from this machine.	Её графика, цвета и стили текста будут удалены с этого компьютера.
 	Keep graphics, colors and text styles here to use them in any document. Libraries are stored on this machine — no account required.	Храните здесь графику, цвета и стили текста, чтобы использовать их в любом документе. Библиотеки хранятся на этом компьютере — учётная запись не нужна.
@@ -4835,6 +4838,7 @@ axis	Both	Оба
 	Duplication	Дублированием
 	Interpolation	Интерполяцией
 @msg	Imported library {name}	Импортирована библиотека {name}
+@msg	Replaced library {name}	Заменена библиотека {name}
 	RGB:	RGB:
 	CMYK:	CMYK:
 	Texture	Текстура

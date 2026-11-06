@@ -5,8 +5,10 @@
 //! one copies the selection as Copy does, and placing it pastes a copy as Paste does (its images,
 //! symbols, patterns and swatches come along; a swatch name the document gives another colour is
 //! merged into the document's). Items can be put in user-named groups, and a library can be
-//! exported to a `.vclibrary` file and imported from one (#926). Items and groups are kept in the
-//! order the Libraries panel shows them, which dragging them there changes.
+//! exported to a `.vclibrary` file and imported from one (#926); a file whose library has the name
+//! of one here can replace that one instead, so a changed file (from a shared folder or a git
+//! repository) comes in again over its old copy. Items and groups are kept in the order the
+//! Libraries panel shows them, which dragging them there changes.
 //!
 //! A gradient is kept without the placement it had on its art, and fits each object it paints. A
 //! pattern is kept as a native document holding one swatch's worth of the pattern (its
@@ -755,7 +757,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Import Library",
             [],
             None,
-            "{path? | data?: file text | dataBase64?, name?: the library's name (default: the file's)} add the library of a .vclibrary file (as library.export writes) as a new library, made the current one; a name another library has gets a number (`Brand (2)`) → {id, name, graphics, colors, gradients, patterns, charStyles, paraStyles, groups (counts)}",
+            "{path? | data?: file text | dataBase64?, name?: the library's name (default: the file's), existing?: add | replace | ask (when a library has that name, ignoring case: `add`, the default, adds a new library, its name numbered `Brand (2)`; `replace` gives that library the file's items and groups, keeping its id and file; `ask` imports nothing → {exists: {id, name}})} add the library of a .vclibrary file (as library.export writes) as a new library, made the current one → {id, name, replaced?: true, graphics, colors, gradients, patterns, charStyles, paraStyles, groups (counts)}",
             always,
             import
         ),
@@ -1517,6 +1519,10 @@ fn export(s: &mut Session, p: &Value) -> Result<Value> {
 
 fn import(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "library.import";
+    let existing = str_param(p, "existing").unwrap_or("add");
+    if !["add", "replace", "ask"].contains(&existing) {
+        return Err(bad(C, format!("`existing` is add, replace or ask, not `{existing}`")));
+    }
     let too_big = || bad(C, format!("the file is larger than {} MB", MAX_FILE >> 20));
     let bytes: std::borrow::Cow<[u8]> = match (str_param(p, "path"), str_param(p, "data"), str_param(p, "dataBase64")) {
         (Some(path), ..) => {
@@ -1544,12 +1550,32 @@ fn import(s: &mut Session, p: &Value) -> Result<Value> {
     let base = str_param(p, "name").map(str::trim).filter(|n| !n.is_empty()).unwrap_or(lib.name.trim()).to_string();
     let mut base = if base.is_empty() { "Library".to_string() } else { base };
     clip(&mut base);
-    let taken = |n: &str| s.libraries.all().iter().any(|(_, l)| l.name.to_lowercase() == n.to_lowercase());
-    lib.name = std::iter::once(base.clone()).chain((2..).map(|n| format!("{base} ({n})"))).find(|n| !taken(n)).unwrap_or(base);
+    let named =
+        |n: &str| s.libraries.all().iter().find(|(_, l)| l.name.to_lowercase() == n.to_lowercase()).map(|(id, l)| (id.clone(), l.name.clone()));
+    let same = if existing == "add" { None } else { named(&base) };
+    if let (Some((id, name)), "ask") = (&same, existing) {
+        return Ok(json!({ "exists": { "id": id, "name": name } }));
+    }
+    let replace = same.map(|(id, _)| id);
+    lib.name = match replace {
+        Some(_) => base,
+        None => std::iter::once(base.clone()).chain((2..).map(|n| format!("{base} ({n})"))).find(|n| named(n).is_none()).unwrap_or(base),
+    };
     let mut r = json!({ "name": lib.name });
     if let (Some(o), Value::Object(c)) = (r.as_object_mut(), counts(&lib)) {
         o.extend(c);
     }
-    r["id"] = json!(s.libraries.insert(lib)?);
+    r["id"] = match replace {
+        Some(id) => {
+            s.libraries.change(&id, |old| {
+                *old = lib;
+                Ok(())
+            })?;
+            s.libraries.current = Some(id.clone());
+            r["replaced"] = json!(true);
+            json!(id)
+        }
+        None => json!(s.libraries.insert(lib)?),
+    };
     Ok(r)
 }
