@@ -356,6 +356,7 @@ registry! {
     ResetPreferences: [confirm::RESET_PREFS] => confirm::RESET_PREFS_SPEC,
     ResetActions: [confirm::RESET_ACTIONS] => confirm::RESET_ACTIONS_SPEC,
     MissingFontEdit: [confirm::MISSING_FONT_EDIT] => confirm::MISSING_FONT_EDIT_SPEC,
+    LibraryExists: [crate::panels::libraries::EXISTS] => crate::panels::libraries::EXISTS_SPEC,
     NewSwatch: [new_swatch::KIND] => new_swatch::SPEC,
     NewColorGroup: [new_color_group::KIND] => new_color_group::SPEC,
     ColorGroupOptions: [color_group_options::KIND] => color_group_options::SPEC,
