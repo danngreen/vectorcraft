@@ -836,6 +836,9 @@ pub(crate) fn clock_date(s: &mut Session, key: &str, given: Option<Option<i64>>)
 /// The Transparency panel's state ([`Session::transparency_info`]).
 pub use opacitymask::TransparencyInfo;
 
+/// Parallel ruler guides in the selection's box ([`Session::guide_span`]).
+pub use object::GuideSpan;
+
 /// Eyedropper Options (`Prefs::eyedropper`).
 pub use xform::{AppearanceAttrs, EyedropperAttrs, EyedropperOptions, FillAttrs, StrokeAttrs};
 

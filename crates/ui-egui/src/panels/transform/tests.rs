@@ -140,7 +140,8 @@ fn the_artboard_tool_shows_the_active_artboard() {
     assert!(!shown.iter().any(|t| t == "40 pt" || t == "0°"), "{shown:?}");
 }
 
-/// #1597: with only ruler guides selected the panel shows their X or Y, and nothing of the art.
+/// #1597: with only ruler guides selected the panel shows their X or Y, and nothing of the art. One
+/// guide is a guide span with no width.
 #[test]
 fn selected_guides_show_their_position() {
     let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
@@ -150,7 +151,7 @@ fn selected_guides_show_their_position() {
     app.run("guide.select", json!({"indexes": [0]})).unwrap();
     assert_eq!(selected_guides(&app), Some((Some(120.0), None)));
     let shown = texts(&mut app, show);
-    assert!(shown.iter().any(|t| t == "120 pt") && !shown.iter().any(|t| t == "W:" || t == "45 pt"), "{shown:?}");
+    assert!(shown.iter().any(|t| t == "120 pt") && shown.iter().any(|t| t == "0 pt") && !shown.iter().any(|t| t == "45 pt"), "{shown:?}");
     app.run("guide.select", json!({"indexes": [0, 1]})).unwrap();
     let shown = texts(&mut app, show);
     assert!(shown.iter().any(|t| t == "120 pt") && shown.iter().any(|t| t == "45 pt"), "{shown:?}");
@@ -160,6 +161,44 @@ fn selected_guides_show_their_position() {
     // Art selected with them: the art's box, as before.
     app.run("shape.rectangle", json!({"x": 0, "y": 0, "width": 40, "height": 30})).unwrap();
     assert_eq!(selected_guides(&app), None);
+}
+
+/// Guide spans: with parallel guides selected, X is the reference point's place across them and W
+/// their span. Y and H are greyed out with no value, and a new W spaces the guides from the
+/// reference point. With art, the box reaches out to the guides.
+#[test]
+fn parallel_guides_show_and_set_their_span() {
+    use crate::panels::tests_appearance::frame_events;
+    let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
+    app.run("file.new", json!({"width": 300, "height": 200})).unwrap();
+    for pos in [43, 50, 100] {
+        app.run("guide.add", json!({"vertical": true, "pos": pos})).unwrap();
+    }
+    app.run("guide.select", json!({"indexes": [0, 1, 2]})).unwrap();
+    let ctx = egui::Context::default();
+    crate::theme::install_fonts(&ctx);
+    let shown = |app: &mut VectorcraftApp, refi: usize| {
+        ctx.data_mut(|d| d.insert_temp(egui::Id::unique("refpt"), refi));
+        frame_events(&ctx, app, vec![], show).into_iter().map(|(t, _)| t).collect::<Vec<_>>()
+    };
+    for (refi, x) in
+        [(0, "43 pt"), (3, "43 pt"), (6, "43 pt"), (1, "71.5 pt"), (4, "71.5 pt"), (7, "71.5 pt"), (2, "100 pt"), (5, "100 pt"), (8, "100 pt")]
+    {
+        let t = shown(&mut app, refi);
+        assert!(t.iter().any(|s| s == x) && t.iter().any(|s| s == "57 pt") && !t.iter().any(|s| s == "0 pt"), "{refi}: {t:?}");
+    }
+    shown(&mut app, 0);
+    type_into(&ctx, &mut app, show, "57 pt", "114");
+    let guides = |app: &VectorcraftApp| app.session.active().unwrap().doc.ruler_guides().iter().map(|g| g.pos).collect::<Vec<_>>();
+    assert_eq!(guides(&app), [43.0, 57.0, 157.0]);
+    // With a rectangle: its height, and the width out to the last guide.
+    app.run("shape.rectangle", json!({"x": 0, "y": 10, "width": 20, "height": 30})).unwrap();
+    app.run("guide.select", json!({"indexes": [0, 1, 2], "toggle": true})).unwrap();
+    let t = shown(&mut app, 0);
+    assert!(t.iter().any(|s| s == "157 pt") && t.iter().any(|s| s == "30 pt") && t.iter().any(|s| s == "10 pt"), "{t:?}");
+    type_into(&ctx, &mut app, show, "157 pt", "78.5");
+    assert_eq!(guides(&app), [21.5, 28.5, 78.5]);
+    assert_eq!(app.selection_box().unwrap().rect, Rect::new(0.0, 10.0, 10.0, 40.0));
 }
 
 /// #1824: with an anchor selected with Direct Selection the panel shows that anchor's position,

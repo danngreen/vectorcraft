@@ -1,8 +1,7 @@
 use super::align::choice;
 use super::{
-    Affine, Arc, Document, EngineError, LastTransform, Node, NodeId, NodeKind, Point, Result, Scaling, Session, Value, Vec2, bad, bool_or,
-    check_numbers, check_switches, duplicate_in, effects, f64_or, f64_req, ids_param, json, matrix_param, ok, outermost, point_param,
-    selected_roots_to_transform,
+    Affine, Arc, Document, EngineError, LastTransform, Node, NodeId, NodeKind, Point, Result, Scaling, Session, Value, bad, bool_or, check_numbers,
+    check_switches, duplicate_in, effects, f64_or, f64_req, ids_param, json, matrix_param, ok, outermost, point_param, selected_roots_to_transform,
 };
 
 fn origin_of(s: &Session, p: &Value, ids: &[NodeId]) -> Result<Point> {
@@ -94,17 +93,19 @@ pub(crate) fn apply_transform(s: &mut Session, label: &str, ids: Vec<NodeId>, xf
     apply_transform_moving_guides(s, label, ids, xf, p, anchors, None)
 }
 
-/// [`apply_transform`], with the selected ruler guides moved by `guides` instead of by the
-/// translation `xf` when given (a nudge along a turned Constrain Angle moves the art along it and
-/// the guides along the page's axes).
-fn apply_transform_moving_guides(
+/// [`apply_transform`], with the selected ruler guides placed by `guides` when given: a map along
+/// the page's axes, which moves or spaces them whatever `xf` does to the art (a nudge along a turned
+/// Constrain Angle moves the art along it and the guides along the page's axes; `object.setBounds`
+/// scales parallel guides with the art, as [`super::GuideSpan`]). Without it they move with a
+/// translation `xf`, and stay put for any other transform.
+pub(super) fn apply_transform_moving_guides(
     s: &mut Session,
     label: &str,
     ids: Vec<NodeId>,
     xf: Affine,
     p: &Value,
     anchors: bool,
-    guides: Option<Vec2>,
+    guides: Option<Affine>,
 ) -> Result<Value> {
     let copy = bool_or(p, "copy", false);
     let areas = bool_or(p, "typeAreas", false);
@@ -113,8 +114,8 @@ fn apply_transform_moving_guides(
     sc.patterns = transform_patterns(s, p, &ids)?;
     let c = xf.as_coeffs();
     let is_translation = (c[0] - 1.0).abs() < 1e-9 && c[1].abs() < 1e-9 && c[2].abs() < 1e-9 && (c[3] - 1.0).abs() < 1e-9;
-    let delta = guides.unwrap_or(Vec2::new(c[4], c[5]));
-    let with_guides = objects && p.get("ids").is_none_or(Value::is_null) && is_translation;
+    let guide_xf = guides.unwrap_or(Affine::translate((c[4], c[5])));
+    let with_guides = objects && p.get("ids").is_none_or(Value::is_null) && (is_translation || guides.is_some());
     let has_guides = with_guides && !s.doc()?.selection.guides.is_empty();
     // A transform of ids that name no object, or an identity transform without a copy, moves
     // nothing: the document and its undo history stay as they are, and Transform Again repeats it.
@@ -130,7 +131,7 @@ fn apply_transform_moving_guides(
             crate::cmd::path::transform_anchors(s, label, xf, sc)?;
         }
         ids
-    } else if none || (!copy && xf == Affine::IDENTITY) {
+    } else if none || (!copy && xf == Affine::IDENTITY && (!has_guides || guide_xf == Affine::IDENTITY)) {
         if copy { vec![] } else { ids }
     } else {
         let kept = if copy { preview_copies(s, &ids, with_guides)? } else { None };
@@ -173,9 +174,11 @@ fn apply_transform_moving_guides(
                     super::pixelgrid::keep_compound_aligned(d, *id, sc);
                 }
             }
-            if with_guides && (delta.x != 0.0 || delta.y != 0.0) {
+            if with_guides && guide_xf != Affine::IDENTITY {
                 for i in sel.guides.clone() {
-                    d.edit_ruler_guide(i, |g| *g = g.moved(delta));
+                    d.edit_ruler_guide(i, |g| {
+                        g.pos = if g.vertical { (guide_xf * Point::new(g.pos, 0.0)).x } else { (guide_xf * Point::new(0.0, g.pos)).y };
+                    });
                 }
             }
             Ok(targets)
@@ -326,7 +329,7 @@ pub(super) fn nudge(s: &mut Session, p: &Value) -> Result<Value> {
         return crate::cmd::docmenu::guide_move(s, &json!({ "dx": gx, "dy": gy, "copy": copy }));
     }
     let ids = selected_roots_to_transform(s)?;
-    apply_transform_moving_guides(s, "Move", ids, Affine::translate((dx, dy)), p, true, Some(Vec2::new(gx, gy)))
+    apply_transform_moving_guides(s, "Move", ids, Affine::translate((dx, dy)), p, true, Some(Affine::translate((gx, gy))))
 }
 
 pub(super) fn about(o: Point, a: Affine) -> Affine {
