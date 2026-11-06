@@ -80,6 +80,7 @@ mod gradpanel;
 mod gradpresets;
 mod gradspan;
 mod guide_clipboard;
+mod guide_spans;
 mod halftone;
 mod history_document;
 mod history_mem;

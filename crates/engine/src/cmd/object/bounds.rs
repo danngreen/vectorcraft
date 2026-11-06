@@ -1,15 +1,133 @@
 use super::spans::Spans;
-use super::transform::{TRANSFORM_SWITCHES, about, apply_transform, scaling_options, transforms_objects};
+use super::transform::{TRANSFORM_SWITCHES, about, apply_transform, apply_transform_moving_guides, scaling_options, transforms_objects};
 use super::{
-    Affine, Document, EngineError, NodeId, OrientedBox, Point, Rect, Result, Scaling, Session, Value, bool_or, check_numbers, check_switches,
+    Affine, Document, EngineError, NodeId, OrientedBox, Point, Rect, Result, Scaling, Session, Value, bad, bool_or, check_numbers, check_switches,
     effects, f64_or, json, selected_roots_to_transform,
 };
 
 pub(super) fn set_bounds(s: &mut Session, p: &Value) -> Result<Value> {
-    match bounds_transform(s, p, selected_roots_to_transform(s)?, 0.0, true)? {
+    let ids = selected_roots_to_transform(s)?;
+    if let Some((art, span)) = guide_span_of(s, &ids) {
+        return set_bounds_with_guides(s, p, ids, art, span);
+    }
+    match bounds_transform(s, p, ids, 0.0, true)? {
         Bounds::Anchors(ids, b) => set_anchor_bounds(s, p, ids, b),
         Bounds::Objects(ids, xf) => apply_transform(s, "Transform", ids, xf, p, false),
     }
+}
+
+/// Guide spans: the selected ruler guides when the selection's box counts them. Every selected
+/// guide is parallel to the others, no anchors are selected with Direct Selection, and the art
+/// selected with them, if any, has a box square to the page ([`Session::guide_span`]). The
+/// Transform panel shows that box and `object.setBounds` sets it. The guides count as items with
+/// no size along their axis, as Distribute takes them (#3181).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct GuideSpan {
+    /// The guides are vertical: they reach across the box (its left and right); else down it.
+    pub vertical: bool,
+    /// The least of their positions.
+    pub lo: f64,
+    /// The greatest of their positions.
+    pub hi: f64,
+}
+
+impl GuideSpan {
+    /// The box of the guides and the art's box `art` (square to the page): `art` reaching out to
+    /// the guides along their axis. Without art, the guides' span along it, of no size across.
+    pub fn bounds(&self, art: Option<Rect>) -> Rect {
+        let (lo, hi) = (self.lo, self.hi);
+        match (art, self.vertical) {
+            (Some(r), true) => Rect::new(r.x0.min(lo), r.y0, r.x1.max(hi), r.y1),
+            (Some(r), false) => Rect::new(r.x0, r.y0.min(lo), r.x1, r.y1.max(hi)),
+            (None, true) => Rect::new(lo, 0.0, hi, 0.0),
+            (None, false) => Rect::new(0.0, lo, 0.0, hi),
+        }
+    }
+
+    /// Whether [`Self::bounds`] has a place and a size across the page (X and W) and down it (Y
+    /// and H): both with art; without it, only along the guides' axis.
+    pub fn axes(&self, art: bool) -> (bool, bool) {
+        (art || self.vertical, art || !self.vertical)
+    }
+}
+
+impl Session {
+    /// The selected ruler guides' [`GuideSpan`], with `art` the box of the selected objects
+    /// ([`Session::transform_box`]). None when the selection's box does not count them: no guide
+    /// is selected, a selected guide crosses another, anchors are selected with Direct Selection, or
+    /// `art` is turned.
+    pub fn guide_span(&self, art: Option<&OrientedBox>) -> Option<GuideSpan> {
+        let st = self.active()?;
+        if !st.selection.anchors.is_empty() || art.is_some_and(|b| b.angle != 0.0) {
+            return None;
+        }
+        let mut guides = st.selection.guides.iter().filter_map(|id| st.doc.ruler_guide(*id));
+        let first = guides.next()?;
+        let span = GuideSpan { vertical: first.vertical, lo: first.pos, hi: first.pos };
+        guides.try_fold(span, |g, n| (n.vertical == g.vertical).then_some(GuideSpan { lo: g.lo.min(n.pos), hi: g.hi.max(n.pos), ..g }))
+    }
+}
+
+/// The box of the objects `ids` square to the page and the [`GuideSpan`] that `object.setBounds`
+/// sets, when the selected guides count in it.
+fn guide_span_of(s: &Session, ids: &[NodeId]) -> Option<(Option<Rect>, GuideSpan)> {
+    if s.active()?.selection.guides.is_empty() {
+        return None;
+    }
+    let art = if ids.is_empty() { None } else { s.transform_box(ids) };
+    s.guide_span(art.as_ref()).map(|span| (art.map(|b| b.rect), span))
+}
+
+/// `object.setBounds` with guide spans ([`GuideSpan`]): the values are those of the box of the
+/// art `ids` (`art`, square to the page) and the guides. Along the guides' axis, the guides and
+/// the art's sides scale about the reference point and move with it. Across, only the art
+/// changes, as without guides. Guides alone have no place or size across them.
+fn set_bounds_with_guides(s: &mut Session, p: &Value, ids: Vec<NodeId>, art: Option<Rect>, span: GuideSpan) -> Result<Value> {
+    const C: &str = "object.setBounds";
+    check_numbers(p, &["x", "y", "width", "height", "reference"], C)?;
+    check_switches(p, &TRANSFORM_SWITCHES, C)?;
+    check_switches(p, &["proportional"], C)?;
+    let b = span.bounds(art);
+    let (across, down) = span.axes(art.is_some());
+    for (k, has) in [("x", across), ("width", across), ("y", down), ("height", down)] {
+        if !has && p.get(k).is_some_and(|v| !v.is_null()) {
+            let which = if span.vertical { "vertical" } else { "horizontal" };
+            return Err(bad(C, format!("the selected ruler guides are {which}: without art they have no `{k}`")));
+        }
+    }
+    let refi = p.get("reference").and_then(Value::as_u64).unwrap_or(4).min(8) as usize;
+    let rp = vectorcraft_geom::reference_point(b, refi);
+    let (w, h) = wanted_size(p, b);
+    // Along the guides' axis: the box's sides `lo` and `hi`, its reference point `at`, and the
+    // size and the place wanted for them. A box of no size there (one guide) keeps it.
+    let (lo, hi, at, size, to) =
+        if span.vertical { (b.x0, b.x1, rp.x, w, f64_or(p, "x", rp.x)) } else { (b.y0, b.y1, rp.y, h, f64_or(p, "y", rp.y)) };
+    let k = if hi - lo > 1e-9 { size / (hi - lo) } else { 1.0 };
+    let along = |v: f64| to + k * (v - at);
+    let guides = if span.vertical { Affine::new([k, 0.0, 0.0, 1.0, to - k * at, 0.0]) } else { Affine::new([1.0, 0.0, 0.0, k, 0.0, to - k * at]) };
+    let xf = match art {
+        None => Affine::IDENTITY,
+        // The art's sides along the axis go where the guides' map puts them, measured from its
+        // left (top) side in the reference point's row (column); across, it takes the size wanted.
+        Some(a) => {
+            let mut q = p.as_object().cloned().unwrap_or_default();
+            q.remove("proportional");
+            let (row, col) = (refi / 3, refi % 3);
+            let sides = if span.vertical {
+                [("reference", json!(row * 3)), ("x", json!(along(a.x0))), ("width", json!(along(a.x1) - along(a.x0))), ("height", json!(h))]
+            } else {
+                [("reference", json!(col)), ("y", json!(along(a.y0))), ("height", json!(along(a.y1) - along(a.y0))), ("width", json!(w))]
+            };
+            for (key, v) in sides {
+                q.insert(key.into(), v);
+            }
+            match bounds_transform(s, &Value::Object(q), ids.clone(), 0.0, false)? {
+                Bounds::Objects(_, xf) => xf,
+                Bounds::Anchors(..) => Affine::IDENTITY,
+            }
+        }
+    };
+    apply_transform_moving_guides(s, "Transform", ids, xf, p, false, Some(guides))
 }
 
 /// What `object.setBounds` does with its values ([`bounds_transform`]).
@@ -32,7 +150,12 @@ pub(crate) fn bounds_rewrite(s: &Session, cmd: &str, params: &Value) -> Option<(
     if cmd != "object.setBounds" {
         return None;
     }
-    let Ok(Bounds::Objects(_, xf)) = bounds_transform(s, params, selected_roots_to_transform(s).ok()?, 1e-4, true) else { return None };
+    let ids = selected_roots_to_transform(s).ok()?;
+    // Guide spans place the guides too, which `object.transform` leaves for a scale.
+    if guide_span_of(s, &ids).is_some() {
+        return None;
+    }
+    let Ok(Bounds::Objects(_, xf)) = bounds_transform(s, params, ids, 1e-4, true) else { return None };
     let mut p = params.as_object().cloned().unwrap_or_default();
     for k in ["x", "y", "width", "height", "reference", "proportional"] {
         p.remove(k);
