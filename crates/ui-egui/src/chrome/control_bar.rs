@@ -245,38 +245,44 @@ fn inline_transform_width(ui: &Ui, t: &Tokens) -> f32 {
     labels + fields + crate::panels::transform::CONSTRAIN_LINK_SIZE + ui.spacing().item_spacing.x * items as f32
 }
 
-/// The Control bar's inline X/Y/W/H fields for the selection's box `b`, rotated with rotated
+/// The Control bar's inline X/Y/W/H fields for the selection's box `f`, rotated with rotated
 /// objects: X/Y are its reference point on the page (or a symbol instance's registration point),
 /// shared with the Transform panel, and W/H its own sides. Edits keep or move that point, and the
-/// Transform panel's menu choice of objects, patterns or both applies to them.
-fn inline_transform_fields(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, units: vectorcraft_doc::Unit, b: &vectorcraft_doc::OrientedBox) {
-    let reference = crate::panels::transform::panel_reference(app, ui, b);
-    let (refi, rp) = (reference.index, reference.point);
+/// Transform panel's menu choice of objects, patterns or both applies to them. With a guide span
+/// the box reaches out to the guides, and a field the box has no value for (guides alone have a
+/// place and a size only along their axis) is greyed out and empty. Nothing without a box.
+fn inline_transform_fields(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, units: vectorcraft_doc::Unit, f: &crate::panels::transform::FieldBox) {
+    let Some((rp, r)) = f.point.zip(f.bounds) else { return };
+    let refi = f.refi;
     let origin = app.ruler_origin();
     let link = crate::panels::transform::proportional(app, ui);
     let copy = crate::panels::transform::alt_enter_copies(app, ui);
-    let values = [(rp.x, origin.x), (rp.y, origin.y), (b.rect.width(), 0.0), (b.rect.height(), 0.0)];
+    let values = [(rp.x, origin.x, f.across), (rp.y, origin.y, f.down), (r.width(), 0.0, f.across), (r.height(), 0.0, f.down)];
     // The W/H link sits between W and H, but is made after H so Tab goes from W
     // straight to H and finds the link after it.
     let mut link_room = None;
     let mut labels = Vec::with_capacity(INLINE_FIELDS.len());
-    for ((k, lbl), (v, offset)) in INLINE_FIELDS.into_iter().zip(values) {
+    for ((k, lbl), (v, offset, on)) in INLINE_FIELDS.into_iter().zip(values) {
         if k == "height" {
             link_room = Some(crate::panels::transform::constrain_link_room(ui));
         }
         // A click on the label opens the Transform panel, as the Transform link does; a drag scrubs.
         let label = widgets::field_panel_label(ui, inline_label(t, lbl)).on_hover_text(tl!("Transform options"));
-        let (id, shown) = (("cb", k), Some(v - offset));
-        let set = if matches!(k, "width" | "height") {
-            widgets::size_field(ui, id, shown, units, INLINE_FIELD_WIDTH)
-        } else {
-            widgets::num_field(ui, id, shown, units, INLINE_FIELD_WIDTH)
-        };
+        let (id, shown) = (("cb", k), on.then_some(v - offset));
+        let set = ui
+            .add_enabled_ui(on, |ui| {
+                if matches!(k, "width" | "height") {
+                    widgets::size_field(ui, id, shown, units, INLINE_FIELD_WIDTH)
+                } else {
+                    widgets::num_field(ui, id, shown, units, INLINE_FIELD_WIDTH)
+                }
+            })
+            .inner;
         labels.push(label);
         if let Some(nv) = set {
             let params = match k {
-                "x" => json!({"x": reference.bounds_xy(nv + offset, 0.0).0, "reference": refi, "copy": copy}),
-                "y" => json!({"y": reference.bounds_xy(0.0, nv + offset).1, "reference": refi, "copy": copy}),
+                "x" => json!({"x": f.bounds_xy(nv + offset, 0.0).0, "reference": refi, "copy": copy}),
+                "y" => json!({"y": f.bounds_xy(0.0, nv + offset).1, "reference": refi, "copy": copy}),
                 _ => json!({k: nv, "reference": refi, "proportional": link, "copy": copy}),
             };
             crate::panels::transform::run_transform(app, "object.setBounds", params);
@@ -513,19 +519,20 @@ fn transform_reserve(app: &VectorcraftApp, ui: &Ui, selected: bool) -> f32 {
 
 /// Draws the Control bar's groups between its Character controls and the Transform link, and
 /// returns whether the Transform link and X/Y/W/H follow (false: nothing is selected, and Document
-/// Setup and Preferences, drawn here, end the bar, or the Transform group is off). The groups are
-/// the Paragraph section and area type's vertical alignment (#3759), then the Align buttons, the
-/// Align To menu and, for two or more objects, the Distribute buttons (a single object keeps the bar
-/// as it was); each shows only while the end of the bar keeps its room. Groups the panel menu has
-/// off are left out, and take no room. Without `room` (the Character group had none), all of these
-/// groups are left out, so the bar trims them from its right end before the Character group. The
-/// Character group without its room, and a control left out for room here, are noted with
-/// [`left_out`].
-fn groups_before_transform(app: &mut VectorcraftApp, ui: &mut Ui, objects: usize, room: bool) -> bool {
+/// Setup and Preferences, drawn here, end the bar, or the Transform group is off). `objects`
+/// objects are selected, and `guides` says whether selected ruler guides count in the selection's
+/// box (a guide span) without them. The groups are the Paragraph section and area type's vertical
+/// alignment (#3759), then the Align buttons, the Align To menu and, for two or more objects, the
+/// Distribute buttons (a single object keeps the bar as it was); each shows only while the end of
+/// the bar keeps its room. Groups the panel menu has off are left out, and take no room. Without
+/// `room` (the Character group had none), all of these groups are left out, so the bar trims them
+/// from its right end before the Character group. The Character group without its room, and a
+/// control left out for room here, are noted with [`left_out`].
+fn groups_before_transform(app: &mut VectorcraftApp, ui: &mut Ui, objects: usize, guides: bool, room: bool) -> bool {
     if !room {
         left_out(ui);
     }
-    let nothing = objects == 0;
+    let nothing = objects == 0 && !guides;
     let end = end_width(app, ui, nothing);
     if room && group_on(app, "paragraph") && crate::panels::paragraph::control_bar(app, ui, BUTTON, |ui| group_end_width(ui) + end) {
         group_end(ui);
@@ -554,7 +561,7 @@ fn groups_before_transform(app: &mut VectorcraftApp, ui: &mut Ui, objects: usize
     }
     let transform = group_on(app, "transform");
     let end = if transform { separator_width(ui) + end } else { 0.0 };
-    if room && group_on(app, "alignDistribute") {
+    if room && group_on(app, "alignDistribute") && objects > 0 {
         if ui.available_width() < buttons_width(ui, 7) + end {
             left_out(ui);
             return transform;
@@ -1051,6 +1058,10 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
         if group_on(app, "snapping") && ui.available_width() >= snapping_room {
             snapping_menu(app, ui);
         }
+        // The bounding box, rotated with rotated objects, and the selected ruler guides' span
+        // when they count in it.
+        let bx = app.selection_box();
+        let span = app.session.guide_span(bx.as_ref());
         let Some(st) = app.session.active() else { return };
         let count = st.selection.objects.len();
         let units = app.session.general_unit();
@@ -1059,6 +1070,7 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
         // The label, and whether it names one selected image.
         let (label, image) = match first {
             _ if app.session.tool_id() == "artboard" => (tl!("Artboard"), false),
+            None if span.is_some() => (tl!("Guides"), false),
             Some(_) if count == 1 && anchors != AnchorControls::None => (tl!("Anchor Point"), false),
             Some(vectorcraft_doc::Node { kind: NodeKind::Image(im), .. }) if count == 1 => {
                 if im.link.is_some() {
@@ -1082,7 +1094,7 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
         }
         if anchors != AnchorControls::None && group_on(app, "anchors") {
             anchor_buttons(app, ui, anchors);
-            let reserve = transform_reserve(app, ui, count > 0);
+            let reserve = transform_reserve(app, ui, count > 0 || span.is_some());
             corner_radius(app, ui, t, reserve);
         }
         let object_options = group_on(app, "objectOptions");
@@ -1092,7 +1104,7 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
         if ui.available_width() >= 6.0 {
             ui.add_space(6.0);
         }
-        let reserve = transform_reserve(app, ui, count > 0);
+        let reserve = transform_reserve(app, ui, count > 0 || span.is_some());
         // An image or an Image Trace object shows its own controls in place of Fill and Stroke,
         // and leaves Fill and Stroke out while the Image Options group is off too. These groups,
         // the tool options, the envelope's and the symbol instances' each show a control only while
@@ -1117,7 +1129,7 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
         // The Character group shows whole, with the Transform link's room left after it, or not at
         // all; left out, it leaves out the groups between it and the link too.
         let room = !group_on(app, "character") || crate::panels::character::control_bar(app, ui, reserve);
-        if !groups_before_transform(app, ui, count, room) {
+        if !groups_before_transform(app, ui, count, span.is_some(), room) {
             // With the Transform group off, its link and X/Y/W/H fields take no room.
             trailing_select_similar(app, ui);
             erase_trailing(ui);
@@ -1132,11 +1144,12 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
             return;
         }
         crate::panels::transform::link(app, ui);
-        let selection_box = app.selection_box();
-        if selection_box.is_some() && ui.available_width() < inline_transform_width(ui, t) {
+        // The selection's box; with a guide span, the box reaching out to the guides.
+        let fields = crate::panels::transform::FieldBox::new(app, ui, bx.as_ref(), span);
+        if fields.bounds.is_some() && ui.available_width() < inline_transform_width(ui, t) {
             left_out(ui);
-        } else if let Some(b) = selection_box {
-            inline_transform_fields(app, ui, t, units, &b);
+        } else {
+            inline_transform_fields(app, ui, t, units, &fields);
         }
         // Select Similar Objects comes last: it takes only the room every control ahead of it left.
         trailing_select_similar(app, ui);
