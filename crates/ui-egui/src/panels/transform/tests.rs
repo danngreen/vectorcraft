@@ -201,6 +201,30 @@ fn parallel_guides_show_and_set_their_span() {
     assert_eq!(app.selection_box().unwrap().rect, Rect::new(0.0, 10.0, 10.0, 40.0));
 }
 
+/// Guide spans in the Control bar: parallel guides selected on their own show the Guides label and
+/// the inline X of their centre and W of their span, Y and H empty, and a new W spaces them from
+/// the centre.
+#[test]
+fn the_control_bar_shows_and_sets_a_guide_span() {
+    let mut app = VectorcraftApp::new(vectorcraft_engine::Session::new(), Default::default());
+    app.run("file.new", json!({"width": 300, "height": 200})).unwrap();
+    for pos in [43, 50, 100] {
+        app.run("guide.add", json!({"vertical": true, "pos": pos})).unwrap();
+    }
+    app.run("guide.select", json!({"indexes": [0, 1, 2]})).unwrap();
+    let ctx = egui::Context::default();
+    crate::theme::install_fonts(&ctx);
+    let draw: fn(&mut VectorcraftApp, &mut Ui) = crate::chrome::control_bar;
+    let t: Vec<String> = crate::panels::tests_appearance::frame_events(&ctx, &mut app, vec![], draw).into_iter().map(|(t, _)| t).collect();
+    for shown in ["Guides", "Transform", "71.5 pt", "57 pt"] {
+        assert!(t.iter().any(|s| s == shown), "{shown:?} in {t:?}");
+    }
+    assert!(!t.iter().any(|s| s == "Document Setup" || s == "0 pt"), "{t:?}");
+    type_into(&ctx, &mut app, draw, "57 pt", "114");
+    let guides = app.session.active().unwrap().doc.ruler_guides().iter().map(|g| g.pos).collect::<Vec<_>>();
+    assert_eq!(guides, [14.5, 28.5, 128.5]);
+}
+
 /// #1824: with an anchor selected with Direct Selection the panel shows that anchor's position,
 /// and a new X moves it alone.
 #[test]

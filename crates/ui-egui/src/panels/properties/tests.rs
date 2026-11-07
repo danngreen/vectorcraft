@@ -1771,6 +1771,34 @@ fn selected_guides_show_their_position_in_a_transform_section() {
     assert!(!texts.iter().any(|t| t == "Guides") && texts.iter().any(|t| t == "W:"), "{texts:?}");
 }
 
+/// Guide spans: parallel ruler guides selected on their own show the Transform section's reference
+/// point with X across them and W their span, and a new W spaces them from the reference point; with
+/// art, the box reaches out to the guides.
+#[test]
+fn parallel_guides_show_their_span_in_the_transform_section() {
+    let (mut app, ctx) = reference_setup(&[]);
+    let rect = app.session.active().unwrap().selection.objects.clone();
+    for pos in [43, 50, 100] {
+        app.run("guide.add", json!({"vertical": true, "pos": pos})).unwrap();
+    }
+    app.run("guide.select", json!({"indexes": [0, 1, 2]})).unwrap();
+    let texts: Vec<String> = frame(&mut app, &ctx, vec![]).into_iter().map(|(t, _)| t).collect();
+    for shown in ["Guides", "Transform", "71.5 pt", "57 pt"] {
+        assert!(texts.iter().any(|t| t == shown), "{shown:?} in {texts:?}");
+    }
+    type_over(&mut app, &ctx, show, "57 pt", "114");
+    let guides = |app: &VectorcraftApp| app.session.active().unwrap().doc.ruler_guides().iter().map(|g| g.pos).collect::<Vec<_>>();
+    assert_eq!(guides(&app), [14.5, 28.5, 128.5]);
+    // With the rectangle (100, 100, 200, 160): the box from the first guide to its right side.
+    app.run("select.set", json!({ "ids": rect })).unwrap();
+    app.run("guide.select", json!({"indexes": [0, 1, 2], "toggle": true})).unwrap();
+    let texts: Vec<String> = frame(&mut app, &ctx, vec![]).into_iter().map(|(t, _)| t).collect();
+    assert!(texts.iter().any(|t| t == "185.5 pt") && texts.iter().any(|t| t == "60 pt"), "{texts:?}");
+    type_over(&mut app, &ctx, show, "185.5 pt", "371");
+    assert_eq!(guides(&app), [-78.25, -50.25, 149.75]);
+    assert_eq!(app.selection_box().unwrap().rect, vectorcraft_geom::Rect::new(92.75, 100.0, 292.75, 160.0));
+}
+
 /// #2238: Object › Path's Offset Path and Simplify take paths, so they aren't Quick Actions for
 /// type alone, where they could only fail ("select paths"); live type offsets through the
 /// Appearance panel's Effect › Path › Offset Path. A path, also with type, still has them.

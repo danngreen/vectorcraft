@@ -711,9 +711,14 @@ fn heading(first: Option<&vectorcraft_doc::Node>, n_sel: usize, editing_artboard
     }
 }
 
-/// Ruler guides selected on their own: a Transform section with the X of the vertical ones and
+/// Ruler guides selected on their own: the Transform section, which counts parallel ones as a
+/// guide span ([`vectorcraft_engine::GuideSpan`]); for crossing ones, the X of the vertical ones and
 /// the Y of the horizontal ones, which move them, as the Transform panel shows them (#1597).
 fn guide_sections(app: &mut VectorcraftApp, ui: &mut Ui, guides: (Option<f64>, Option<f64>)) {
+    if app.session.guide_span(None).is_some() {
+        transform_section(app, ui);
+        return;
+    }
     section_header(ui, tl!("Transform"));
     let fw = super::field_width(ui);
     super::transform::guide_fields(app, ui, guides, fw);
@@ -809,57 +814,29 @@ pub fn transform_section(app: &mut VectorcraftApp, ui: &mut Ui) {
     if app.session.active().is_none() {
         return;
     }
-    let units = app.session.general_unit();
-    let origin = app.ruler_origin();
-    // The bounding box, rotated with rotated objects (as in the Transform panel).
-    let Some(bx) = app.selection_box() else {
+    // The bounding box, rotated with rotated objects (as in the Transform panel), reaching out to
+    // parallel ruler guides selected with the art.
+    let bx = app.selection_box();
+    let span = app.session.guide_span(bx.as_ref());
+    if bx.is_none() && span.is_none() {
         dim_label(ui, tl!("No Selection"));
         return;
-    };
-    let b = bx.rect;
-    // The reference point, or a symbol instance's registration point: X/Y are read and set there
-    // and the rotation and flips turn and mirror the selection about it, as in the Transform panel.
-    let reference = super::transform::panel_reference(app, ui, &bx);
-    let (refi, rp) = (reference.index, reference.point);
-    let copy = super::transform::alt_enter_copies(app, ui);
+    }
+    let fields = super::transform::FieldBox::new(app, ui, bx.as_ref(), span);
     section_header(ui, tl!("Transform"));
     let fw = super::field_width(ui);
     ui.horizontal(|ui| {
-        if let Some(i) = widgets::reference_point(ui, refi) {
-            ui.data_mut(|d| d.insert_temp(egui::Id::unique("refpt"), i));
-        }
+        super::transform::reference_locator(ui, fields.refi);
         ui.add_space(6.0);
-        let link = super::transform::proportional(app, ui);
-        egui::Grid::new("xf-grid").num_columns(4).spacing([4.0, 6.0]).min_col_width(0.0).show(ui, |ui| {
-            dim_label(ui, "X:");
-            if let Some(v) = widgets::num_field_named(ui, "tx", Some(crate::i18n::t("X:")), Some(rp.x - origin.x), units, fw) {
-                super::transform::run_transform(
-                    app,
-                    "object.setBounds",
-                    json!({"x": reference.bounds_xy(v + origin.x, 0.0).0, "reference": refi, "copy": copy}),
-                );
-            }
-            dim_label(ui, "W:");
-            if let Some(v) = widgets::size_field_named(ui, "tw", Some(tl!("W:")), Some(b.width()), units, fw) {
-                super::transform::run_transform(app, "object.setBounds", json!({"width": v, "reference": refi, "proportional": link, "copy": copy}));
-            }
-            ui.end_row();
-            dim_label(ui, "Y:");
-            if let Some(v) = widgets::num_field_named(ui, "ty", Some(crate::i18n::t("Y:")), Some(rp.y - origin.y), units, fw) {
-                super::transform::run_transform(
-                    app,
-                    "object.setBounds",
-                    json!({"y": reference.bounds_xy(0.0, v + origin.y).1, "reference": refi, "copy": copy}),
-                );
-            }
-            dim_label(ui, "H:");
-            if let Some(v) = widgets::size_field_named(ui, "th", Some(tl!("H:")), Some(b.height()), units, fw) {
-                super::transform::run_transform(app, "object.setBounds", json!({"height": v, "reference": refi, "proportional": link, "copy": copy}));
-            }
-            ui.end_row();
-        });
+        super::transform::xywh_grid(app, ui, &fields, ["xf-grid", "tx", "tw", "ty", "th"], fw);
         super::transform::constrain_link(app, ui);
     });
+    // Guides alone don't turn or flip.
+    let Some(bx) = bx else { return };
+    // The reference point, or a symbol instance's registration point: the rotation and flips turn
+    // and mirror the art about it, as in the Transform panel.
+    let reference = super::transform::panel_reference(app, ui, &bx);
+    let copy = super::transform::alt_enter_copies(app, ui);
     let fw = super::field_width(ui);
     ui.horizontal(|ui| {
         let icon = icons::icon(ui, "rotate-ccw", 16.0, Tokens::get(ui.ctx()).icon);

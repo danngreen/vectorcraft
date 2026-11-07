@@ -300,13 +300,14 @@ fn end_width(app: &VectorcraftApp, ui: &Ui, nothing_selected: bool) -> f32 {
 
 /// Draws the Control bar's groups between its Character controls and the Transform link, and
 /// returns whether the Transform link and X/Y/W/H follow (false: nothing is selected, and Document
-/// Setup and Preferences, drawn here, end the bar, or the Transform group is off). The groups are
-/// the Paragraph section and area type's vertical alignment (#3759), then the Align buttons, the
-/// Align To menu and, for two or more objects, the Distribute buttons (a single object keeps the bar
-/// as it was); each shows only while the end of the bar keeps its room. Groups the panel menu has
-/// off are left out, and take no room.
-fn groups_before_transform(app: &mut VectorcraftApp, ui: &mut Ui, objects: usize) -> bool {
-    let nothing = objects == 0;
+/// Setup and Preferences, drawn here, end the bar, or the Transform group is off). `objects`
+/// objects are selected, and `guides` says whether selected ruler guides count in the selection's
+/// box (a guide span) without them. The groups are the Paragraph section and area type's vertical
+/// alignment (#3759), then the Align buttons, the Align To menu and, for two or more objects, the
+/// Distribute buttons (a single object keeps the bar as it was); each shows only while the end of
+/// the bar keeps its room. Groups the panel menu has off are left out, and take no room.
+fn groups_before_transform(app: &mut VectorcraftApp, ui: &mut Ui, objects: usize, guides: bool) -> bool {
+    let nothing = objects == 0 && !guides;
     let end = end_width(app, ui, nothing);
     if group_on(app, "paragraph") && crate::panels::paragraph::control_bar(app, ui, BUTTON, |ui| group_end_width(ui) + end) {
         group_end(ui);
@@ -331,7 +332,7 @@ fn groups_before_transform(app: &mut VectorcraftApp, ui: &mut Ui, objects: usize
     }
     let transform = group_on(app, "transform");
     let end = if transform { separator_width(ui) + end } else { 0.0 };
-    if group_on(app, "alignDistribute") && ui.available_width() >= buttons_width(ui, 7) + end {
+    if group_on(app, "alignDistribute") && objects > 0 && ui.available_width() >= buttons_width(ui, 7) + end {
         crate::panels::align::align_buttons(app, ui, BUTTON);
         if ui.available_width() >= crate::panels::align::align_to_menu_width(BUTTON) + ui.spacing().item_spacing.x + end {
             crate::panels::align::align_to_menu(app, ui, BUTTON);
@@ -716,6 +717,10 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
         if group_on(app, "snapping") && (app.session.tool_id() != "artboard" || ui.available_width() >= ARTBOARD_SNAPPING_WIDTH) {
             snapping_menu(app, ui);
         }
+        // The bounding box, rotated with rotated objects, and the selected ruler guides' span
+        // when they count in it.
+        let bx = app.selection_box();
+        let span = app.session.guide_span(bx.as_ref());
         let Some(st) = app.session.active() else { return };
         let sel = st.selection.objects.clone();
         let units = app.session.general_unit();
@@ -723,6 +728,7 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
         let anchors = anchor_controls(app);
         let label = match first {
             _ if app.session.tool_id() == "artboard" => tl!("Artboard"),
+            None if span.is_some() => tl!("Guides"),
             Some(_) if sel.len() == 1 && anchors != AnchorControls::None => {
                 tl!("Anchor Point")
             }
@@ -778,36 +784,47 @@ fn contents(app: &mut VectorcraftApp, ui: &mut Ui, t: &Tokens, bar: egui::Rect, 
         if group_on(app, "character") {
             crate::panels::character::control_bar(app, ui);
         }
-        if !groups_before_transform(app, ui, sel.len()) {
+        if !groups_before_transform(app, ui, sel.len(), span.is_some()) {
             erase_trailing(ui);
             return;
         }
         // The Transform link opens the whole Transform panel (reference point, rotate,
         // shear, options) in a popover; X/Y/W/H follow inline while the bar has room.
         crate::panels::transform::link(app, ui);
-        // The bounding box, rotated with rotated objects: its centre and its own sides.
-        if let Some(b) = app.selection_box()
+        // The bounding box's centre and its own sides; with a guide span, the box reaching out
+        // to the guides, which alone have a place and a size only along their axis.
+        let shown_box = match span {
+            Some(g) => {
+                let r = g.bounds(bx.map(|b| b.rect));
+                Some((r.center(), r, g.axes(bx.is_some())))
+            }
+            None => bx.map(|b| (b.center(), b.rect, (true, true))),
+        };
+        if let Some((c, r, (across, down))) = shown_box
             && ui.available_width() >= inline_transform_width(ui, t)
         {
-            let c = b.center();
             let origin = app.ruler_origin();
             let link = crate::panels::transform::proportional(app, ui);
             let copy = crate::panels::transform::alt_enter_copies(app, ui);
-            let values = [(c.x, origin.x), (c.y, origin.y), (b.rect.width(), 0.0), (b.rect.height(), 0.0)];
+            let values = [(c.x, origin.x, across), (c.y, origin.y, down), (r.width(), 0.0, across), (r.height(), 0.0, down)];
             // The W/H link sits between W and H, but is made after H so Tab goes from W
             // straight to H and finds the link after it.
             let mut link_room = None;
-            for ((k, lbl), (v, offset)) in INLINE_FIELDS.into_iter().zip(values) {
+            for ((k, lbl), (v, offset, on)) in INLINE_FIELDS.into_iter().zip(values) {
                 if k == "height" {
                     link_room = Some(crate::panels::transform::constrain_link_room(ui));
                 }
                 widgets::field_label(ui, inline_label(t, lbl));
-                let (id, shown) = (("cb", k), Some(v - offset));
-                let set = if matches!(k, "width" | "height") {
-                    widgets::size_field(ui, id, shown, units, INLINE_FIELD_WIDTH)
-                } else {
-                    widgets::num_field(ui, id, shown, units, INLINE_FIELD_WIDTH)
-                };
+                let (id, shown) = (("cb", k), on.then_some(v - offset));
+                let set = ui
+                    .add_enabled_ui(on, |ui| {
+                        if matches!(k, "width" | "height") {
+                            widgets::size_field(ui, id, shown, units, INLINE_FIELD_WIDTH)
+                        } else {
+                            widgets::num_field(ui, id, shown, units, INLINE_FIELD_WIDTH)
+                        }
+                    })
+                    .inner;
                 if let Some(nv) = set {
                     app.run("object.setBounds", json!({k: nv + offset, "reference": 4, "proportional": link, "copy": copy})).ok();
                 }

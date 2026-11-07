@@ -8,6 +8,7 @@
 use egui::Ui;
 use serde_json::json;
 use vectorcraft_doc::{LiveShape, Node, NodeKind, OrientedBox};
+use vectorcraft_engine::GuideSpan;
 use vectorcraft_geom::shapes::CornerKind;
 use vectorcraft_geom::{Point, Rect, Vec2};
 
@@ -250,6 +251,86 @@ pub(crate) fn guide_fields(app: &mut VectorcraftApp, ui: &mut Ui, (x, y): (Optio
     });
 }
 
+/// The box whose X, Y, W and H the Transform panel and the Properties panel's Transform section
+/// show and set: the selection's box, reaching out to the selected ruler guides when they count in
+/// it ([`GuideSpan`]), measured from the reference point.
+pub(crate) struct FieldBox {
+    /// The box (none with nothing selected).
+    pub bounds: Option<Rect>,
+    /// The reference point (0 to 8).
+    pub refi: usize,
+    /// Where the fields' X and Y are on the page: the reference point, or a symbol instance's
+    /// registration point.
+    point: Option<Point>,
+    /// The art's reference without guide spans, which a new X or Y puts in place.
+    reference: Option<PanelReference>,
+    /// Whether the box has a place and a size across the page (X and W) and down it (Y and H):
+    /// guides alone have them only along their axis.
+    across: bool,
+    down: bool,
+}
+
+impl FieldBox {
+    /// The fields' box of the selection's box `bx` and the selected guides' `span`.
+    pub(crate) fn new(app: &VectorcraftApp, ui: &Ui, bx: Option<&OrientedBox>, span: Option<GuideSpan>) -> Self {
+        let reference = if span.is_some() { None } else { bx.map(|b| panel_reference(app, ui, b)) };
+        let bounds = span.map_or(bx.map(|b| b.rect), |g| Some(g.bounds(bx.map(|b| b.rect))));
+        let refi = reference.map_or_else(|| reference_index(ui), |r| r.index);
+        let point = reference.map(|r| r.point).or_else(|| bounds.map(|b| vectorcraft_geom::reference_point(b, refi)));
+        let has = bounds.is_some();
+        let (across, down) = span.map_or((has, has), |g| g.axes(bx.is_some()));
+        FieldBox { bounds, refi, point, reference, across, down }
+    }
+
+    /// `object.setBounds`'s x and y that put the fields' point at `x`, `y`.
+    fn bounds_xy(&self, x: f64, y: f64) -> (f64, f64) {
+        self.reference.map_or((x, y), |r| r.bounds_xy(x, y))
+    }
+}
+
+/// The X, Y, W and H fields of box `f`, `fw` wide, in a grid: `ids` are the grid's id, then the X,
+/// W, Y and H fields'. A field the box has no value for is greyed out and empty.
+pub(crate) fn xywh_grid(app: &mut VectorcraftApp, ui: &mut Ui, f: &FieldBox, ids: [&str; 5], fw: f32) {
+    let [grid, xi, wi, yi, hi] = ids;
+    let units = app.session.general_unit();
+    let origin = app.ruler_origin();
+    let link = proportional(app, ui);
+    let copy = alt_enter_copies(app, ui);
+    let refi = f.refi;
+    egui::Grid::new(grid).num_columns(4).spacing([4.0, 6.0]).min_col_width(0.0).show(ui, |ui| {
+        widgets::dim_label(ui, "X:");
+        ui.add_enabled_ui(f.across, |ui| {
+            let x = f.point.filter(|_| f.across).map(|p| p.x - origin.x);
+            if let Some(v) = widgets::num_field_named(ui, xi, Some(crate::i18n::t("X:")), x, units, fw) {
+                run_transform(app, "object.setBounds", json!({"x": f.bounds_xy(v + origin.x, 0.0).0, "reference": refi, "copy": copy}));
+            }
+        });
+        widgets::dim_label(ui, "W:");
+        ui.add_enabled_ui(f.across, |ui| {
+            let w = f.bounds.filter(|_| f.across).map(|b| b.width());
+            if let Some(v) = widgets::size_field_named(ui, wi, Some(tl!("W:")), w, units, fw) {
+                run_transform(app, "object.setBounds", json!({"width": v, "reference": refi, "proportional": link, "copy": copy}));
+            }
+        });
+        ui.end_row();
+        widgets::dim_label(ui, "Y:");
+        ui.add_enabled_ui(f.down, |ui| {
+            let y = f.point.filter(|_| f.down).map(|p| p.y - origin.y);
+            if let Some(v) = widgets::num_field_named(ui, yi, Some(crate::i18n::t("Y:")), y, units, fw) {
+                run_transform(app, "object.setBounds", json!({"y": f.bounds_xy(0.0, v + origin.y).1, "reference": refi, "copy": copy}));
+            }
+        });
+        widgets::dim_label(ui, "H:");
+        ui.add_enabled_ui(f.down, |ui| {
+            let h = f.bounds.filter(|_| f.down).map(|b| b.height());
+            if let Some(v) = widgets::size_field_named(ui, hi, Some(tl!("H:")), h, units, fw) {
+                run_transform(app, "object.setBounds", json!({"height": v, "reference": refi, "proportional": link, "copy": copy}));
+            }
+        });
+        ui.end_row();
+    });
+}
+
 pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
     let t = Tokens::get(ui.ctx());
     if app.session.active().is_none() {
@@ -270,65 +351,18 @@ pub fn show(app: &mut VectorcraftApp, ui: &mut Ui) {
         guide_fields(app, ui, guides, 80.0);
         return;
     }
-    let units = app.session.general_unit();
-    let origin = app.ruler_origin();
     // Rotate, shear and flip turn the art about its own box's reference.
     let art_reference = bx.map(|b| panel_reference(app, ui, &b));
-    // With guide spans, the box reaches out to the guides, measured from its reference point.
-    let reference = if span.is_some() { None } else { art_reference };
-    let bounds = span.map_or(bx.map(|b| b.rect), |g| Some(g.bounds(bx.map(|b| b.rect))));
-    let refi = reference.map_or_else(|| reference_index(ui), |r| r.index);
-    // `object.setBounds`'s x and y that put the reference (the registration point) at x, y.
-    let to_box = |x: f64, y: f64| reference.map_or((x, y), |r| r.bounds_xy(x, y));
-    let link = proportional(app, ui);
+    let fields = FieldBox::new(app, ui, bx.as_ref(), span);
     let copy = alt_enter_copies(app, ui);
-    let (has, art) = (bounds.is_some(), bx.is_some());
-    let rp = reference.map(|r| r.point).or_else(|| bounds.map(|b| vectorcraft_geom::reference_point(b, refi)));
-    // Guides alone have a place and a size only along their axis.
-    let (across, down) = span.map_or((has, has), |g| g.axes(art));
     ui.horizontal(|ui| {
-        if let Some(i) = widgets::reference_point(ui, refi) {
-            ui.data_mut(|d| d.insert_temp(egui::Id::unique("refpt"), i));
-        }
+        reference_locator(ui, fields.refi);
         ui.add_space(4.0);
-        ui.add_enabled_ui(has, |ui| {
-            egui::Grid::new("xfp-grid").num_columns(4).spacing([4.0, 6.0]).min_col_width(0.0).show(ui, |ui| {
-                widgets::dim_label(ui, "X:");
-                ui.add_enabled_ui(across, |ui| {
-                    let x = rp.filter(|_| across).map(|p| p.x - origin.x);
-                    if let Some(v) = widgets::num_field_named(ui, "xfp-x", Some(crate::i18n::t("X:")), x, units, 80.0) {
-                        run_transform(app, "object.setBounds", json!({"x": to_box(v + origin.x, 0.0).0, "reference": refi, "copy": copy}));
-                    }
-                });
-                widgets::dim_label(ui, "W:");
-                ui.add_enabled_ui(across, |ui| {
-                    let w = bounds.filter(|_| across).map(|b| b.width());
-                    if let Some(v) = widgets::size_field_named(ui, "xfp-w", Some(tl!("W:")), w, units, 80.0) {
-                        run_transform(app, "object.setBounds", json!({"width": v, "reference": refi, "proportional": link, "copy": copy}));
-                    }
-                });
-                ui.end_row();
-                widgets::dim_label(ui, "Y:");
-                ui.add_enabled_ui(down, |ui| {
-                    let y = rp.filter(|_| down).map(|p| p.y - origin.y);
-                    if let Some(v) = widgets::num_field_named(ui, "xfp-y", Some(crate::i18n::t("Y:")), y, units, 80.0) {
-                        run_transform(app, "object.setBounds", json!({"y": to_box(0.0, v + origin.y).1, "reference": refi, "copy": copy}));
-                    }
-                });
-                widgets::dim_label(ui, "H:");
-                ui.add_enabled_ui(down, |ui| {
-                    let h = bounds.filter(|_| down).map(|b| b.height());
-                    if let Some(v) = widgets::size_field_named(ui, "xfp-h", Some(tl!("H:")), h, units, 80.0) {
-                        run_transform(app, "object.setBounds", json!({"height": v, "reference": refi, "proportional": link, "copy": copy}));
-                    }
-                });
-                ui.end_row();
-            });
-        });
+        ui.add_enabled_ui(fields.bounds.is_some(), |ui| xywh_grid(app, ui, &fields, ["xfp-grid", "xfp-x", "xfp-w", "xfp-y", "xfp-h"], 80.0));
         constrain_link(app, ui);
     });
     ui.add_space(4.0);
-    let has = art;
+    let has = bx.is_some();
     let origin = art_reference.map(|r| r.origin());
     ui.horizontal(|ui| {
         ui.add_enabled_ui(has, |ui| {
