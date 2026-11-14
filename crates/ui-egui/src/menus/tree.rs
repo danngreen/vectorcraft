@@ -57,6 +57,7 @@ pub fn menu_tree_named(english_names: bool) -> Vec<(&'static str, Vec<Item>)> {
                         c("Export As SVG…", "file.export.svg"),
                         c("Export As PNG…", "file.export.png"),
                         c("Save for Web (Legacy)…", "file.saveForWeb"),
+                        c("Export Faceplate…", "faceplate.export"),
                     ],
                 ),
                 c("Export Selection…", "file.exportSelection"),
