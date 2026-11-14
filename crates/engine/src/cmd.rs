@@ -29,6 +29,7 @@ mod draw2;
 mod edit;
 mod effectcmd;
 pub mod expand;
+pub mod faceplate;
 pub(crate) mod fileinfo;
 pub mod fileio;
 pub mod findfiles;
@@ -345,6 +346,7 @@ pub fn command_specs() -> &'static [CommandSpec] {
         v.extend(docmenu::specs());
         v.extend(variablecmds::specs());
         v.extend(positions::specs());
+        v.extend(faceplate::specs());
         v.extend(docinfo::specs());
         v.extend(panelcmds::specs());
         v.extend(artboardalign::specs());

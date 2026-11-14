@@ -45,6 +45,7 @@ pub mod expand;
 mod export_as;
 mod export_for_screens;
 pub mod eyedropper;
+pub mod faceplate;
 pub mod file_info;
 pub mod find_links;
 pub mod flare_options;
@@ -402,6 +403,7 @@ registry! {
     PositionsExport: [positions::EXPORT] => positions::EXPORT_SPEC,
     PositionsImport: [positions::IMPORT] => positions::IMPORT_SPEC,
     PositionsRenames: [positions::RENAMES] => positions::RENAMES_SPEC,
+    FaceplateExport: [faceplate::KIND] => faceplate::SPEC,
     ActionBatch: [action_batch::KIND] => action_batch::SPEC,
     ActionSetOptions: [action_set_options::KIND] => action_set_options::SPEC,
     ActionNew: [action_new::KIND] => action_new::SPEC,

@@ -61,6 +61,7 @@ mod envelope_edit;
 pub(super) mod expand;
 mod expand_symbols;
 mod eyedropper;
+mod faceplate;
 mod file;
 mod fileinfo;
 mod flatpresets;
