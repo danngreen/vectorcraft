@@ -21,8 +21,13 @@
 //!
 //! The layers and Library come from the params, else the document's own settings (kept by the
 //! last export or import, with its CSV's path), else the preferences (`positions*`).
+//!
+//! The document keeps the CSV's path as given, or with `relative` from its own folder
+//! (`../pcb/panel-positions.csv`, and `relative: true` beside it), so the document and its CSV
+//! can move together: another checkout of their repository finds the file without choosing it.
 
 use std::collections::{HashMap, HashSet};
+use std::path::{Component, Path, PathBuf};
 use std::sync::Arc;
 
 use serde_json::{Map, Value, json};
@@ -30,8 +35,9 @@ use vectorcraft_doc::{Document, Node, NodeId};
 use vectorcraft_geom::{Point, Rect};
 
 use super::fileio::{absolute_path, read_file_head, write_file};
+use super::links::relative_path;
 use super::variablecmds::{csv_escape, parse_datasets_csv};
-use super::{CommandSpec, Result, Session, bad, cmd, has_doc, str_param};
+use super::{CommandSpec, Result, Session, bad, cmd, has_doc, str_param, switch_or};
 
 /// Points per millimetre.
 const MM: f64 = 72.0 / 25.4;
@@ -96,13 +102,78 @@ fn settings(s: &Session, p: &Value) -> Result<Settings> {
     Ok(out)
 }
 
-/// Keep `path` and the settings that differ from the preferences' with the document, so it reopens
-/// on them and follows the preferences for the rest. Not an undo step (like the settings of any
-/// export); the document has changed only if they differ.
-fn remember(s: &mut Session, set: &Settings, path: &str) -> Result<()> {
+/// `dir` with the symbolic links on the way to it followed, so that two folders compare and a
+/// `..` step from one means what it does to the file system. As given when it can't be read, and
+/// on Windows, where the followed path is a `\\?\` one.
+fn real_dir(dir: &Path) -> PathBuf {
+    if cfg!(windows) {
+        return dir.to_path_buf();
+    }
+    std::fs::canonicalize(dir).unwrap_or_else(|_| dir.to_path_buf())
+}
+
+/// The folder of the document's file, which a relative CSV path starts from; `None` until the
+/// document is saved.
+fn doc_folder(s: &Session) -> Option<PathBuf> {
+    let path = s.doc().ok()?.path.as_deref()?;
+    Path::new(&absolute_path(path)).parent().map(real_dir)
+}
+
+/// Whether the document keeps its CSV's path relative to its own folder.
+fn keeps_relative(s: &Session) -> bool {
+    s.doc().is_ok_and(|st| st.doc.positions.get("relative") == Some(&Value::Bool(true)))
+}
+
+/// The CSV the document last used, as a path to open: one kept relative is taken from the
+/// document's folder, `..` steps and all. `None` when it has none, or a relative one and no file
+/// of its own yet to take it from.
+fn remembered(s: &Session) -> Option<String> {
+    let stored = s.doc().ok()?.doc.positions.get("path").and_then(Value::as_str)?;
+    if !keeps_relative(s) {
+        return Some(stored.to_string());
+    }
+    let mut out = doc_folder(s)?;
+    for c in Path::new(stored).components() {
+        match c {
+            Component::ParentDir => drop(out.pop()),
+            Component::CurDir => {}
+            c => out.push(c),
+        }
+    }
+    Some(out.to_string_lossy().into_owned())
+}
+
+/// `path` (absolute) as a document that keeps it relative would: from the document's folder, with
+/// `/` separators. `None` when the document isn't saved yet, or is on another drive.
+pub fn relative_to_document(s: &Session, path: &str) -> Option<String> {
+    let folder = doc_folder(s)?;
+    // The CSV may not exist yet: its folder is the one to find.
+    let path = Path::new(path);
+    let real = path.parent().and_then(|dir| Some(real_dir(dir).join(path.file_name()?)));
+    relative_path(real.as_deref().unwrap_or(path), &folder)
+}
+
+/// How the document keeps `path` (absolute): as it is, or with `relative` from its own folder.
+fn kept_path(s: &Session, path: &str, relative: bool, cmd: &str) -> Result<String> {
+    if !relative {
+        return Ok(path.to_string());
+    }
+    if doc_folder(s).is_none() {
+        return Err(bad(cmd, "`relative` needs the document saved first: the path is kept from its folder"));
+    }
+    relative_to_document(s, path).ok_or_else(|| bad(cmd, format!("`relative`: {path} is on another drive than the document")))
+}
+
+/// Keep `path` (as [`kept_path`] gives it) and the settings that differ from the preferences' with
+/// the document, so it reopens on them and follows the preferences for the rest. Not an undo step
+/// (like the settings of any export); the document has changed only if they differ.
+fn remember(s: &mut Session, set: &Settings, path: &str, relative: bool) -> Result<()> {
     let prefs = pref_settings(s);
     let mut keep = Map::new();
     keep.insert("path".into(), json!(path));
+    if relative {
+        keep.insert("relative".into(), json!(true));
+    }
     for key in KEYS {
         if set.get(key) != prefs.get(key) {
             keep.insert(key.into(), json!(set.get(key)));
@@ -741,14 +812,18 @@ fn ids(v: &[NodeId]) -> Vec<u64> {
 }
 
 /// The file to use: `path`, else the one the document last used.
-fn path_param(s: &Session, p: &Value) -> Result<Option<String>> {
+fn path_param(s: &Session, p: &Value, cmd: &str) -> Result<Option<String>> {
     if let Some(path) = str_param(p, "path") {
         return Ok(Some(path.to_string()));
     }
     if p.get("csv").is_some() {
         return Ok(None);
     }
-    Ok(s.doc()?.doc.positions.get("path").and_then(Value::as_str).map(String::from))
+    let found = remembered(s);
+    if found.is_none() && s.doc()?.doc.positions.contains_key("path") {
+        return Err(bad(cmd, "the document keeps its CSV's path relative to its folder: save the document first, or give `path`"));
+    }
+    Ok(found)
 }
 
 // ---- Commands ------------------------------------------------------------------------------
@@ -757,6 +832,8 @@ fn export(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "positions.export";
     let set = settings(s, p)?;
     let path = str_param(p, "path").map(absolute_path);
+    let relative = switch_or(p, "relative", keeps_relative(s), C)?;
+    let kept = path.as_deref().map(|path| kept_path(s, path, relative, C)).transpose()?;
     let doc = s.doc()?.doc.clone();
     let scan = Scan::new(&doc, &set);
     let mut warnings = vec![];
@@ -767,13 +844,14 @@ fn export(s: &mut Session, p: &Value) -> Result<Value> {
         return Err(bad(C, format!("the CSV would be larger than {MAX_CSV_BYTES} bytes")));
     }
     let mut out = json!({ "controls": controls.len(), "outline": outline.is_some(), "warnings": warnings });
-    match path {
-        Some(path) => {
+    match (path, kept) {
+        (Some(path), Some(kept)) => {
             write_file(&path, csv.as_bytes())?;
-            remember(s, &set, &path)?;
+            remember(s, &set, &kept, relative)?;
             out["path"] = json!(path);
+            out["relative"] = json!(relative);
         }
-        None => out["csv"] = json!(csv),
+        _ => out["csv"] = json!(csv),
     }
     Ok(out)
 }
@@ -781,7 +859,7 @@ fn export(s: &mut Session, p: &Value) -> Result<Value> {
 fn check(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "positions.check";
     let set = settings(s, p)?;
-    let path = path_param(s, p)?;
+    let path = path_param(s, p, C)?;
     let text = csv_text(p, C, path.as_deref())?;
     let (report, _) = plan(s, &set, &text, renames_param(p).as_deref(), C)?;
     Ok(report.json())
@@ -790,7 +868,9 @@ fn check(s: &mut Session, p: &Value) -> Result<Value> {
 fn import(s: &mut Session, p: &Value) -> Result<Value> {
     const C: &str = "positions.import";
     let set = settings(s, p)?;
-    let path = path_param(s, p)?.map(|p| absolute_path(&p));
+    let path = path_param(s, p, C)?.map(|p| absolute_path(&p));
+    let relative = switch_or(p, "relative", keeps_relative(s), C)?;
+    let kept = path.as_deref().map(|path| kept_path(s, path, relative, C)).transpose()?;
     let text = csv_text(p, C, path.as_deref())?;
     let (report, cmds) = plan(s, &set, &text, renames_param(p).as_deref(), C)?;
     if report.changes() > 0 {
@@ -801,8 +881,8 @@ fn import(s: &mut Session, p: &Value) -> Result<Value> {
             let _ = s.execute("layer.setCurrent", &json!({ "id": layer.0 }));
         }
     }
-    if let Some(path) = &path {
-        remember(s, &set, path)?;
+    if let Some(kept) = &kept {
+        remember(s, &set, kept, relative)?;
     }
     Ok(report.json())
 }
@@ -817,7 +897,7 @@ pub fn current_settings(s: &Session, p: &Value) -> Result<Value> {
     let doc = &s.doc()?.doc.positions;
     Ok(json!({
         "anchorLayer": set.anchor, "typeLayer": set.kind, "outlineLayer": set.outline, "library": set.library,
-        "path": doc.get("path").cloned().unwrap_or(Value::Null), "document": doc,
+        "path": remembered(s), "relative": keeps_relative(s), "document": doc,
     }))
 }
 
@@ -828,7 +908,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Export Positions…",
             ["Window", "Saved Selections"],
             None,
-            "{path?, anchorLayer?, typeLayer?, outlineLayer? (default: the document's settings, else prefs positionsAnchorLayer, positionsTypeLayer, positionsOutlineLayer)} write the saved selections' positions as CSV (name,type,x_mm,y_mm,w_mm,h_mm: mm from the first artboard's centre, y down; the PCB outline first, type Edge.Cuts); with path, the document remembers it and the settings → {path, controls, outline: bool, warnings}; without path → {csv, controls, outline, warnings}",
+            "{path?, relative?: bool (true: the document keeps `path` relative to its own folder, so the two can move together; it must be saved; default: as it keeps it now), anchorLayer?, typeLayer?, outlineLayer? (default: the document's settings, else prefs positionsAnchorLayer, positionsTypeLayer, positionsOutlineLayer)} write the saved selections' positions as CSV (name,type,x_mm,y_mm,w_mm,h_mm: mm from the first artboard's centre, y down; the PCB outline first, type Edge.Cuts); with path, the document remembers it and the settings → {path, relative, controls, outline: bool, warnings}; without path → {csv, controls, outline, warnings}",
             has_doc,
             export
         ),
@@ -847,7 +927,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Import Positions…",
             ["Window", "Saved Selections"],
             None,
-            "{path? | csv? (default: the CSV the document last used), anchorLayer?, typeLayer?, outlineLayer?, library? (default: the document's settings, else prefs positions*), renames?: [{from, to}…] (default: a removed control and an added row at the same position)} move, retype, add, remove and rename the saved selections (controls) to match a positions CSV, in one undo step; a rename keeps the control's artwork, giving its saved selection the row's name, then moving and retyping it as the row says; with path, the document remembers it and the settings → {errors, removed, renamed, retyped, moved, added, warnings: [text], changes, rename: when the file both removes and adds controls, {removed: [{name, detail}…], added: [{name, detail}…], pairs: [{from, to}…]}, else null}",
+            "{path? | csv? (default: the CSV the document last used), relative?: bool (as positions.export), anchorLayer?, typeLayer?, outlineLayer?, library? (default: the document's settings, else prefs positions*), renames?: [{from, to}…] (default: a removed control and an added row at the same position)} move, retype, add, remove and rename the saved selections (controls) to match a positions CSV, in one undo step; a rename keeps the control's artwork, giving its saved selection the row's name, then moving and retyping it as the row says; with path, the document remembers it and the settings → {errors, removed, renamed, retyped, moved, added, warnings: [text], changes, rename: when the file both removes and adds controls, {removed: [{name, detail}…], added: [{name, detail}…], pairs: [{from, to}…]}, else null}",
             has_doc,
             import
         ),
@@ -856,7 +936,7 @@ pub fn specs() -> Vec<CommandSpec> {
             "Positions Settings",
             [],
             None,
-            "{anchorLayer?, typeLayer?, outlineLayer?, library?} the settings Export/Import Positions would use (params, else the document's, else prefs) → {anchorLayer, typeLayer, outlineLayer, library, path: the CSV the document last used|null, document: its own settings}",
+            "{anchorLayer?, typeLayer?, outlineLayer?, library?} the settings Export/Import Positions would use (params, else the document's, else prefs) → {anchorLayer, typeLayer, outlineLayer, library, path: the CSV the document last used|null, relative: whether it keeps that path relative to its own folder, document: its own settings}",
             has_doc,
             show_settings
         ),

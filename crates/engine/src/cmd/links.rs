@@ -1735,7 +1735,7 @@ pub(crate) fn refresh_placed(s: &mut Session, saved: u64, path: &str) {
 
 /// `target` relative to folder `base` with `/` separators; `None` when they share no root (another
 /// drive, or either is relative).
-fn relative_path(target: &Path, base: &Path) -> Option<String> {
+pub(super) fn relative_path(target: &Path, base: &Path) -> Option<String> {
     let (t, b): (Vec<Component>, Vec<Component>) = (target.components().collect(), base.components().collect());
     if !matches!(t.first(), Some(Component::Prefix(_) | Component::RootDir)) {
         return None;

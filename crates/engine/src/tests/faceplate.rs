@@ -111,6 +111,48 @@ fn dark_art_is_silkscreen_white_art_knocks_it_out_and_the_faceplate_shape_is_the
 }
 
 #[test]
+fn inverted_light_art_is_silkscreen_and_dark_or_coloured_art_and_bare_panel_are_not() {
+    let mut s = panel();
+    on(&mut s, "artwork");
+    // White with a black window in it, then blocks of light grey (ink: every channel is over
+    // half) and of red, dark grey and yellow (not ink). Nothing is drawn around them.
+    rect(&mut s, 30.0, 30.0, 20.0, 10.0, "#ffffff");
+    rect(&mut s, 30.0, 30.0, 10.0, 4.0, "#000000");
+    rect(&mut s, 80.0, 20.0, 6.0, 6.0, "#a0a0a0");
+    rect(&mut s, 60.0, 20.0, 6.0, 6.0, "#ff0000");
+    rect(&mut s, 70.0, 20.0, 6.0, 6.0, "#606060");
+    rect(&mut s, 60.0, 40.0, 6.0, 6.0, "#ffff00");
+    let (out, text) = export(&mut s, "inverted", json!({"invert": true}));
+    assert_eq!(out["invert"], json!(true));
+    let mut silk = polys(&text, "F.SilkS");
+    silk.sort_by(|a, b| area(b).total_cmp(&area(a)));
+    assert_eq!(silk.len(), 2, "{out}");
+    assert!((area(&silk[0]) - (200.0 - 40.0)).abs() < 0.2, "{}", area(&silk[0]));
+    let b = bounds(&silk[0]);
+    for (got, want) in b.iter().zip([-30.0, -5.0, -10.0, 5.0]) {
+        assert!((got - want).abs() < 0.01, "{b:?}");
+    }
+    assert!((area(&silk[1]) - 36.0).abs() < 0.3, "{}", area(&silk[1]));
+    let b = bounds(&silk[1]);
+    assert_eq!((((b[0] + b[2]) / 2.0).round(), ((b[1] + b[3]) / 2.0).round()), (30.0, -10.0));
+
+    // The same art not inverted: the other blocks, and the black window alone.
+    let (out, text) = export(&mut s, "upright", json!({}));
+    assert_eq!(out["invert"], json!(false));
+    assert_eq!(polys(&text, "F.SilkS").len(), 4, "{out}");
+
+    // Only dark art, inverted: no ink, and the warning says what is missing.
+    let mut s = panel();
+    on(&mut s, "artwork");
+    rect(&mut s, 50.0, 30.0, 10.0, 10.0, "#000000");
+    let (out, _) = export(&mut s, "none", json!({"invert": true}));
+    assert_eq!(out["polygons"], json!(0));
+    assert!(out["warnings"].to_string().contains("draws nothing light"), "{out}");
+    let e = s.execute("faceplate.export", &json!({"path": "/nonexistent/x.kicad_mod", "invert": "yes"})).unwrap_err();
+    assert!(e.to_string().contains("`invert` must be true or false"), "{e}");
+}
+
+#[test]
 fn the_layers_can_be_named_and_missing_ones_are_said() {
     let mut s = panel();
     on(&mut s, "artwork");

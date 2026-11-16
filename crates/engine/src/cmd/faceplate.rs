@@ -6,7 +6,10 @@
 //!   as an export draws it, a pixel is ink where it is darker than the threshold (over 50% grey,
 //!   or any of its colour's inks over 50%: the lowest of its red, green and blue under half), and
 //!   the ink's edge is followed through the anti-aliased pixels to a fraction of a pixel. So white
-//!   art knocks out the art under it, and effects, gradients and images count as drawn;
+//!   art knocks out the art under it, and effects, gradients and images count as drawn. Inverted
+//!   (`invert`), it is the light pixels that are ink: the layer is drawn on black, and a pixel is
+//!   ink where the lowest of its red, green and blue is over half. So white art is the ink, dark
+//!   and coloured art knocks it out, and where the layer draws nothing there is none;
 //! - the shapes of the faceplate layer as closed outlines on Edge.Cuts, from their paths.
 //!
 //! Coordinates are millimetres from the centre of the first artboard, y down: those of the
@@ -23,7 +26,7 @@ use vectorcraft_geom::{PathEl, Rect};
 use vectorcraft_render::encode::{RasterExportOptions, RasterFormat};
 
 use super::fileio::{absolute_path, create_dir, write_file};
-use super::{CommandSpec, Result, Session, bad, check_numbers, cmd, f64_or, has_doc, str_param};
+use super::{CommandSpec, Result, Session, bad, check_numbers, cmd, f64_or, has_doc, str_param, switch_or};
 use crate::EngineError;
 
 /// Points per millimetre.
@@ -50,14 +53,17 @@ fn layer_named<'a>(doc: &'a Document, name: &str) -> Option<&'a Arc<Node>> {
     doc.layers.iter().find(|l| l.display_name().to_lowercase() == name.to_lowercase())
 }
 
-/// How light each pixel of `layer` is over `region`, drawn alone on white at `scale` pixels per
-/// point: the lowest of its red, green and blue, a byte a pixel, row by row.
-fn lightness(doc: &Document, layer: &Node, region: Rect, scale: f64, (w, h): (u32, u32)) -> Result<Vec<u8>> {
+/// How far each pixel of `layer` is from ink over `region`, drawn alone at `scale` pixels per
+/// point, a byte a pixel, row by row: on white, the lowest of its red, green and blue (dark is
+/// ink); with `invert`, on black, 255 less that (light is ink). Either way where the layer draws
+/// nothing is 255, no ink.
+fn lightness(doc: &Document, layer: &Node, region: Rect, scale: f64, (w, h): (u32, u32), invert: bool) -> Result<Vec<u8>> {
     let mut alone = layer.clone();
     alone.visible = true;
     let mut tmp = doc.clone();
     tmp.layers = vec![Arc::new(alone)];
-    let opts = RasterExportOptions { ppi: scale * 72.0, background: Some([255; 3]), ..Default::default() }.render_options(RasterFormat::Png);
+    let opts = RasterExportOptions { ppi: scale * 72.0, background: Some(if invert { [0; 3] } else { [255; 3] }), ..Default::default() }
+        .render_options(RasterFormat::Png);
     let mut r = vectorcraft_render::Renderer::new();
     let mut out = vec![255u8; w as usize * h as usize];
     for ty in (0..h).step_by(TILE as usize) {
@@ -73,7 +79,8 @@ fn lightness(doc: &Document, layer: &Node, region: Rect, scale: f64, (w, h): (u3
             for (row, px) in img.pixels.chunks_exact(tw as usize * 4).enumerate() {
                 let at = (ty as usize + row) * w as usize + tx as usize;
                 for (o, [r, g, b, _]) in out[at..at + tw as usize].iter_mut().zip(px.as_chunks::<4>().0) {
-                    *o = (*r).min(*g).min(*b);
+                    let low = (*r).min(*g).min(*b);
+                    *o = if invert { 255 - low } else { low };
                 }
             }
         }
@@ -343,10 +350,10 @@ fn default_path(file: Option<&str>) -> Option<String> {
 }
 
 /// What Export Faceplate uses where its params say nothing: {path ("" for a document not saved
-/// yet), layer, faceplateLayer, ppi}.
+/// yet), layer, faceplateLayer, ppi, invert}.
 pub fn defaults(s: &Session) -> Value {
     let path = s.doc().ok().and_then(|st| default_path(st.path.as_deref())).unwrap_or_default();
-    json!({ "path": path, "layer": ARTWORK_LAYER, "faceplateLayer": FACEPLATE_LAYER, "ppi": PPI })
+    json!({ "path": path, "layer": ARTWORK_LAYER, "faceplateLayer": FACEPLATE_LAYER, "ppi": PPI, "invert": false })
 }
 
 fn export(s: &mut Session, p: &Value) -> Result<Value> {
@@ -360,6 +367,7 @@ fn export(s: &mut Session, p: &Value) -> Result<Value> {
     if !(threshold > 0.0 && threshold < 100.0) {
         return Err(bad(C, "threshold must be between 0 and 100 (percent)"));
     }
+    let invert = switch_or(p, "invert", false, C)?;
     let (art_name, plate_name) = (str_param(p, "layer").unwrap_or(ARTWORK_LAYER), str_param(p, "faceplateLayer").unwrap_or(FACEPLATE_LAYER));
     let kicad_layer = str_param(p, "kicadLayer").unwrap_or(KICAD_LAYER);
     let st = s.doc()?;
@@ -388,14 +396,16 @@ fn export(s: &mut Session, p: &Value) -> Result<Value> {
         }
         let size = (w as u32, h as u32);
         let region = Rect::new(b.x0, b.y0, b.x0 + w / scale, b.y0 + h / scale);
-        let light = lightness(&doc, art, region, scale, size)?;
-        let level = 255.0 * (1.0 - threshold / 100.0);
+        let light = lightness(&doc, art, region, scale, size, invert)?;
+        // Darker than the threshold is ink; inverted, lighter than it is.
+        let level = 255.0 * if invert { threshold / 100.0 } else { 1.0 - threshold / 100.0 };
         let loops = contours(&light, size.0 as usize, size.1 as usize, level).iter().map(|l| simplified(l, TOLERANCE_PX)).collect();
         let to_mm = |p: &P| [(region.x0 + p[0] / scale - origin.x) / MM, (region.y0 + p[1] / scale - origin.y) / MM];
         shapes = polygons(loops).iter().map(|ring| ring.iter().map(to_mm).collect()).collect();
     }
     if shapes.is_empty() {
-        warnings.push(format!("the {art_name} layer draws nothing dark on the artboard, so the footprint has no artwork"));
+        let ink = if invert { "light" } else { "dark" };
+        warnings.push(format!("the {art_name} layer draws nothing {ink} on the artboard, so the footprint has no artwork"));
     }
 
     // The faceplate's outline.
@@ -437,7 +447,7 @@ fn export(s: &mut Session, p: &Value) -> Result<Value> {
     }
     write_file(&path, out.as_bytes())?;
     Ok(json!({
-        "path": path, "name": name, "layer": art_name, "kicadLayer": kicad_layer, "ppi": ppi,
+        "path": path, "name": name, "layer": art_name, "kicadLayer": kicad_layer, "ppi": ppi, "invert": invert,
         "polygons": shapes.len(), "points": shapes.iter().map(Vec::len).sum::<usize>(),
         "outlines": edges.len(),
         "outline": outline.map(|b| json!({ "x": tenth_um((b[0] + b[2]) / 2.0), "y": tenth_um((b[1] + b[3]) / 2.0), "w": tenth_um(b[2] - b[0]), "h": tenth_um(b[3] - b[1]) })),
@@ -451,7 +461,7 @@ pub fn specs() -> Vec<CommandSpec> {
         "Export Faceplate…",
         ["File", "Export"],
         None,
-        "{path? (the .kicad_mod to write; default artwork.pretty/<document name>.kicad_mod next to the document), layer? (the artwork's, default artwork), faceplateLayer? (the panel's outline, default faceplate), kicadLayer? (default F.SilkS), ppi? (the resolution the artwork is read at, default 2000), threshold? (percent, default 50: darker is ink), name? (the footprint's, default the file's)} write a layer's artwork as a KiCad footprint for a faceplate PCB: filled polygons of what the layer draws darker than the threshold (as a high-resolution image of it converted with KiCad's Image Converter: white art knocks out what is under it), and the faceplate layer's closed shapes as Edge.Cuts outlines; mm from the first artboard's centre, y down, as positions.export → {path, name, layer, kicadLayer, ppi, polygons, points, outlines, outline: the largest's {x, y, w, h} mm|null, warnings}",
+        "{path? (the .kicad_mod to write; default artwork.pretty/<document name>.kicad_mod next to the document), layer? (the artwork's, default artwork), faceplateLayer? (the panel's outline, default faceplate), kicadLayer? (default F.SilkS), ppi? (the resolution the artwork is read at, default 2000), threshold? (percent, default 50: darker is ink), invert? (default false; true: the light art is the ink), name? (the footprint's, default the file's)} write a layer's artwork as a KiCad footprint for a faceplate PCB: filled polygons of what the layer draws darker than the threshold (as a high-resolution image of it converted with KiCad's Image Converter: white art knocks out what is under it), or with invert what it draws lighter (white art is the ink, dark and coloured art knocks it out, and where the layer draws nothing there is none), and the faceplate layer's closed shapes as Edge.Cuts outlines; mm from the first artboard's centre, y down, as positions.export → {path, name, layer, kicadLayer, ppi, invert, polygons, points, outlines, outline: the largest's {x, y, w, h} mm|null, warnings}",
         has_doc,
         export
     )]

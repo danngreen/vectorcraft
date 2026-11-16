@@ -1,6 +1,6 @@
 //! File › Export › Export Faceplate…: the artwork layer as a KiCad footprint (`faceplate.export`):
-//! the footprint file, the artwork's and the faceplate outline's layers, and the resolution the
-//! artwork is read at.
+//! the footprint file, the artwork's and the faceplate outline's layers, the resolution the
+//! artwork is read at, and whether its light art is the ink (Invert Artwork).
 
 use std::path::Path;
 
@@ -26,7 +26,7 @@ pub(crate) fn fields(app: &VectorcraftApp) -> Value {
 
 /// The command params of the dialog's fields.
 fn params(d: &Dialog) -> Value {
-    let mut p = json!({ "path": d.str("path"), "layer": d.str("layer"), "faceplateLayer": d.str("faceplateLayer") });
+    let mut p = json!({ "path": d.str("path"), "layer": d.str("layer"), "faceplateLayer": d.str("faceplateLayer"), "invert": d.bool("invert") });
     if let Ok(ppi) = d.str("ppi").trim().parse::<f64>() {
         p["ppi"] = json!(ppi);
     }
@@ -73,6 +73,9 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
             form::field(ui, d, key, label);
         }
     });
+    ui.add_space(6.0);
+    form::check(ui, d, "invert", "Invert Artwork");
+    widgets::dim_label(ui, tl!("The light areas are the silkscreen: white art prints, and dark or coloured art doesn't."));
     false
 }
 

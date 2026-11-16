@@ -1,6 +1,8 @@
 //! Saved Selections panel → Export Positions… / Import Positions…: the CSV file, the layers and
 //! the Library (`positions.settings`: the document's, else the preferences'), and, for an import,
 //! the report of what it will change (`positions.check`) before OK applies it in one undo step.
+//! Use Relative Path has the document keep the file's path from its own folder, so the document
+//! and its CSV can move together (another checkout of their repository).
 //! When the file both removes and adds controls, Renamed Items… pairs them up as renames.
 
 use std::path::Path;
@@ -20,7 +22,8 @@ pub const RENAMES: &str = "positionsRenames";
 const SETTINGS: [(&str, &str); 4] =
     [("anchorLayer", "Position Layer"), ("typeLayer", "Type Layer"), ("outlineLayer", "PCB Outline Layer"), ("library", "Type Library")];
 
-/// The fields a dialog opens with: the CSV the document last used (or none) and its settings.
+/// The fields a dialog opens with: the CSV the document last used (or none), whether it keeps
+/// that path relative to its folder, and its settings.
 pub(crate) fn fields(app: &VectorcraftApp) -> Value {
     let mut fields = vectorcraft_engine::cmd::positions::current_settings(&app.session, &json!({})).unwrap_or_else(|_| json!({}));
     if fields.get("path").is_none_or(Value::is_null) {
@@ -92,6 +95,7 @@ fn body(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) -> bool {
     );
     ui.add_space(8.0);
     file_row(app, ui, d, &t);
+    relative_row(app, ui, d);
     ui.add_space(6.0);
     egui::Grid::new("positions-settings").num_columns(2).spacing([10.0, 6.0]).show(ui, |ui| {
         for (key, label) in SETTINGS {
@@ -136,6 +140,25 @@ fn file_row(app: &mut VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog, t: &Tok
             }
         }
     });
+}
+
+/// Use Relative Path, and while it is on, the path the document will keep (or why it can't).
+fn relative_row(app: &VectorcraftApp, ui: &mut egui::Ui, d: &mut Dialog) {
+    form::check(ui, d, "relative", "Use Relative Path");
+    if !d.bool("relative") {
+        return;
+    }
+    let path = d.str("path");
+    let hint = if app.session.active().is_none_or(|st| st.path.is_none()) {
+        tl!("Save the document first: the path is kept from its folder.").to_string()
+    } else if path.is_empty() {
+        tl!("The document keeps the file's path from its own folder, so the two can move together.").to_string()
+    } else if let Some(kept) = vectorcraft_engine::cmd::positions::relative_to_document(&app.session, &path) {
+        crate::i18n::fmt(tl!("The document keeps it as {path}, from its own folder."), &[("path", &kept)])
+    } else {
+        tl!("The file is on another drive than the document: its path can't be relative.").to_string()
+    };
+    widgets::dim_label(ui, &hint);
 }
 
 /// Pick the CSV: an existing one to import, or where to export.
@@ -227,7 +250,10 @@ fn report(ui: &mut egui::Ui, d: &Dialog, t: &Tokens) {
 
 fn confirm(app: &mut VectorcraftApp, d: &Dialog) -> DialogResult {
     let id = if import(d) { "positions.import" } else { "positions.export" };
-    let r = super::run_and_close(app, id, params(d))?;
+    // How the document keeps the path is no part of the check, so it isn't in `params`.
+    let mut p = params(d);
+    p["relative"] = json!(d.bool("relative"));
+    let r = super::run_and_close(app, id, p)?;
     let file = Path::new(&d.str("path")).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
     let message = if import(d) {
         let count = r["changes"].as_u64().unwrap_or(0).to_string();
@@ -430,6 +456,60 @@ mod tests {
         std::fs::remove_dir_all(&dir).ok();
     }
 
+    /// Use Relative Path says how the document will keep the file (or that it must be saved
+    /// first), and Export then keeps the path from the document's folder; the dialog reopens on
+    /// the file itself with the box still checked.
+    #[test]
+    fn use_relative_path_keeps_the_file_from_the_documents_folder() {
+        let mut app = VectorcraftApp::new(Session::new(), Default::default());
+        app.run("file.new", json!({"width": 100.0 * MM, "height": 60.0 * MM})).unwrap();
+        let dir = std::env::temp_dir().join(format!("vc-positions-ui-relative-{}", std::process::id()));
+        for folder in ["art", "pcb"] {
+            std::fs::create_dir_all(dir.join(folder)).unwrap();
+        }
+        let path = dir.join("pcb/panel.csv").to_string_lossy().to_string();
+        let ctx = egui::Context::default();
+        crate::theme::install_fonts(&ctx);
+        let open = |app: &mut VectorcraftApp, relative: Option<bool>| {
+            super::open(app, false);
+            let d = app.ui.dialog.as_mut().unwrap();
+            d.fields.insert("path".into(), json!(path));
+            if let Some(relative) = relative {
+                d.fields.insert("relative".into(), json!(relative));
+            }
+        };
+
+        // The dialog is laid out in its first frame and drawn from the second.
+        let shown = |app: &mut VectorcraftApp| {
+            frame(app, &ctx);
+            frame(app, &ctx)
+        };
+        open(&mut app, None);
+        let shapes = shown(&mut app);
+        assert!(shows(&shapes, "Use Relative Path") && !shows(&shapes, "from its own folder"), "off until chosen, with no hint");
+        // Not saved yet: the dialog says so, and Export refuses without writing the file.
+        open(&mut app, Some(true));
+        assert!(shows(&shown(&mut app), "Save the document first"));
+        assert!(crate::dialogs::confirm(&mut app).is_err() && !std::path::Path::new(&path).exists());
+
+        app.session.execute("file.saveAs", &json!({"path": dir.join("art/panel.vectorcraft").to_string_lossy()})).unwrap();
+        open(&mut app, Some(true));
+        assert!(shows(&shown(&mut app), "The document keeps it as ../pcb/panel.csv, from its own folder."));
+        crate::dialogs::confirm(&mut app).unwrap();
+        assert!(std::path::Path::new(&path).exists());
+        let kept = serde_json::Value::Object(app.session.doc().unwrap().doc.positions.clone());
+        assert_eq!(kept, json!({"path": "../pcb/panel.csv", "relative": true}));
+        super::open(&mut app, false);
+        let d = app.ui.dialog.as_ref().unwrap();
+        assert!(d.bool("relative") && std::fs::canonicalize(d.str("path")).unwrap() == std::fs::canonicalize(&path).unwrap());
+        // Unchecked, the next export keeps the path as it is.
+        app.ui.dialog.as_mut().unwrap().fields.insert("relative".into(), json!(false));
+        crate::dialogs::confirm(&mut app).unwrap();
+        let kept = app.session.doc().unwrap().doc.positions.clone();
+        assert!(kept.get("relative").is_none() && std::path::Path::new(kept["path"].as_str().unwrap()).is_absolute(), "{kept:?}");
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
     /// A file that drops Jack 2 and Jack 3 and adds Out 1 where Jack 2 was and Out 2 elsewhere:
     /// Jack 2 => Out 1 is paired by position; Renamed Items… unpairs it with << and pairs Jack 3
     /// => Out 2 with >>, and the import renames Jack 3, keeping its artwork.
@@ -574,12 +654,18 @@ mod tests {
              Jack 1,JackMono,-30.000,5.000,,\nJack 3,JackStereo,30.000,10.000,,\nKnob 1,Pot9mm,2.000,-5.000,,\n",
         )
         .unwrap();
-        for (import, renames, file) in
-            [(false, false, "positions-export.png"), (true, false, "positions-import.png"), (true, true, "positions-renames.png")]
-        {
+        std::fs::create_dir_all(directory.join("art")).unwrap();
+        app.session.execute("file.saveAs", &json!({"path": directory.join("art/panel.vectorcraft").to_string_lossy()})).unwrap();
+        for (import, renames, relative, file) in [
+            (false, false, false, "positions-export.png"),
+            (false, false, true, "positions-export-relative.png"),
+            (true, false, false, "positions-import.png"),
+            (true, true, false, "positions-renames.png"),
+        ] {
             super::open(&mut app, import);
             let d = app.ui.dialog.as_mut().unwrap();
             d.fields.insert("path".into(), json!(path));
+            d.fields.insert("relative".into(), json!(relative));
             d.fields.insert("library".into(), json!("Types"));
             let mut h = egui_kittest::Harness::builder().with_size(egui::vec2(1280.0, 800.0)).wgpu().build_ui_state(
                 |ui, app: &mut VectorcraftApp| {

@@ -278,6 +278,58 @@ fn settings_come_from_the_params_else_the_document_else_the_preferences() {
 }
 
 #[test]
+fn a_relative_csv_path_is_kept_from_the_documents_folder_and_follows_the_document() {
+    let mut p = Panel::with_controls();
+    let dir = std::env::temp_dir().join(format!("vc-positions-relative-{}", std::process::id()));
+    std::fs::remove_dir_all(&dir).ok();
+    let at = |root: &str, file: &str| dir.join(root).join(file).to_string_lossy().to_string();
+    for folder in ["a/art", "a/pcb"] {
+        std::fs::create_dir_all(dir.join(folder)).unwrap();
+    }
+    let (doc, csv) = (at("a", "art/panel.vectorcraft"), at("a", "pcb/panel.csv"));
+    let kept = |p: &Panel| Value::Object(p.s.doc().unwrap().doc.positions.clone());
+    // A document with no file has no folder to keep the path from: nothing is written.
+    let e = p.s.execute("positions.export", &json!({"path": csv, "relative": true})).unwrap_err().to_string();
+    assert!(e.contains("`relative` needs the document saved first"), "{e}");
+    assert!(!std::path::Path::new(&csv).exists() && kept(&p) == json!({}));
+    let e = p.s.execute("positions.export", &json!({"path": csv, "relative": "yes"})).unwrap_err().to_string();
+    assert!(e.contains("`relative` must be true or false"), "{e}");
+
+    p.s.execute("file.saveAs", &json!({"path": doc})).unwrap();
+    let r = p.s.execute("positions.export", &json!({"path": csv, "relative": true})).unwrap();
+    assert_eq!((r["path"].as_str(), &r["relative"]), (Some(csv.as_str()), &json!(true)));
+    assert_eq!(std::fs::read_to_string(&csv).unwrap(), EXPORTED);
+    assert_eq!(kept(&p), json!({"path": "../pcb/panel.csv", "relative": true}));
+    // The settings give the file itself, and the next export keeps the path the same way.
+    let same_file = |a: &Value, b: &str| std::fs::canonicalize(a.as_str().unwrap()).unwrap() == std::fs::canonicalize(b).unwrap();
+    let r = p.s.execute("positions.settings", &json!({})).unwrap();
+    assert!(same_file(&r["path"], &csv) && r["relative"] == json!(true), "{r}");
+    p.s.execute("positions.export", &json!({"path": at("a", "art/panel.csv")})).unwrap();
+    assert_eq!(kept(&p), json!({"path": "panel.csv", "relative": true}));
+    p.s.execute("positions.export", &json!({"path": csv})).unwrap();
+    p.s.execute("file.saveAs", &json!({"path": doc})).unwrap();
+
+    // Moved with its CSV (another checkout), the document finds the file where it is now.
+    std::fs::rename(dir.join("a"), dir.join("b")).unwrap();
+    let moved = at("b", "pcb/panel.csv");
+    p.s.execute("document.open", &json!({"path": at("b", "art/panel.vectorcraft")})).unwrap();
+    assert_eq!(kept(&p), json!({"path": "../pcb/panel.csv", "relative": true}));
+    let r = p.s.execute("positions.settings", &json!({})).unwrap();
+    assert!(same_file(&r["path"], &moved), "{r}");
+    std::fs::write(&moved, EXPORTED.replace("Jack 2,JackStereo,30.000", "Jack 2,JackStereo,31.000")).unwrap();
+    assert_eq!(p.s.execute("positions.check", &json!({})).unwrap()["changes"], json!(1));
+    assert_eq!(p.s.execute("positions.import", &json!({})).unwrap()["changes"], json!(1));
+    assert_eq!(kept(&p), json!({"path": "../pcb/panel.csv", "relative": true}), "an import keeps it relative");
+
+    // Not relative: the path as given, as before.
+    let r = p.s.execute("positions.export", &json!({"path": moved, "relative": false})).unwrap();
+    assert_eq!(r["relative"], json!(false));
+    assert_eq!(kept(&p), json!({"path": moved}));
+    assert_eq!(p.s.execute("positions.settings", &json!({})).unwrap()["relative"], json!(false));
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
 fn a_control_dropped_where_one_is_added_is_renamed_keeping_its_artwork() {
     let mut p = Panel::with_controls();
     let before = p.state();
