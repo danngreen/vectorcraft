@@ -952,9 +952,10 @@ pub(crate) fn dimmed(app: &VectorcraftApp, id: &str) -> Result<(String, Value), 
 
 /// Is `key` a command with no default shortcut that a key press can't run: no item of the menu
 /// bar runs it without params or with one set of params ([`menu_target`]), it opens no dialog when
-/// run without them (as the Variables panel's commands do), and it is a query, whose answer a key
-/// press drops (Select All Unused), a command of [`NEEDS_A_PARAM`], or a menu command whose params
-/// doc names a field a call must give (File › Document Setup › Units, `{units}`)?
+/// run without them (as the Variables panel's commands and Export/Import Positions… do), and it is
+/// a query, whose answer a key press drops (Select All Unused), a command of [`NEEDS_A_PARAM`], or
+/// a menu command whose params doc names a field a call must give (File › Document Setup › Units,
+/// `{units}`)?
 pub(crate) fn needs_a_value(key: &str) -> bool {
     static KEYS: OnceLock<HashSet<&'static str>> = OnceLock::new();
     KEYS.get_or_init(|| {
@@ -964,6 +965,7 @@ pub(crate) fn needs_a_value(key: &str) -> bool {
                 c.shortcut.is_none()
                     && !a_menu_bar_item_runs(c.id, c.params)
                     && !crate::dialogs::variables::opens(c.id)
+                    && !crate::dialogs::positions::opens(c.id)
                     && (!c.journal || NEEDS_A_PARAM.contains(&c.id) || (!c.menu.is_empty() && names_a_required_field(c.params)))
             })
             .map(|c| c.id)

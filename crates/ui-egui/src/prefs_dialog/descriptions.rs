@@ -138,6 +138,10 @@ pub(crate) const DESCRIPTIONS: &[(&str, &str)] = &[
         "ctrlClickSelectsBehind",
         "With the Selection tool, Cmd/Ctrl-click selects the object under the selected one at the pointer; each further click goes one object deeper.",
     ),
+    (
+        "clickSelectsSavedSelections",
+        "With the Selection tool, a click on an object selects the whole saved selection that holds it, hidden and locked objects too; Cmd/Ctrl+Alt-click selects the object alone.",
+    ),
     ("zoomToSelection", "Zoom In and Zoom Out bring the center of the selection to the middle of the view."),
     (
         "moveLockedWithArtboard",
@@ -353,6 +357,19 @@ pub(crate) const DESCRIPTIONS: &[(&str, &str)] = &[
         "useCompression",
         "VectorCraft files and templates are saved compressed, so they are smaller, unless a save says otherwise; saves for versions that cannot open compressed files stay uncompressed.",
     ),
+    (
+        "positionsAnchorLayer",
+        "The layer whose art gives each control its position in Export Positions… and Import Positions…, unless the document keeps a layer of its own.",
+    ),
+    (
+        "positionsTypeLayer",
+        "The layer whose group names each control's type in Export Positions… and Import Positions…, unless the document keeps a layer of its own.",
+    ),
+    (
+        "positionsOutlineLayer",
+        "The layer whose largest rectangle Export Positions… writes as the PCB outline, unless the document keeps a layer of its own.",
+    ),
+    ("positionsLibrary", "The Library that Import Positions… places a control's type from, unless the document keeps a Library of its own."),
     // Clipboard Handling
     (
         "copyAsSvg",

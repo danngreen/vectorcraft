@@ -44,6 +44,11 @@ fn import(d: &Dialog) -> bool {
     d.kind == IMPORT
 }
 
+/// Whether command `id` opens one of these dialogs when it is run without params.
+pub fn opens(id: &str) -> bool {
+    matches!(id, "positions.export" | "positions.import")
+}
+
 /// The command params of the dialog's fields.
 fn params(d: &Dialog) -> Value {
     let mut p = json!({ "path": d.str("path") });

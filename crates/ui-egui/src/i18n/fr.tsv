@@ -3304,6 +3304,11 @@ digits	Malayalam	Malayalam
 	A click selects a filled object only on its path, not inside its fill.	Un clic sélectionne un objet rempli uniquement sur son tracé, pas à l’intérieur de son fond.
 	How near, in pixels, a point must come to an anchor or ruler guide for Snap to Point to snap it; with Smart Guides on, Smart Guides' Snapping Tolerance applies instead.	Distance en pixels à laquelle un point doit approcher un point d’ancrage ou un repère de règle pour que Magnétisme du point l’y aimante. Avec les repères commentés activés, leur tolérance du magnétisme s’applique à la place.
 	With the Selection tool, Cmd/Ctrl-click selects the object under the selected one at the pointer; each further click goes one object deeper.	Avec l’outil Sélection, Cmd/Ctrl + clic sélectionne l’objet situé sous l’objet sélectionné à l’emplacement du pointeur. Chaque clic suivant descend d’un objet.
+	With the Selection tool, a click on an object selects the whole saved selection that holds it, hidden and locked objects too; Cmd/Ctrl+Alt-click selects the object alone.	Avec l’outil Sélection, un clic sur un objet sélectionne toute la sélection enregistrée qui le contient, objets masqués et verrouillés compris. Cmd/Ctrl + Alt + clic sélectionne l’objet seul.
+	The layer whose art gives each control its position in Export Positions… and Import Positions…, unless the document keeps a layer of its own.	Le calque dont les objets donnent sa position à chaque commande dans Exporter les positions… et Importer les positions…, sauf si le document conserve son propre calque.
+	The layer whose group names each control's type in Export Positions… and Import Positions…, unless the document keeps a layer of its own.	Le calque dont le groupe nomme le type de chaque commande dans Exporter les positions… et Importer les positions…, sauf si le document conserve son propre calque.
+	The layer whose largest rectangle Export Positions… writes as the PCB outline, unless the document keeps a layer of its own.	Le calque dont le plus grand rectangle est écrit par Exporter les positions… comme contour du circuit, sauf si le document conserve son propre calque.
+	The Library that Import Positions… places a control's type from, unless the document keeps a Library of its own.	La bibliothèque depuis laquelle Importer les positions… place le type d’une commande, sauf si le document conserve sa propre bibliothèque.
 	Zoom In and Zoom Out bring the center of the selection to the middle of the view.	Zoom avant et Zoom arrière amènent le centre de la sélection au milieu de la vue.
 	Locked and hidden artwork inside an artboard moves, scales and is copied with the artboard, as the other artwork does.	Les illustrations verrouillées et masquées d’un plan de travail sont déplacées, mises à l’échelle et copiées avec lui, comme les autres illustrations.
 	The size of anchor points and direction handle ends on the canvas; larger anchors can also be picked from farther away.	Taille des points d’ancrage et des extrémités des poignées de direction sur la zone de travail. Les points d’ancrage plus grands se saisissent aussi de plus loin.
@@ -4121,7 +4126,7 @@ digits	Malayalam	Malayalam
 	Create New Library…	Créer une bibliothèque…
 	Rename Library…	Renommer la bibliothèque…
 	Delete the library “{name}”?	Supprimer la bibliothèque « {name} » ?
-	Replace the library “{name}”?	Remplacer la bibliothèque « {name} » ?
+	Replace the library “{name}”?	Remplacer la bibliothèque « {name} » ?
 	A library with this name already exists. Replacing it swaps its contents for the file's.	Une bibliothèque de ce nom existe déjà. La remplacer lui donne le contenu du fichier.
 	Add as New	Ajouter comme nouvelle
 	Drag art or swatches here, or use + to add the selection's colors and text styles.	Faites glisser ici des illustrations ou des nuances, ou utilisez + pour ajouter les couleurs et les styles de texte de la sélection.
@@ -4804,12 +4809,12 @@ axis	Both	Les deux
 @msg	give `path` or `csv` (or export once, so the document knows its file)	indiquez `path` ou `csv` (ou exportez une fois, pour que le document connaisse son fichier)
 @msg	more than {MAX_ROWS} rows	plus de {MAX_ROWS} lignes
 @msg	the CSV is larger than {MAX_CSV_BYTES} bytes	le CSV dépasse {MAX_CSV_BYTES} octets
-@msg	the CSV isn't UTF-8	le CSV n'est pas en UTF-8
+@msg	the CSV isn't UTF-8	le CSV n’est pas en UTF-8
 @msg	the CSV would be larger than {MAX_CSV_BYTES} bytes	le CSV dépasserait {MAX_CSV_BYTES} octets
-@msg	the document has no layer named {_1}, where the Library's groups go	le document n'a pas de calque nommé {_1}, où vont les groupes de la bibliothèque
+@msg	the document has no layer named {_1}, where the Library's groups go	le document n’a pas de calque nommé {_1}, où vont les groupes de la bibliothèque
 @msg	the first line must be {_1}	la première ligne doit être {_1}
-@msg	missing to: a place from 0	to manquant : une position à partir de 0
-@msg	unknown mode `{m}`: set, add or remove	mode inconnu `{m}` : set, add ou remove
+@msg	missing to: a place from 0	to manquant : une position à partir de 0
+@msg	unknown mode `{m}`: set, add or remove	mode inconnu `{m}` : set, add ou remove
 @msg	select some type first	sélectionnez d’abord du texte
 @msg	kerning must be a number, "auto", or "optical"	kerning doit être un nombre, « auto » ou « optical »
 @msg	the selection has no gradient fill	la sélection n’a pas de dégradé de fond
@@ -10830,7 +10835,7 @@ file-filter	Applications	Applications
 	Imported {count} changes from {file} (Edit › Undo reverses them)	{count} modifications importées depuis {file} (Édition › Annuler les annule)
 	Moves, retypes, adds and removes controls (saved selections) to match a positions CSV, in one undo step.	Déplace, change le type, ajoute et supprime les commandes (sélections enregistrées) d’après un fichier CSV de positions, en une seule étape.
 	No file chosen	Aucun fichier choisi
-	Nothing to change: the controls match the file.	Rien à changer : les commandes correspondent au fichier.
+	Nothing to change: the controls match the file.	Rien à changer : les commandes correspondent au fichier.
 	Warnings ({count})	Avertissements ({count})
 	Will be added ({count})	Seront ajoutées ({count})
 	Will be removed ({count})	Seront supprimées ({count})

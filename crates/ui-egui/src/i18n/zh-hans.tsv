@@ -3206,6 +3206,11 @@ digits	Malayalam	马拉雅拉姆数字
 	A click selects a filled object only on its path, not inside its fill.	点击只在填充对象的路径上选中它，而不是在填充内部。
 	How near, in pixels, a point must come to an anchor or ruler guide for Snap to Point to snap it; with Smart Guides on, Smart Guides' Snapping Tolerance applies instead.	点需距离锚点或标尺参考线多少像素以内，对齐点才会将其对齐；打开智能参考线时改用智能参考线的吸附容差。
 	With the Selection tool, Cmd/Ctrl-click selects the object under the selected one at the pointer; each further click goes one object deeper.	使用选择工具时，按住 Cmd/Ctrl 点击会选中指针处所选对象下方的对象；每再点击一次就再往下一个对象。
+	With the Selection tool, a click on an object selects the whole saved selection that holds it, hidden and locked objects too; Cmd/Ctrl+Alt-click selects the object alone.	使用选择工具时，点击对象会选中包含它的整个已保存的选区，包括隐藏和锁定的对象；按住 Cmd/Ctrl+Alt 点击则只选中该对象。
+	The layer whose art gives each control its position in Export Positions… and Import Positions…, unless the document keeps a layer of its own.	“导出位置…”和“导入位置…”用其中对象确定每个控件位置的图层，除非文档保存了自己的图层。
+	The layer whose group names each control's type in Export Positions… and Import Positions…, unless the document keeps a layer of its own.	“导出位置…”和“导入位置…”用其中编组的名称作为每个控件类型的图层，除非文档保存了自己的图层。
+	The layer whose largest rectangle Export Positions… writes as the PCB outline, unless the document keeps a layer of its own.	“导出位置…”把其中最大的矩形写为电路板外形的图层，除非文档保存了自己的图层。
+	The Library that Import Positions… places a control's type from, unless the document keeps a Library of its own.	“导入位置…”放置控件类型时所用的库，除非文档保存了自己的库。
 	Zoom In and Zoom Out bring the center of the selection to the middle of the view.	放大和缩小会将所选内容的中心移到视图中央。
 	Locked and hidden artwork inside an artboard moves, scales and is copied with the artboard, as the other artwork does.	画板内锁定和隐藏的图稿会像其他图稿一样随画板移动、缩放和复制。
 	The size of anchor points and direction handle ends on the canvas; larger anchors can also be picked from farther away.	画布上锚点和方向手柄端点的大小；锚点越大，也能从越远处抓取。
